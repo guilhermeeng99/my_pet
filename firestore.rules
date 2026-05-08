@@ -1,0 +1,169 @@
+rules_version = '2';
+
+// Regras de segurança Firestore para my_pet.
+//
+// Modelo: a unidade de propriedade é a HOUSEHOLD. Um usuário só pode
+// acessar dados se for membro da household que dona o documento.
+//
+// Deploy:  firebase deploy --only firestore:rules
+//
+// Convenções:
+// - Apenas o próprio usuário lê/escreve users/{uid} (exceto leitura limitada por membros da household — ver abaixo)
+// - Apenas membros da household leem/escrevem households/{id}/**
+// - Apenas o owner pode mudar memberIds, ownerId, deletar a household ou hard-delete pets
+// - Tokens FCM nunca são lidos por outros usuários (apenas Cloud Functions com service account)
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── helpers ─────────────────────────────────────────────────────
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function uid() {
+      return request.auth.uid;
+    }
+
+    function householdDoc(hid) {
+      return get(/databases/$(database)/documents/households/$(hid));
+    }
+
+    function isMember(hid) {
+      return isSignedIn() &&
+             exists(/databases/$(database)/documents/households/$(hid)) &&
+             uid() in householdDoc(hid).data.memberIds;
+    }
+
+    function isOwner(hid) {
+      return isSignedIn() &&
+             exists(/databases/$(database)/documents/households/$(hid)) &&
+             householdDoc(hid).data.ownerId == uid();
+    }
+
+    function isSelf(userId) {
+      return isSignedIn() && uid() == userId;
+    }
+
+    // Imutabilidade: garante que campos críticos não mudaram entre estado antigo e novo.
+    function fieldUnchanged(field) {
+      return request.resource.data[field] == resource.data[field];
+    }
+
+    // ─── users ───────────────────────────────────────────────────────
+    // Cada usuário lê e escreve seu próprio doc.
+    // Membros da mesma household podem LER perfis públicos básicos uns dos outros
+    // (displayName, email, photoUrl, householdId) — necessário para listar membros.
+    match /users/{userId} {
+      allow read: if isSelf(userId)
+                  || (isSignedIn()
+                      && resource.data.householdId != null
+                      && isMember(resource.data.householdId));
+
+      // Criação: o próprio usuário, com householdId nulo ou apontando para uma household
+      // que ele já é membro (caso de aceitar invite no mesmo write).
+      allow create: if isSelf(userId)
+                    && request.resource.data.uid == userId
+                    && (request.resource.data.householdId == null
+                        || isMember(request.resource.data.householdId));
+
+      // Update: o próprio usuário, sem trocar uid.
+      allow update: if isSelf(userId)
+                    && fieldUnchanged('uid');
+
+      // Delete só pelo próprio (não usado pelo app no MVP — manter restrito).
+      allow delete: if isSelf(userId);
+
+      // Tokens FCM: apenas o próprio usuário grava; ninguém mais lê.
+      // (Cloud Functions com service account contornam essas regras.)
+      match /fcmTokens/{tokenId} {
+        allow read, write: if isSelf(userId);
+      }
+    }
+
+    // ─── households ──────────────────────────────────────────────────
+    match /households/{hid} {
+      allow read: if isMember(hid);
+
+      // Criação: usuário cria sua própria household, sendo owner e único member.
+      allow create: if isSignedIn()
+                    && request.resource.data.ownerId == uid()
+                    && request.resource.data.memberIds is list
+                    && uid() in request.resource.data.memberIds
+                    && request.resource.data.memberIds.size() == 1;
+
+      // Update: members podem mudar nome; ownerId e memberIds só pelo owner.
+      allow update: if isMember(hid)
+                    && fieldUnchanged('ownerId')
+                    && fieldUnchanged('memberIds')
+                    && fieldUnchanged('createdAt');
+      allow update: if isOwner(hid)
+                    && fieldUnchanged('createdAt');
+
+      // Delete só pelo owner e somente quando ele é o único membro.
+      allow delete: if isOwner(hid)
+                    && resource.data.memberIds.size() == 1;
+
+      // ─── invites ───────────────────────────────────────────────────
+      // Members veem invites da sua household; só owner cria/atualiza/deleta.
+      match /invites/{inviteId} {
+        allow read: if isMember(hid);
+        allow create, update, delete: if isOwner(hid);
+      }
+
+      // ─── pets ──────────────────────────────────────────────────────
+      match /pets/{petId} {
+        allow read: if isMember(hid);
+        allow create: if isMember(hid)
+                      && request.resource.data.householdId == hid
+                      && request.resource.data.createdBy == uid();
+        allow update: if isMember(hid)
+                      && fieldUnchanged('householdId');
+        // Soft-delete (archive) é update; hard-delete só pelo owner.
+        allow delete: if isOwner(hid);
+
+        // ─── vaccinations ────────────────────────────────────────────
+        match /vaccinations/{vaccinationId} {
+          allow read: if isMember(hid);
+          allow create, update, delete: if isMember(hid);
+        }
+
+        // ─── health_events ───────────────────────────────────────────
+        match /health_events/{eventId} {
+          allow read: if isMember(hid);
+          allow create, update, delete: if isMember(hid);
+        }
+
+        // ─── weights ─────────────────────────────────────────────────
+        match /weights/{weightId} {
+          allow read: if isMember(hid);
+          allow create, update, delete: if isMember(hid);
+        }
+
+        // ─── photos (gallery) ────────────────────────────────────────
+        match /photos/{photoId} {
+          allow read: if isMember(hid);
+          allow create, update, delete: if isMember(hid);
+        }
+      }
+
+      // ─── reminders ─────────────────────────────────────────────────
+      match /reminders/{reminderId} {
+        allow read: if isMember(hid);
+        allow create, update, delete: if isMember(hid);
+      }
+
+      // ─── documents ─────────────────────────────────────────────────
+      match /documents/{docId} {
+        allow read: if isMember(hid);
+        allow create, update, delete: if isMember(hid);
+      }
+    }
+
+    // ─── default deny ────────────────────────────────────────────────
+    // Qualquer caminho não casado acima é bloqueado.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

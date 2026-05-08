@@ -1,0 +1,71 @@
+rules_version = '2';
+
+// Regras de segurança Firebase Storage para my_pet.
+//
+// Estrutura:
+//   households/{householdId}/pets/{petId}/profile.jpg
+//   households/{householdId}/pets/{petId}/gallery/{photoId}.jpg
+//   households/{householdId}/pets/{petId}/health/{eventId}/{filename}
+//   households/{householdId}/documents/{documentId}.{ext}
+//
+// Apenas membros da household podem ler/escrever os arquivos da sua household.
+//
+// Limites de tamanho aplicados aqui também (defesa em profundidade).
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function uid() {
+      return request.auth.uid;
+    }
+
+    // Lê o doc da household no Firestore para validar membership.
+    function isMember(hid) {
+      return isSignedIn() &&
+             firestore.exists(/databases/(default)/documents/households/$(hid)) &&
+             uid() in firestore.get(/databases/(default)/documents/households/$(hid)).data.memberIds;
+    }
+
+    // Tudo que está dentro de households/{hid}/...
+    match /households/{hid}/{allPaths=**} {
+      allow read: if isMember(hid);
+    }
+
+    // Foto de perfil do pet — máx 2MB, jpeg/png
+    match /households/{hid}/pets/{petId}/profile.jpg {
+      allow write: if isMember(hid)
+                   && request.resource.size < 2 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
+    }
+
+    // Galeria — máx 5MB por foto
+    match /households/{hid}/pets/{petId}/gallery/{photoId} {
+      allow write: if isMember(hid)
+                   && request.resource.size < 5 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
+    }
+
+    // Anexos de eventos de saúde — máx 10MB por arquivo
+    match /households/{hid}/pets/{petId}/health/{eventId}/{filename} {
+      allow write: if isMember(hid)
+                   && request.resource.size < 10 * 1024 * 1024;
+    }
+
+    // Documentos — máx 20MB
+    match /households/{hid}/documents/{documentId} {
+      allow write: if isMember(hid)
+                   && request.resource.size < 20 * 1024 * 1024
+                   && (request.resource.contentType.matches('image/.*')
+                       || request.resource.contentType == 'application/pdf');
+    }
+
+    // Default deny.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,89 @@
+name: my_pet
+description: "A pet management app for the complete pet parent. Pets, vaccinations, health, household sharing — all in one place."
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.11.5
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # State management
+  flutter_bloc: ^9.1.1
+  equatable: ^2.0.8
+
+  # Functional / errors
+  dartz: ^0.10.1
+
+  # DI
+  get_it: ^9.2.1
+
+  # Routing
+  go_router: ^17.2.3
+
+  # Local storage
+  hive_ce: ^2.19.3
+  hive_ce_flutter: ^2.3.4
+  path_provider: ^2.1.5
+  shared_preferences: ^2.5.5
+
+  # Firebase
+  firebase_core: ^4.7.0
+  firebase_auth: ^6.4.0
+  cloud_firestore: ^6.3.0
+  firebase_storage: ^13.3.0
+  firebase_messaging: ^16.2.0
+  google_sign_in: ^7.2.0
+
+  # i18n
+  slang: ^4.14.0
+  slang_flutter: ^4.14.0
+
+  # UI / icons
+  google_fonts: ^8.1.0
+  phosphor_flutter: ^2.1.0
+  cached_network_image: ^3.4.1
+
+  # Notifications
+  flutter_local_notifications: ^21.0.0
+  timezone: ^0.11.0
+  permission_handler: ^12.0.1
+
+  # Utils
+  uuid: ^4.5.3
+  intl: ^0.20.2
+  image_picker: ^1.2.2
+  image: ^4.8.0
+  connectivity_plus: ^7.1.1
+
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  bloc_test: ^10.0.0
+  mocktail: ^1.0.5
+
+  # Codegen
+  build_runner: ^2.4.13
+  hive_ce_generator: ^1.11.1
+  # NOTE: slang is generated via `dart run slang` (see slang.yaml).
+  # We deliberately do not use slang_build_runner — it conflicts with the
+  # standalone CLI and trips on the synthetic lib/$lib$ input.
+
+  # Linting
+  very_good_analysis: ^10.2.0
+
+flutter:
+  uses-material-design: true
+  generate: true
+
+  assets:
+    - assets/illustrations/
+    - assets/icons/
+
+# slang configuration lives in slang.yaml at the repo root.

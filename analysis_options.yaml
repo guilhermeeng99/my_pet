@@ -1,0 +1,20 @@
+include: package:very_good_analysis/analysis_options.yaml
+
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "**/*.config.dart"
+    - "lib/gen/**"
+    - "lib/firebase_options.dart"
+
+  errors:
+    invalid_annotation_target: ignore
+
+linter:
+  rules:
+    # Project-specific tweaks layered on top of very_good_analysis.
+    # Add rationale in CLAUDE.md when overriding.
+    public_member_api_docs: false
+    sort_pub_dependencies: false
+    lines_longer_than_80_chars: false

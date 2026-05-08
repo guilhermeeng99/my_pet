@@ -1,0 +1,42 @@
+{
+  "app": {
+    "name": "my_pet",
+    "tagline": "Everything for your pets, in one place"
+  },
+  "common": {
+    "continue": "Continue",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "done": "Done",
+    "loading": "Loading...",
+    "retry": "Try again"
+  },
+  "auth": {
+    "signInTitle": "Welcome",
+    "signInSubtitle": "Sign in to start caring for your pets",
+    "signInWithGoogle": "Continue with Google",
+    "signOut": "Sign out",
+    "errors": {
+      "network": "We couldn't reach the server. Check your connection and try again.",
+      "cancelled": "Sign-in was cancelled.",
+      "unknown": "Something went wrong. Please try again."
+    }
+  },
+  "pets": {
+    "homeTitle": "My pets",
+    "addPet": "Add pet",
+    "empty": {
+      "title": "No pets yet",
+      "subtitle": "Add your first companion to start tracking their care."
+    }
+  },
+  "household": {
+    "settingsTitle": "Family",
+    "inviteMember": "Invite member",
+    "memberRoleOwner": "Admin",
+    "memberRoleMember": "Member"
+  }
+}
