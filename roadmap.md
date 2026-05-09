@@ -49,12 +49,12 @@ Tracker of what is done, in progress and planned. Use the checkboxes to mark pro
 - [ ] Settings placeholder screens (members come in Phase 3)
 
 ### 🐾 Pets — [`specs/pets.md`](specs/pets.md)
-- [ ] Create pet (name, species, sex, birth date)
-- [ ] Edit pet
-- [ ] Pet list (home)
+- [x] Create pet (name, species, sex, birth date)
+- [x] Edit pet
+- [x] Pet list (home)
 - [ ] Profile photo (upload via Firebase Storage)
-- [ ] Soft-delete (archive pet)
-- [ ] Age computed from birth date
+- [x] Soft-delete (archive pet)
+- [x] Age computed from birth date
 
 ### 💉 Vaccinations — [`specs/vaccinations.md`](specs/vaccinations.md)
 - [ ] Register applied vaccine (name, date, next due date)

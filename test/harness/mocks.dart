@@ -9,6 +9,8 @@ import 'package:my_pet/features/auth/data/datasources/user_profile_datasource.da
 import 'package:my_pet/features/auth/domain/repositories/auth_repository.dart';
 import 'package:my_pet/features/household/data/datasources/household_firestore_datasource.dart';
 import 'package:my_pet/features/household/domain/repositories/household_repository.dart';
+import 'package:my_pet/features/pets/data/datasources/pet_firestore_datasource.dart';
+import 'package:my_pet/features/pets/domain/repositories/pet_repository.dart';
 
 class MockFirebaseAuthDatasource extends Mock
     implements FirebaseAuthDatasource {}
@@ -21,3 +23,7 @@ class MockHouseholdFirestoreDatasource extends Mock
     implements HouseholdFirestoreDatasource {}
 
 class MockHouseholdRepository extends Mock implements HouseholdRepository {}
+
+class MockPetFirestoreDatasource extends Mock implements PetFirestoreDatasource {}
+
+class MockPetRepository extends Mock implements PetRepository {}

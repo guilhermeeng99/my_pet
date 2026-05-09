@@ -12,7 +12,12 @@
     "back": "Back",
     "done": "Done",
     "loading": "Loading...",
-    "retry": "Try again"
+    "retry": "Try again",
+    "required": "Required",
+    "optional": "Optional",
+    "yes": "Yes",
+    "no": "No",
+    "unknown": "Unknown"
   },
   "onboarding": {
     "welcomeTitle": "Welcome! Let's care for your pets together.",
@@ -35,6 +40,53 @@
     "empty": {
       "title": "No pets yet",
       "subtitle": "Add your first companion to start tracking their care."
+    },
+    "form": {
+      "createTitle": "Add a pet",
+      "editTitle": "Edit pet",
+      "name": "Name",
+      "namePlaceholder": "e.g. Mia",
+      "species": "Species",
+      "breed": "Breed",
+      "sex": "Sex",
+      "neutered": "Neutered/spayed",
+      "birthDate": "Birth date",
+      "adoptionDate": "Adoption date",
+      "color": "Color",
+      "microchipId": "Microchip number",
+      "notes": "Notes",
+      "save": "Save pet",
+      "selectDate": "Select date",
+      "errors": {
+        "nameRequired": "Pet name is required.",
+        "futureDate": "Date cannot be in the future.",
+        "saveFailed": "We couldn't save your pet. Try again."
+      }
+    },
+    "species": {
+      "cat": "Cat",
+      "dog": "Dog",
+      "bird": "Bird",
+      "rabbit": "Rabbit",
+      "other": "Other"
+    },
+    "sex": {
+      "male": "Male",
+      "female": "Female",
+      "unknown": "Unknown"
+    },
+    "actions": {
+      "archive": "Archive",
+      "unarchive": "Restore",
+      "archiveConfirmTitle": "Archive {petName}?",
+      "archiveConfirmMessage": "Archived pets are kept under Settings → Archived pets and can be restored anytime."
+    },
+    "detail": {
+      "ageYearsMonths": "{years}y {months}m",
+      "ageYears": "{years}y",
+      "ageMonths": "{months}m",
+      "ageDays": "{days}d",
+      "ageUnknown": "Age unknown"
     }
   },
   "household": {

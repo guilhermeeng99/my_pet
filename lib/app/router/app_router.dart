@@ -7,6 +7,9 @@ import 'package:my_pet/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:my_pet/features/auth/presentation/pages/login_page.dart';
 import 'package:my_pet/features/onboarding/presentation/splash_page.dart';
 import 'package:my_pet/features/onboarding/presentation/welcome_page.dart';
+import 'package:my_pet/features/pets/domain/entities/pet.dart';
+import 'package:my_pet/features/pets/presentation/pages/pet_detail_page.dart';
+import 'package:my_pet/features/pets/presentation/pages/pet_form_page.dart';
 import 'package:my_pet/features/pets/presentation/pages/pets_home_page.dart';
 
 /// Route paths kept as constants so deep links / navigation calls stay
@@ -17,6 +20,10 @@ abstract final class AppRoutes {
   static const String welcome = '/welcome';
   static const String login = '/login';
   static const String home = '/home';
+  static const String petCreate = '/home/new';
+  static const String petDetailBase = '/home/pet';
+  static const String petDetailPattern = '$petDetailBase/:petId';
+  static const String petEditPattern = '$petDetailBase/:petId/edit';
 }
 
 /// Builds the app router. Redirects on every auth state change so the user
@@ -66,6 +73,24 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
       GoRoute(
         path: AppRoutes.home,
         builder: (context, state) => const PetsHomePage(),
+        routes: [
+          GoRoute(
+            path: 'new',
+            builder: (context, state) => const PetFormPage(),
+          ),
+          GoRoute(
+            path: 'pet/:petId',
+            builder: (context, state) =>
+                PetDetailPage(petId: state.pathParameters['petId']!),
+            routes: [
+              GoRoute(
+                path: 'edit',
+                builder: (context, state) =>
+                    PetFormPage(existing: state.extra as Pet?),
+              ),
+            ],
+          ),
+        ],
       ),
     ],
   );

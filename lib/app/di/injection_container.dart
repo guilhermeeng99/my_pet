@@ -12,6 +12,11 @@ import 'package:my_pet/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:my_pet/features/household/data/datasources/household_firestore_datasource.dart';
 import 'package:my_pet/features/household/data/repositories/household_repository_impl.dart';
 import 'package:my_pet/features/household/domain/repositories/household_repository.dart';
+import 'package:my_pet/features/pets/data/datasources/pet_firestore_datasource.dart';
+import 'package:my_pet/features/pets/data/repositories/pet_repository_impl.dart';
+import 'package:my_pet/features/pets/domain/repositories/pet_repository.dart';
+import 'package:my_pet/features/pets/presentation/cubit/pet_form_cubit.dart';
+import 'package:my_pet/features/pets/presentation/cubit/pets_list_cubit.dart';
 
 /// Service locator. All implementations are registered here.
 ///
@@ -52,5 +57,19 @@ Future<void> configureDependencies() async {
     ..registerLazySingleton<AuthBloc>(
       () => AuthBloc(repository: sl(), householdRepository: sl()),
     )
+    // ── Pets feature ────────────────────────────────────────────────
+    ..registerLazySingleton<PetFirestoreDatasource>(
+      () => PetFirestoreDatasourceImpl(firestore: sl()),
+    )
+    ..registerLazySingleton<PetRepository>(
+      () => PetRepositoryImpl(datasource: sl()),
+    )
+    // List cubit is a singleton — keeps the active-pets stream alive
+    // across detail navigation (avoids re-fetching on pop).
+    ..registerLazySingleton<PetsListCubit>(
+      () => PetsListCubit(repository: sl()),
+    )
+    // Form cubit is per-form session.
+    ..registerFactory<PetFormCubit>(() => PetFormCubit(repository: sl()))
     ..registerSingleton<bool>(true, instanceName: '_diReady');
 }
