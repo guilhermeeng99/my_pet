@@ -1,30 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
-import 'package:my_pet/app/router/app_router.dart';
 import 'package:my_pet/app/theme/app_palette.dart';
 import 'package:my_pet/app/theme/app_spacing.dart';
+import 'package:my_pet/gen/strings.g.dart';
 
-/// First screen the user sees while the app finishes booting. In Phase 1
-/// it will branch on AuthState to either send the user to Login or Home.
-class SplashPage extends StatefulWidget {
+/// First screen the user sees while the auth state resolves. The router
+/// redirects to Login or Home as soon as `AuthBloc` emits — no manual
+/// navigation here.
+class SplashPage extends StatelessWidget {
   const SplashPage({super.key});
-
-  @override
-  State<SplashPage> createState() => _SplashPageState();
-}
-
-class _SplashPageState extends State<SplashPage> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // Phase 0: just route to Welcome. Phase 1 will branch on auth.
-      await Future<void>.delayed(const Duration(milliseconds: 600));
-      if (!mounted) return;
-      context.go(AppRoutes.welcome);
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,10 +32,10 @@ class _SplashPageState extends State<SplashPage> {
               ),
             ),
             const SizedBox(height: AppSpacing.lg),
-            Text('my_pet', style: theme.textTheme.headlineLarge),
+            Text(t.app.name, style: theme.textTheme.headlineLarge),
             const SizedBox(height: AppSpacing.xs),
             Text(
-              'Loading...',
+              t.common.loading,
               style: theme.textTheme.bodyMedium
                   ?.copyWith(color: context.palette.onSurfaceMuted),
             ),

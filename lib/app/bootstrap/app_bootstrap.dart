@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/widgets.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:hive_ce_flutter/adapters.dart';
 
 import 'package:my_pet/app/di/injection_container.dart';
@@ -9,13 +10,15 @@ import 'package:my_pet/firebase_options.dart';
 ///
 /// 1. Flutter binding so platform channels work.
 /// 2. Firebase init so Auth / Firestore / Storage are ready.
-/// 3. Hive init + open every box up front (cache feature code never
-///    lazy-opens — see CLAUDE.md "Local Storage").
-/// 4. Dependency injection wiring.
+/// 3. Google Sign-In init (required by google_sign_in 7.x before any
+///    `authenticate()` call).
+/// 4. Hive init + open every box up front.
+/// 5. Dependency injection wiring.
 abstract final class AppBootstrap {
   static Future<void> run() async {
     WidgetsFlutterBinding.ensureInitialized();
     await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+    await GoogleSignIn.instance.initialize();
     await Hive.initFlutter();
     await _openBoxes();
     await configureDependencies();

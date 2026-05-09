@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(taskkill *)",
+      "PowerShell(Get-CimInstance *)",
+      "PowerShell(Remove-Item *)",
+      "Bash(firebase --version)",
+      "Bash(flutterfire --version)",
+      "Bash(flutter --version)"
+    ]
+  }
+}

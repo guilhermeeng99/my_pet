@@ -14,6 +14,10 @@
     "loading": "Loading...",
     "retry": "Try again"
   },
+  "onboarding": {
+    "welcomeTitle": "Welcome! Let's care for your pets together.",
+    "welcomeSubtitle": "Track vaccinations, vet visits, weight and every memory, shared with your whole family."
+  },
   "auth": {
     "signInTitle": "Welcome",
     "signInSubtitle": "Sign in to start caring for your pets",

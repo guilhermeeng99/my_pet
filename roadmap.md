@@ -38,10 +38,10 @@ Tracker of what is done, in progress and planned. Use the checkboxes to mark pro
 > Goal: usable for real with **one** pet and **one** person.
 
 ### 🔐 Authentication — [`specs/auth.md`](specs/auth.md)
-- [ ] Google Sign-In (Firebase Auth)
-- [ ] Sign out
-- [ ] Global auth state (Bloc)
-- [ ] Network / cancellation error handling
+- [x] Google Sign-In (Firebase Auth)
+- [x] Sign out
+- [x] Global auth state (Bloc)
+- [x] Network / cancellation error handling
 
 ### 🏠 Household (account) — [`specs/household.md`](specs/household.md)
 - [ ] Auto-create household on first sign-in

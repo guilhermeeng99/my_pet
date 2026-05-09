@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
+import 'package:my_pet/app/router/app_router.dart';
 import 'package:my_pet/app/theme/app_palette.dart';
 import 'package:my_pet/app/theme/app_radii.dart';
 import 'package:my_pet/app/theme/app_spacing.dart';
+import 'package:my_pet/gen/strings.g.dart';
 
 /// Phase 0 placeholder welcome screen. Demonstrates that the design tokens
 /// render correctly: hero card, oversized headline, pill primary button.
@@ -39,24 +42,21 @@ class WelcomePage extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.xl),
               Text(
-                "Welcome! Let's care for your pets together.",
+                t.onboarding.welcomeTitle,
                 style: theme.textTheme.headlineLarge,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: AppSpacing.md),
               Text(
-                'Track vaccinations, vet visits, weight and every memory — '
-                'shared with your whole family.',
+                t.onboarding.welcomeSubtitle,
                 style: theme.textTheme.bodyLarge
                     ?.copyWith(color: palette.onSurfaceMuted),
                 textAlign: TextAlign.center,
               ),
               const Spacer(flex: 3),
               FilledButton(
-                onPressed: () {
-                  // Phase 1: trigger Google sign-in.
-                },
-                child: const Text('Continue'),
+                onPressed: () => context.go(AppRoutes.login),
+                child: Text(t.common.kContinue),
               ),
               const SizedBox(height: AppSpacing.md),
             ],
