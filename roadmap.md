@@ -27,9 +27,9 @@ Tracker of what is done, in progress and planned. Use the checkboxes to mark pro
 - [x] Splash + minimal onboarding (placeholder welcome)
 - [x] slang config + `i18n/en.i18n.json` base
 - [x] Smoke widget test for theme + welcome page
-- [ ] Run `flutter pub get` + `flutterfire configure` (manual; see SETUP.md)
-- [ ] Run `dart run slang` + `dart run build_runner build`
-- [ ] Basic CI on GitHub Actions (analyze + test)
+- [x] Run `flutter pub get` + `flutterfire configure` (manual; see SETUP.md)
+- [x] Run `dart run slang` + `dart run build_runner build`
+- [x] Basic CI on GitHub Actions (analyze + test)
 
 ---
 

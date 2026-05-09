@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  analyze-and-test:
+    name: Analyze + Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Stub firebase_options.dart
+        run: |
+          mkdir -p lib
+          cat > lib/firebase_options.dart <<'DART'
+          // CI stub. Real values are generated locally via flutterfire configure.
+          import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
+
+          class DefaultFirebaseOptions {
+            static FirebaseOptions get currentPlatform {
+              throw UnsupportedError('Firebase not configured in CI.');
+            }
+          }
+          DART
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate i18n
+        run: dart run slang
+
+      - name: Generate code (Hive adapters, etc.)
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test --coverage
+
+      - name: Upload coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage/lcov.info
+          if-no-files-found: ignore
