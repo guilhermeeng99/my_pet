@@ -17,6 +17,11 @@ import 'package:my_pet/features/pets/data/repositories/pet_repository_impl.dart'
 import 'package:my_pet/features/pets/domain/repositories/pet_repository.dart';
 import 'package:my_pet/features/pets/presentation/cubit/pet_form_cubit.dart';
 import 'package:my_pet/features/pets/presentation/cubit/pets_list_cubit.dart';
+import 'package:my_pet/features/vaccinations/data/datasources/vaccination_firestore_datasource.dart';
+import 'package:my_pet/features/vaccinations/data/repositories/vaccination_repository_impl.dart';
+import 'package:my_pet/features/vaccinations/domain/repositories/vaccination_repository.dart';
+import 'package:my_pet/features/vaccinations/presentation/cubit/vaccination_form_cubit.dart';
+import 'package:my_pet/features/vaccinations/presentation/cubit/vaccinations_list_cubit.dart';
 
 /// Service locator. All implementations are registered here.
 ///
@@ -71,5 +76,20 @@ Future<void> configureDependencies() async {
     )
     // Form cubit is per-form session.
     ..registerFactory<PetFormCubit>(() => PetFormCubit(repository: sl()))
+    // ── Vaccinations feature ────────────────────────────────────────
+    ..registerLazySingleton<VaccinationFirestoreDatasource>(
+      () => VaccinationFirestoreDatasourceImpl(firestore: sl()),
+    )
+    ..registerLazySingleton<VaccinationRepository>(
+      () => VaccinationRepositoryImpl(datasource: sl()),
+    )
+    // List cubit is per-pet session — created when entering the page,
+    // disposed by BlocProvider on pop.
+    ..registerFactory<VaccinationsListCubit>(
+      () => VaccinationsListCubit(repository: sl()),
+    )
+    ..registerFactory<VaccinationFormCubit>(
+      () => VaccinationFormCubit(repository: sl()),
+    )
     ..registerSingleton<bool>(true, instanceName: '_diReady');
 }

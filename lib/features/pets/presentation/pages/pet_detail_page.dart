@@ -13,6 +13,7 @@ import 'package:my_pet/features/pets/domain/repositories/pet_repository.dart';
 import 'package:my_pet/features/pets/presentation/cubit/pets_list_cubit.dart';
 import 'package:my_pet/features/pets/presentation/widgets/pet_avatar.dart';
 import 'package:my_pet/features/pets/presentation/widgets/species_meta.dart';
+import 'package:my_pet/features/vaccinations/presentation/pages/pet_vaccinations_page.dart';
 import 'package:my_pet/gen/strings.g.dart';
 
 /// Pet detail — overview only in Phase 1. Vaccinations / Health / Weight
@@ -98,6 +99,22 @@ class _Loaded extends StatelessWidget {
             child: Text(
               SpeciesMeta.label(pet.species),
               style: theme.textTheme.titleMedium?.copyWith(color: muted),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.vaccines_rounded),
+              title: Text(t.vaccinations.tabTitle),
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () => context.push(
+                '${AppRoutes.petDetailBase}/${pet.id}/vaccinations',
+                extra: VaccinationFormArgs(
+                  householdId: pet.householdId,
+                  petId: pet.id,
+                  species: pet.species,
+                ),
+              ),
             ),
           ),
           const SizedBox(height: AppSpacing.lg),

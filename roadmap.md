@@ -57,11 +57,11 @@ Tracker of what is done, in progress and planned. Use the checkboxes to mark pro
 - [x] Age computed from birth date
 
 ### 💉 Vaccinations — [`specs/vaccinations.md`](specs/vaccinations.md)
-- [ ] Register applied vaccine (name, date, next due date)
-- [ ] List history per pet
-- [ ] Visual indicator: "due in N days" / "overdue"
-- [ ] Edit / delete vaccine
-- [ ] Suggestions for common vaccines (V4, V5, rabies)
+- [x] Register applied vaccine (name, date, next due date)
+- [x] List history per pet
+- [x] Visual indicator: "due in N days" / "overdue"
+- [x] Edit / delete vaccine
+- [x] Suggestions for common vaccines (V4, V5, rabies)
 
 ### 🔔 Local reminders — [`specs/notifications.md`](specs/notifications.md)
 - [ ] Local notification 7 days before next dose

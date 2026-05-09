@@ -11,6 +11,8 @@ import 'package:my_pet/features/household/data/datasources/household_firestore_d
 import 'package:my_pet/features/household/domain/repositories/household_repository.dart';
 import 'package:my_pet/features/pets/data/datasources/pet_firestore_datasource.dart';
 import 'package:my_pet/features/pets/domain/repositories/pet_repository.dart';
+import 'package:my_pet/features/vaccinations/data/datasources/vaccination_firestore_datasource.dart';
+import 'package:my_pet/features/vaccinations/domain/repositories/vaccination_repository.dart';
 
 class MockFirebaseAuthDatasource extends Mock
     implements FirebaseAuthDatasource {}
@@ -27,3 +29,8 @@ class MockHouseholdRepository extends Mock implements HouseholdRepository {}
 class MockPetFirestoreDatasource extends Mock implements PetFirestoreDatasource {}
 
 class MockPetRepository extends Mock implements PetRepository {}
+
+class MockVaccinationFirestoreDatasource extends Mock
+    implements VaccinationFirestoreDatasource {}
+
+class MockVaccinationRepository extends Mock implements VaccinationRepository {}

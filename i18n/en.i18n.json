@@ -89,6 +89,50 @@
       "ageUnknown": "Age unknown"
     }
   },
+  "vaccinations": {
+    "tabTitle": "Vaccines",
+    "addVaccine": "Add vaccine",
+    "empty": {
+      "title": "No vaccines yet",
+      "subtitle": "Track every dose so you never miss the next one."
+    },
+    "form": {
+      "createTitle": "Add vaccine",
+      "editTitle": "Edit vaccine",
+      "name": "Name",
+      "category": "Category",
+      "appliedDate": "Applied on",
+      "nextDueDate": "Next due",
+      "vetName": "Veterinarian",
+      "clinicName": "Clinic",
+      "batchNumber": "Batch number",
+      "manufacturer": "Manufacturer",
+      "notes": "Notes",
+      "save": "Save vaccine",
+      "delete": "Delete vaccine",
+      "deleteConfirmTitle": "Delete this vaccine?",
+      "deleteConfirmMessage": "This will remove the record from {petName}'s history.",
+      "presetSection": "Common for this species",
+      "presetTooltip": "Tap to pre-fill",
+      "errors": {
+        "saveFailed": "We couldn't save the vaccine. Try again."
+      }
+    },
+    "category": {
+      "core": "Core",
+      "noncore": "Non-core",
+      "rabies": "Rabies",
+      "other": "Other"
+    },
+    "status": {
+      "overdue": "Overdue",
+      "dueSoon": "Due soon",
+      "upToDate": "Up to date",
+      "noNextDose": "No reminder set"
+    },
+    "dueIn": "Due in {days}d",
+    "overdueBy": "Overdue by {days}d"
+  },
   "household": {
     "settingsTitle": "Family",
     "inviteMember": "Invite member",

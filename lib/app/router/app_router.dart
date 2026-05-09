@@ -11,6 +11,8 @@ import 'package:my_pet/features/pets/domain/entities/pet.dart';
 import 'package:my_pet/features/pets/presentation/pages/pet_detail_page.dart';
 import 'package:my_pet/features/pets/presentation/pages/pet_form_page.dart';
 import 'package:my_pet/features/pets/presentation/pages/pets_home_page.dart';
+import 'package:my_pet/features/vaccinations/presentation/pages/pet_vaccinations_page.dart';
+import 'package:my_pet/features/vaccinations/presentation/pages/vaccination_form_page.dart';
 
 /// Route paths kept as constants so deep links / navigation calls stay
 /// consistent across the app. Every screen the user can land on must have
@@ -87,6 +89,42 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
                 path: 'edit',
                 builder: (context, state) =>
                     PetFormPage(existing: state.extra as Pet?),
+              ),
+              GoRoute(
+                path: 'vaccinations',
+                builder: (context, state) {
+                  final args = state.extra! as VaccinationFormArgs;
+                  return PetVaccinationsPage(
+                    householdId: args.householdId,
+                    petId: args.petId,
+                    species: args.species,
+                  );
+                },
+                routes: [
+                  GoRoute(
+                    path: 'new',
+                    builder: (context, state) {
+                      final args = state.extra! as VaccinationFormArgs;
+                      return VaccinationFormPage(
+                        householdId: args.householdId,
+                        petId: args.petId,
+                        species: args.species,
+                      );
+                    },
+                  ),
+                  GoRoute(
+                    path: ':vaccinationId/edit',
+                    builder: (context, state) {
+                      final args = state.extra! as VaccinationFormArgs;
+                      return VaccinationFormPage(
+                        householdId: args.householdId,
+                        petId: args.petId,
+                        species: args.species,
+                        existing: args.existing,
+                      );
+                    },
+                  ),
+                ],
               ),
             ],
           ),
