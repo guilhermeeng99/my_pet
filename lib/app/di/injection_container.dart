@@ -12,6 +12,8 @@ import 'package:my_pet/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:my_pet/features/household/data/datasources/household_firestore_datasource.dart';
 import 'package:my_pet/features/household/data/repositories/household_repository_impl.dart';
 import 'package:my_pet/features/household/domain/repositories/household_repository.dart';
+import 'package:my_pet/features/notifications/data/local_notification_service.dart';
+import 'package:my_pet/features/notifications/domain/notification_service.dart';
 import 'package:my_pet/features/pets/data/datasources/pet_firestore_datasource.dart';
 import 'package:my_pet/features/pets/data/repositories/pet_repository_impl.dart';
 import 'package:my_pet/features/pets/domain/repositories/pet_repository.dart';
@@ -76,12 +78,14 @@ Future<void> configureDependencies() async {
     )
     // Form cubit is per-form session.
     ..registerFactory<PetFormCubit>(() => PetFormCubit(repository: sl()))
+    // ── Notifications (must be registered before Vaccinations) ─────
+    ..registerLazySingleton<NotificationService>(LocalNotificationService.new)
     // ── Vaccinations feature ────────────────────────────────────────
     ..registerLazySingleton<VaccinationFirestoreDatasource>(
       () => VaccinationFirestoreDatasourceImpl(firestore: sl()),
     )
     ..registerLazySingleton<VaccinationRepository>(
-      () => VaccinationRepositoryImpl(datasource: sl()),
+      () => VaccinationRepositoryImpl(datasource: sl(), notifications: sl()),
     )
     // List cubit is per-pet session — created when entering the page,
     // disposed by BlocProvider on pop.

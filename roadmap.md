@@ -64,8 +64,8 @@ Tracker of what is done, in progress and planned. Use the checkboxes to mark pro
 - [x] Suggestions for common vaccines (V4, V5, rabies)
 
 ### 🔔 Local reminders — [`specs/notifications.md`](specs/notifications.md)
-- [ ] Local notification 7 days before next dose
-- [ ] Local notification on the day
+- [x] Local notification 7 days before next dose
+- [x] Local notification on the day
 - [ ] Notification permission in onboarding
 
 ---

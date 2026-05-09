@@ -9,6 +9,7 @@ import 'package:my_pet/features/auth/data/datasources/user_profile_datasource.da
 import 'package:my_pet/features/auth/domain/repositories/auth_repository.dart';
 import 'package:my_pet/features/household/data/datasources/household_firestore_datasource.dart';
 import 'package:my_pet/features/household/domain/repositories/household_repository.dart';
+import 'package:my_pet/features/notifications/domain/notification_service.dart';
 import 'package:my_pet/features/pets/data/datasources/pet_firestore_datasource.dart';
 import 'package:my_pet/features/pets/domain/repositories/pet_repository.dart';
 import 'package:my_pet/features/vaccinations/data/datasources/vaccination_firestore_datasource.dart';
@@ -34,3 +35,5 @@ class MockVaccinationFirestoreDatasource extends Mock
     implements VaccinationFirestoreDatasource {}
 
 class MockVaccinationRepository extends Mock implements VaccinationRepository {}
+
+class MockNotificationService extends Mock implements NotificationService {}

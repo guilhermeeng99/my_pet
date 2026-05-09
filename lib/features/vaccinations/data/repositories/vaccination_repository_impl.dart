@@ -1,16 +1,21 @@
 import 'package:dartz/dartz.dart';
 
 import 'package:my_pet/core/errors/failures.dart';
+import 'package:my_pet/features/notifications/domain/notification_service.dart';
 import 'package:my_pet/features/vaccinations/data/datasources/vaccination_firestore_datasource.dart';
 import 'package:my_pet/features/vaccinations/data/models/vaccination_model.dart';
 import 'package:my_pet/features/vaccinations/domain/entities/vaccination.dart';
 import 'package:my_pet/features/vaccinations/domain/repositories/vaccination_repository.dart';
 
 class VaccinationRepositoryImpl implements VaccinationRepository {
-  VaccinationRepositoryImpl({required VaccinationFirestoreDatasource datasource})
-      : _datasource = datasource;
+  VaccinationRepositoryImpl({
+    required VaccinationFirestoreDatasource datasource,
+    required NotificationService notifications,
+  })  : _datasource = datasource,
+        _notifications = notifications;
 
   final VaccinationFirestoreDatasource _datasource;
+  final NotificationService _notifications;
 
   @override
   Stream<List<Vaccination>> watchByPet(String householdId, String petId) =>
@@ -23,6 +28,7 @@ class VaccinationRepositoryImpl implements VaccinationRepository {
     try {
       final created =
           await _datasource.create(VaccinationModel.fromEntity(vaccination));
+      await _scheduleReminders(created);
       return Right(created);
     } on Exception catch (e, st) {
       return Left(ServerFailure(message: e.toString(), cause: st));
@@ -36,6 +42,7 @@ class VaccinationRepositoryImpl implements VaccinationRepository {
     try {
       final updated =
           await _datasource.update(VaccinationModel.fromEntity(vaccination));
+      await _scheduleReminders(updated);
       return Right(updated);
     } on Exception catch (e, st) {
       return Left(ServerFailure(message: e.toString(), cause: st));
@@ -50,11 +57,37 @@ class VaccinationRepositoryImpl implements VaccinationRepository {
   ) async {
     try {
       await _datasource.delete(householdId, petId, vaccinationId);
+      await _notifications.cancelGroup(_groupKey(vaccinationId));
       return const Right(unit);
     } on Exception catch (e, st) {
       return Left(ServerFailure(message: e.toString(), cause: st));
     }
   }
+
+  /// Spec rule 1: schedule a reminder 7 days before and on the day of
+  /// `nextDueDate`. Best-effort — failure to schedule never breaks the
+  /// write.
+  Future<void> _scheduleReminders(Vaccination v) async {
+    final due = v.nextDueDate;
+    final groupKey = _groupKey(v.id);
+    if (due == null) {
+      await _notifications.cancelGroup(groupKey);
+      return;
+    }
+    try {
+      await _notifications.scheduleAll(
+        groupKey: groupKey,
+        title: '${v.name} reminder',
+        body: 'Next dose due',
+        firings: [due.subtract(const Duration(days: 7)), due],
+      );
+    } on Exception {
+      // Notifications are non-critical; swallow so the Firestore write
+      // remains the source of truth even if scheduling fails.
+    }
+  }
+
+  String _groupKey(String vaccinationId) => 'vax:$vaccinationId';
 
   /// vaccinations.md invariants: name not empty, appliedDate <= now,
   /// nextDueDate (if present) > appliedDate.

@@ -10,6 +10,7 @@ import '../../../../harness/mocks.dart';
 
 void main() {
   late MockVaccinationFirestoreDatasource datasource;
+  late MockNotificationService notifications;
   late VaccinationRepositoryImpl repository;
 
   setUpAll(() {
@@ -20,7 +21,22 @@ void main() {
 
   setUp(() {
     datasource = MockVaccinationFirestoreDatasource();
-    repository = VaccinationRepositoryImpl(datasource: datasource);
+    notifications = MockNotificationService();
+    repository = VaccinationRepositoryImpl(
+      datasource: datasource,
+      notifications: notifications,
+    );
+
+    // Default: notification calls succeed silently.
+    when(
+      () => notifications.scheduleAll(
+        groupKey: any(named: 'groupKey'),
+        title: any(named: 'title'),
+        body: any(named: 'body'),
+        firings: any(named: 'firings'),
+      ),
+    ).thenAnswer((_) async {});
+    when(() => notifications.cancelGroup(any())).thenAnswer((_) async {});
   });
 
   group('create', () {
@@ -69,13 +85,56 @@ void main() {
       expect(result.isRight(), isTrue);
       verify(() => datasource.create(any())).called(1);
     });
+
+    test('schedules two firings (D-7 and on-the-day) when nextDueDate set',
+        () async {
+      final due = DateTime.utc(2027, 4);
+      final v = VaccinationFactory.build(
+        appliedDate: DateTime.utc(2026, 4),
+        nextDueDate: due,
+      );
+      when(() => datasource.create(any()))
+          .thenAnswer((_) async => VaccinationModel.fromEntity(v));
+
+      await repository.create(v);
+
+      verify(
+        () => notifications.scheduleAll(
+          groupKey: 'vax:${v.id}',
+          title: any(named: 'title'),
+          body: any(named: 'body'),
+          firings: [due.subtract(const Duration(days: 7)), due],
+        ),
+      ).called(1);
+    });
+
+    test('cancels reminders when nextDueDate is null', () async {
+      final v = VaccinationFactory.build(
+        appliedDate: DateTime.utc(2026, 4),
+      );
+      when(() => datasource.create(any()))
+          .thenAnswer((_) async => VaccinationModel.fromEntity(v));
+
+      await repository.create(v);
+
+      verify(() => notifications.cancelGroup('vax:${v.id}')).called(1);
+      verifyNever(
+        () => notifications.scheduleAll(
+          groupKey: any(named: 'groupKey'),
+          title: any(named: 'title'),
+          body: any(named: 'body'),
+          firings: any(named: 'firings'),
+        ),
+      );
+    });
   });
 
   group('delete', () {
-    test('forwards to datasource', () async {
+    test('forwards to datasource and cancels reminders', () async {
       when(() => datasource.delete('h', 'p', 'v')).thenAnswer((_) async {});
       final result = await repository.delete('h', 'p', 'v');
       expect(result.isRight(), isTrue);
+      verify(() => notifications.cancelGroup('vax:v')).called(1);
     });
   });
 }
