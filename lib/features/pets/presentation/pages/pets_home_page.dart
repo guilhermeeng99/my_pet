@@ -15,24 +15,35 @@ import 'package:my_pet/gen/strings.g.dart';
 
 /// Home: grid of pet cards. Subscribes to the active-pets stream scoped
 /// to the signed-in user's household.
+///
+/// Gated on [AuthAuthenticated] so we never wire the cubit with an empty
+/// householdId during the [AuthNeedsHousehold] window (auto-create is
+/// in-flight; Firestore would reject `.doc('')`).
 class PetsHomePage extends StatelessWidget {
   const PetsHomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<PetsListCubit>(
-      create: (_) => sl<PetsListCubit>()..start(_householdId(context)),
-      child: const _PetsHomeView(),
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
+        final householdId = switch (state) {
+          AuthAuthenticated(:final user) => user.householdId,
+          _ => null,
+        };
+        if (householdId == null) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+        return BlocProvider<PetsListCubit>(
+          // Key so the cubit is rebuilt if householdId ever changes
+          // (e.g. user accepts an invite into another household — Phase 3).
+          key: ValueKey('pets-home-$householdId'),
+          create: (_) => sl<PetsListCubit>()..start(householdId),
+          child: const _PetsHomeView(),
+        );
+      },
     );
-  }
-
-  String _householdId(BuildContext context) {
-    final auth = context.read<AuthBloc>().state;
-    return switch (auth) {
-      AuthAuthenticated(user: final u) => u.householdId!,
-      AuthNeedsHousehold(user: final u) => u.householdId ?? '',
-      _ => '',
-    };
   }
 }
 
