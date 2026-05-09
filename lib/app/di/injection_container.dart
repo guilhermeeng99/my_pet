@@ -9,6 +9,9 @@ import 'package:my_pet/features/auth/data/datasources/user_profile_datasource.da
 import 'package:my_pet/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:my_pet/features/auth/domain/repositories/auth_repository.dart';
 import 'package:my_pet/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:my_pet/features/household/data/datasources/household_firestore_datasource.dart';
+import 'package:my_pet/features/household/data/repositories/household_repository_impl.dart';
+import 'package:my_pet/features/household/domain/repositories/household_repository.dart';
 
 /// Service locator. All implementations are registered here.
 ///
@@ -38,6 +41,16 @@ Future<void> configureDependencies() async {
     ..registerLazySingleton<AuthRepository>(
       () => AuthRepositoryImpl(auth: sl(), profiles: sl()),
     )
-    ..registerLazySingleton<AuthBloc>(() => AuthBloc(repository: sl()))
+    // ── Household feature ───────────────────────────────────────────
+    ..registerLazySingleton<HouseholdFirestoreDatasource>(
+      () => HouseholdFirestoreDatasourceImpl(firestore: sl()),
+    )
+    ..registerLazySingleton<HouseholdRepository>(
+      () => HouseholdRepositoryImpl(datasource: sl()),
+    )
+    // AuthBloc depends on HouseholdRepository for first-sign-in auto-create.
+    ..registerLazySingleton<AuthBloc>(
+      () => AuthBloc(repository: sl(), householdRepository: sl()),
+    )
     ..registerSingleton<bool>(true, instanceName: '_diReady');
 }

@@ -8,18 +8,35 @@ import 'package:my_pet/features/auth/domain/entities/auth_user.dart';
 import 'package:my_pet/features/auth/presentation/bloc/auth_bloc.dart';
 
 import '../../../../harness/factories/auth_user_factory.dart';
+import '../../../../harness/factories/household_factory.dart';
 import '../../../../harness/mocks.dart';
 
 void main() {
   late MockAuthRepository repository;
+  late MockHouseholdRepository households;
+
+  setUpAll(() {
+    // Mocktail requires fallbacks to exist before any() is referenced.
+    registerFallbackValue(AuthUserFactory.withoutHousehold());
+  });
 
   setUp(() {
     repository = MockAuthRepository();
+    households = MockHouseholdRepository();
+
     // Default stream so the bloc's startup subscription doesn't blow up.
-    when(repository.watchAuthState).thenAnswer((_) => const Stream<AuthUser?>.empty());
+    when(repository.watchAuthState)
+        .thenAnswer((_) => const Stream<AuthUser?>.empty());
+
+    // Default household auto-create — individual tests override when needed.
+    when(() => households.createForUser(any()))
+        .thenAnswer((_) async => Right(HouseholdFactory.build()));
   });
 
-  AuthBloc buildBloc() => AuthBloc(repository: repository);
+  AuthBloc buildBloc() => AuthBloc(
+        repository: repository,
+        householdRepository: households,
+      );
 
   group('AuthBloc', () {
     blocTest<AuthBloc, AuthState>(
@@ -37,7 +54,7 @@ void main() {
     );
 
     blocTest<AuthBloc, AuthState>(
-      'emits AuthNeedsHousehold when signed-in user has no householdId',
+      'first sign-in: NeedsHousehold then Authenticated after auto-create',
       build: () {
         final user = AuthUserFactory.withoutHousehold();
         when(repository.signInWithGoogle).thenAnswer((_) async => Right(user));
@@ -47,6 +64,29 @@ void main() {
       expect: () => [
         const AuthLoading(),
         AuthNeedsHousehold(AuthUserFactory.withoutHousehold()),
+        AuthAuthenticated(
+          AuthUserFactory.withoutHousehold().copyWith(householdId: 'household_42'),
+        ),
+      ],
+      verify: (_) {
+        verify(() => households.createForUser(any())).called(1);
+      },
+    );
+
+    blocTest<AuthBloc, AuthState>(
+      'auto-create failure surfaces AuthErrorState after NeedsHousehold',
+      build: () {
+        final user = AuthUserFactory.withoutHousehold();
+        when(repository.signInWithGoogle).thenAnswer((_) async => Right(user));
+        when(() => households.createForUser(any()))
+            .thenAnswer((_) async => const Left(ServerFailure(message: 'boom')));
+        return buildBloc();
+      },
+      act: (bloc) => bloc.add(const GoogleSignInRequested()),
+      expect: () => [
+        const AuthLoading(),
+        AuthNeedsHousehold(AuthUserFactory.withoutHousehold()),
+        const AuthErrorState(ServerFailure(message: 'boom')),
       ],
     );
 

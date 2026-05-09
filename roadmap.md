@@ -44,8 +44,8 @@ Tracker of what is done, in progress and planned. Use the checkboxes to mark pro
 - [x] Network / cancellation error handling
 
 ### 🏠 Household (account) — [`specs/household.md`](specs/household.md)
-- [ ] Auto-create household on first sign-in
-- [ ] Persist `householdId` in `users/{uid}`
+- [x] Auto-create household on first sign-in
+- [x] Persist `householdId` in `users/{uid}`
 - [ ] Settings placeholder screens (members come in Phase 3)
 
 ### 🐾 Pets — [`specs/pets.md`](specs/pets.md)

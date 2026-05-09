@@ -7,6 +7,8 @@ import 'package:mocktail/mocktail.dart';
 import 'package:my_pet/features/auth/data/datasources/firebase_auth_datasource.dart';
 import 'package:my_pet/features/auth/data/datasources/user_profile_datasource.dart';
 import 'package:my_pet/features/auth/domain/repositories/auth_repository.dart';
+import 'package:my_pet/features/household/data/datasources/household_firestore_datasource.dart';
+import 'package:my_pet/features/household/domain/repositories/household_repository.dart';
 
 class MockFirebaseAuthDatasource extends Mock
     implements FirebaseAuthDatasource {}
@@ -14,3 +16,8 @@ class MockFirebaseAuthDatasource extends Mock
 class MockUserProfileDatasource extends Mock implements UserProfileDatasource {}
 
 class MockAuthRepository extends Mock implements AuthRepository {}
+
+class MockHouseholdFirestoreDatasource extends Mock
+    implements HouseholdFirestoreDatasource {}
+
+class MockHouseholdRepository extends Mock implements HouseholdRepository {}
