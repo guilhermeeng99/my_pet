@@ -45,8 +45,16 @@
       "collectionGroup": "reminders",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "householdId", "order": "ASCENDING" },
         { "fieldPath": "done", "order": "ASCENDING" },
+        { "fieldPath": "dueAt", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "reminders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "done", "order": "ASCENDING" },
+        { "fieldPath": "petId", "order": "ASCENDING" },
         { "fieldPath": "dueAt", "order": "ASCENDING" }
       ]
     },
