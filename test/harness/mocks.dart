@@ -12,6 +12,8 @@ import 'package:my_pet/features/household/domain/repositories/household_reposito
 import 'package:my_pet/features/notifications/domain/notification_service.dart';
 import 'package:my_pet/features/pets/data/datasources/pet_firestore_datasource.dart';
 import 'package:my_pet/features/pets/domain/repositories/pet_repository.dart';
+import 'package:my_pet/features/reminders/data/datasources/reminder_firestore_datasource.dart';
+import 'package:my_pet/features/reminders/domain/repositories/reminder_repository.dart';
 import 'package:my_pet/features/vaccinations/data/datasources/vaccination_firestore_datasource.dart';
 import 'package:my_pet/features/vaccinations/domain/repositories/vaccination_repository.dart';
 
@@ -35,5 +37,10 @@ class MockVaccinationFirestoreDatasource extends Mock
     implements VaccinationFirestoreDatasource {}
 
 class MockVaccinationRepository extends Mock implements VaccinationRepository {}
+
+class MockReminderFirestoreDatasource extends Mock
+    implements ReminderFirestoreDatasource {}
+
+class MockReminderRepository extends Mock implements ReminderRepository {}
 
 class MockNotificationService extends Mock implements NotificationService {}

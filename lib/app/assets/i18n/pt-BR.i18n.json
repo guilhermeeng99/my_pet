@@ -251,9 +251,61 @@
     "addFirstPetSubtitle": "Acompanhe cada vacina, peso e memória."
   },
   "reminders": {
-    "stub": {
-      "title": "Lembretes em breve",
-      "subtitle": "Lembretes avulsos chegam na Fase 2."
+    "addReminder": "Adicionar lembrete",
+    "empty": {
+      "title": "Nenhum lembrete ainda",
+      "subtitle": "Crie um lembrete para remédios, alimentação, banho e tosa, ou o que precisar."
+    },
+    "sections": {
+      "overdue": "Atrasados",
+      "today": "Hoje",
+      "thisWeek": "Esta semana",
+      "later": "Depois"
+    },
+    "types": {
+      "vaccination": "Vacina",
+      "medication": "Medicamento",
+      "feeding": "Alimentação",
+      "grooming": "Banho e tosa",
+      "vetVisit": "Visita ao vet",
+      "custom": "Personalizado"
+    },
+    "recurrence": {
+      "oneShot": "Uma vez",
+      "daily": "Diário",
+      "weekly": "Semanal",
+      "monthly": "Mensal",
+      "yearly": "Anual",
+      "custom": "Personalizada"
+    },
+    "actions": {
+      "markDone": "Marcar como feito"
+    },
+    "form": {
+      "createTitle": "Novo lembrete",
+      "createSubtitle": "Escolha um tipo, uma data, e a gente avisa na hora.",
+      "editTitle": "Editar lembrete",
+      "editSubtitle": "Ajuste a agenda ou os detalhes.",
+      "titleLabel": "Título",
+      "titlePlaceholder": "ex.: Trocar a caixa de areia, Remédio do coração…",
+      "descriptionOptional": "Descrição (opcional)",
+      "descriptionPlaceholder": "Algo extra que você quer lembrar…",
+      "type": "Tipo",
+      "dueAt": "Quando",
+      "recurrence": "Recorrência",
+      "customIntervalLabel": "Repetir a cada (dias)",
+      "customIntervalPlaceholder": "ex.: 90",
+      "petOptional": "Pet (opcional)",
+      "allHousehold": "Família toda",
+      "save": "Salvar lembrete",
+      "errors": {
+        "titleRequired": "Título é obrigatório.",
+        "intervalInvalid": "Informe um número de dias positivo."
+      }
+    },
+    "errors": {
+      "loadFailed": "Não conseguimos carregar seus lembretes. Tente de novo.",
+      "saveFailed": "Não conseguimos salvar o lembrete. Tente de novo."
     }
   },
   "stats": {

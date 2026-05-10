@@ -50,11 +50,15 @@ Reminders linked to vaccines/medications are managed by their own features but u
 
 ```dart
 abstract class ReminderRepository {
-  Stream<List<Reminder>> watchUpcoming(String householdId, {int limitDays = 30});
+  /// All active reminders for the household (done == false), ordered by dueAt.
+  /// The Reminders tab groups these into Overdue / Today / This week / Later.
+  Stream<List<Reminder>> watchActive(String householdId);
   Stream<List<Reminder>> watchByPet(String householdId, String petId);
   Future<Either<Failure, Reminder>> create(Reminder reminder);
   Future<Either<Failure, Reminder>> update(Reminder reminder);
-  Future<Either<Failure, Reminder>> markDone(String householdId, String reminderId);
+  /// Takes the in-memory entity so we avoid a redundant get-by-id — cubits
+  /// already hold the latest snapshot from the watch stream.
+  Future<Either<Failure, Reminder>> markDone(Reminder reminder);
   Future<Either<Failure, Unit>> delete(String householdId, String reminderId);
 }
 ```
@@ -66,14 +70,23 @@ abstract class ReminderRepository {
 
 ## States
 
-### `RemindersCubit`
+### `RemindersListCubit`
 
 ```
-RemindersInitial
-RemindersLoading
-RemindersLoaded(upcoming, overdue, today)
-RemindersEmpty
-RemindersError(failure)
+RemindersListInitial
+RemindersListLoading
+RemindersListEmpty
+RemindersListLoaded(overdue, today, thisWeek, later)
+RemindersListError(failure)
+```
+
+### `ReminderFormCubit`
+
+```
+ReminderFormIdle
+ReminderFormSubmitting
+ReminderFormSuccess(saved)
+ReminderFormError(failure)
 ```
 
 ## Edge cases

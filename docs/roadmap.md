@@ -112,9 +112,9 @@ Tracker of what is done, in progress and planned. Use the checkboxes to mark pro
 - [ ] Inline preview (PDF + image)
 
 ### 🔔 Generic reminders — [`specs/reminders.md`](specs/reminders.md)
-- [ ] Standalone reminders (not tied to vaccines)
-- [ ] Recurrence (daily, weekly, monthly, yearly)
-- [ ] Mark as done
+- [x] Standalone reminders (not tied to vaccines)
+- [x] Recurrence (daily, weekly, monthly, yearly, custom interval)
+- [x] Mark as done (rolls a new instance forward for recurring reminders)
 
 ---
 

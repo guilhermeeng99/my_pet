@@ -18,7 +18,9 @@ import 'package:my_pet/features/pets/presentation/pages/pet_detail_page.dart';
 import 'package:my_pet/features/pets/presentation/pages/pet_form_page.dart';
 import 'package:my_pet/features/pets/presentation/pages/pets_home_page.dart';
 import 'package:my_pet/features/profile/presentation/pages/profile_page.dart';
-import 'package:my_pet/features/reminders/presentation/pages/reminders_stub_page.dart';
+import 'package:my_pet/features/reminders/domain/entities/reminder.dart';
+import 'package:my_pet/features/reminders/presentation/pages/reminder_form_page.dart';
+import 'package:my_pet/features/reminders/presentation/pages/reminders_home_page.dart';
 import 'package:my_pet/features/stats/presentation/pages/stats_stub_page.dart';
 import 'package:my_pet/features/vaccinations/presentation/pages/pet_vaccinations_page.dart';
 import 'package:my_pet/features/vaccinations/presentation/pages/vaccination_form_page.dart';
@@ -41,6 +43,10 @@ abstract final class AppRoutes {
   static const String petDetailBase = '/home/pet';
   static const String petDetailPattern = '$petDetailBase/:petId';
   static const String petEditPattern = '$petDetailBase/:petId/edit';
+  static const String reminderCreate = '/reminders/new';
+  static const String reminderEditPattern = '/reminders/:reminderId/edit';
+  static String reminderEditFor(String reminderId) =>
+      '/reminders/$reminderId/edit';
 }
 
 /// Builds the app router. Redirects on every auth state change so the user
@@ -57,7 +63,8 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
           loc == AppRoutes.reminders ||
           loc == AppRoutes.stats ||
           loc == AppRoutes.profile ||
-          loc.startsWith('${AppRoutes.home}/');
+          loc.startsWith('${AppRoutes.home}/') ||
+          loc.startsWith('${AppRoutes.reminders}/');
 
       switch (auth) {
         case AuthInitial() || AuthLoading():
@@ -197,7 +204,19 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
             routes: [
               GoRoute(
                 path: AppRoutes.reminders,
-                builder: (context, state) => const RemindersStubPage(),
+                builder: (context, state) => const RemindersHomePage(),
+                routes: [
+                  GoRoute(
+                    path: 'new',
+                    builder: (context, state) => const ReminderFormPage(),
+                  ),
+                  GoRoute(
+                    path: ':reminderId/edit',
+                    builder: (context, state) => ReminderFormPage(
+                      existing: state.extra as Reminder?,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

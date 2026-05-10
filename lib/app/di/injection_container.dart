@@ -22,6 +22,10 @@ import 'package:my_pet/features/pets/data/repositories/pet_repository_impl.dart'
 import 'package:my_pet/features/pets/domain/repositories/pet_repository.dart';
 import 'package:my_pet/features/pets/presentation/cubit/pet_form_cubit.dart';
 import 'package:my_pet/features/pets/presentation/cubit/pets_list_cubit.dart';
+import 'package:my_pet/features/reminders/data/datasources/reminder_firestore_datasource.dart';
+import 'package:my_pet/features/reminders/data/repositories/reminder_repository_impl.dart';
+import 'package:my_pet/features/reminders/domain/repositories/reminder_repository.dart';
+import 'package:my_pet/features/reminders/presentation/cubit/reminder_form_cubit.dart';
 import 'package:my_pet/features/vaccinations/data/datasources/vaccination_firestore_datasource.dart';
 import 'package:my_pet/features/vaccinations/data/repositories/vaccination_repository_impl.dart';
 import 'package:my_pet/features/vaccinations/domain/repositories/vaccination_repository.dart';
@@ -116,6 +120,16 @@ Future<void> configureDependencies() async {
     )
     ..registerFactory<VaccinationFormCubit>(
       () => VaccinationFormCubit(repository: sl()),
+    )
+    // ── Reminders feature ──────────────────────────────────────────
+    ..registerLazySingleton<ReminderFirestoreDatasource>(
+      () => ReminderFirestoreDatasourceImpl(firestore: sl()),
+    )
+    ..registerLazySingleton<ReminderRepository>(
+      () => ReminderRepositoryImpl(datasource: sl(), notifications: sl()),
+    )
+    ..registerFactory<ReminderFormCubit>(
+      () => ReminderFormCubit(repository: sl()),
     )
     ..registerSingleton<bool>(true, instanceName: '_diReady');
 }

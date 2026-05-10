@@ -251,9 +251,61 @@
     "addFirstPetSubtitle": "Track every vaccination, weight and memory."
   },
   "reminders": {
-    "stub": {
-      "title": "Reminders coming soon",
-      "subtitle": "Standalone reminders land in Phase 2."
+    "addReminder": "Add reminder",
+    "empty": {
+      "title": "No reminders yet",
+      "subtitle": "Create a reminder for medication, feeding, grooming, or anything else."
+    },
+    "sections": {
+      "overdue": "Overdue",
+      "today": "Today",
+      "thisWeek": "This week",
+      "later": "Later"
+    },
+    "types": {
+      "vaccination": "Vaccination",
+      "medication": "Medication",
+      "feeding": "Feeding",
+      "grooming": "Grooming",
+      "vetVisit": "Vet visit",
+      "custom": "Custom"
+    },
+    "recurrence": {
+      "oneShot": "One-time",
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "yearly": "Yearly",
+      "custom": "Custom"
+    },
+    "actions": {
+      "markDone": "Mark done"
+    },
+    "form": {
+      "createTitle": "New reminder",
+      "createSubtitle": "Pick a type, a date, and we'll ping you when it's time.",
+      "editTitle": "Edit reminder",
+      "editSubtitle": "Update the schedule or details.",
+      "titleLabel": "Title",
+      "titlePlaceholder": "e.g. Change litter, Heartworm meds…",
+      "descriptionOptional": "Description (optional)",
+      "descriptionPlaceholder": "Anything extra you want to remember…",
+      "type": "Type",
+      "dueAt": "Due at",
+      "recurrence": "Recurrence",
+      "customIntervalLabel": "Repeat every (days)",
+      "customIntervalPlaceholder": "e.g. 90",
+      "petOptional": "Pet (optional)",
+      "allHousehold": "Whole household",
+      "save": "Save reminder",
+      "errors": {
+        "titleRequired": "Title is required.",
+        "intervalInvalid": "Enter a positive number of days."
+      }
+    },
+    "errors": {
+      "loadFailed": "We couldn't load your reminders. Try again.",
+      "saveFailed": "We couldn't save the reminder. Try again."
     }
   },
   "stats": {
