@@ -32,17 +32,31 @@ class InsightsCubit extends Cubit<InsightsState> {
     emit(const InsightsLoading());
     unawaited(_petsSub?.cancel());
     unawaited(_remindersSub?.cancel());
-    _petsSub = _pets.watchActive(householdId).listen((pets) {
-      _latestPets = pets;
-      _seenPets = true;
-      _emitSnapshot();
-    });
-    _remindersSub =
-        _reminders.watchActive(householdId).listen((reminders) {
-      _latestReminders = reminders;
-      _seenReminders = true;
-      _emitSnapshot();
-    });
+    _petsSub = _pets.watchActive(householdId).listen(
+      (pets) {
+        _latestPets = pets;
+        _seenPets = true;
+        _emitSnapshot();
+      },
+      // Treat upstream errors as "no data yet" so the dashboard renders
+      // an empty snapshot instead of leaving the page stuck on Loading
+      // (e.g. a Firestore missing-index error on first run).
+      onError: _onUpstreamError,
+    );
+    _remindersSub = _reminders.watchActive(householdId).listen(
+      (reminders) {
+        _latestReminders = reminders;
+        _seenReminders = true;
+        _emitSnapshot();
+      },
+      onError: _onUpstreamError,
+    );
+  }
+
+  void _onUpstreamError(Object _, StackTrace _) {
+    _seenPets = true;
+    _seenReminders = true;
+    _emitSnapshot();
   }
 
   void _emitSnapshot() {

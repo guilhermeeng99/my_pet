@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:my_pet/app/di/injection_container.dart';
 import 'package:my_pet/app/router/app_router.dart';
 import 'package:my_pet/app/theme/app_palette.dart';
+import 'package:my_pet/app/theme/app_radii.dart';
 import 'package:my_pet/app/theme/app_spacing.dart';
+import 'package:my_pet/app/widgets/app_card.dart';
 import 'package:my_pet/app/widgets/app_primary_button.dart';
 import 'package:my_pet/app/widgets/feature_list_card.dart';
 import 'package:my_pet/app/widgets/screen_scaffold.dart';
@@ -17,8 +19,11 @@ import 'package:my_pet/features/reminders/presentation/widgets/reminder_card.dar
 import 'package:my_pet/gen/strings.g.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
-/// Reminders tab. Replaces the Phase-1 stub: lists active reminders grouped
-/// by Overdue / Today / This week / Later, with a FAB to create new ones.
+/// Reminders tab. Matches the Home layout: ScreenScaffold + greeting/empty
+/// card + sectioned list. The Phase 1 stub is gone; the FAB is replaced by
+/// a primary button inside the card (empty state) or a trailing "Add
+/// another" FeatureListCard (loaded), which mirrors how Pets handles its
+/// add flow.
 class RemindersHomePage extends StatelessWidget {
   const RemindersHomePage({super.key});
 
@@ -38,6 +43,7 @@ class RemindersHomePage extends StatelessWidget {
           );
         }
         return BlocProvider<RemindersListCubit>(
+          key: ValueKey('reminders-$householdId'),
           create: (_) =>
               RemindersListCubit(repository: sl())..start(householdId),
           child: _RemindersView(householdId: householdId),
@@ -61,65 +67,102 @@ class _RemindersView extends StatelessWidget {
         builder: (context, state) {
           return switch (state) {
             RemindersListInitial() || RemindersListLoading() =>
-              const Center(child: CircularProgressIndicator()),
-            RemindersListEmpty() => const _EmptyState(),
-            RemindersListLoaded() => _LoadedList(state: state),
-            RemindersListError() => Padding(
-                padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
-                child: FeatureListCard(
-                  icon: PhosphorIconsRegular.warning,
-                  title: t.common.retry,
-                  subtitle: t.reminders.errors.loadFailed,
-                  onTap: () =>
-                      context.read<RemindersListCubit>().start(householdId),
+              const Padding(
+                padding: EdgeInsets.all(AppSpacing.xl),
+                child: Center(child: CircularProgressIndicator()),
+              ),
+            RemindersListEmpty() => ListView(
+                padding: const EdgeInsets.only(
+                  top: AppSpacing.sm,
+                  bottom: AppSpacing.xxl,
                 ),
+                children: [
+                  _QuickAddReminderCard(
+                    onPressed: () => context.push(AppRoutes.reminderCreate),
+                  ),
+                ],
+              ),
+            RemindersListLoaded() => _LoadedList(state: state),
+            RemindersListError() => ListView(
+                padding: const EdgeInsets.only(
+                  top: AppSpacing.sm,
+                  bottom: AppSpacing.xxl,
+                ),
+                children: [
+                  FeatureListCard(
+                    icon: PhosphorIconsRegular.warning,
+                    title: t.common.retry,
+                    subtitle: t.reminders.errors.loadFailed,
+                    onTap: () =>
+                        context.read<RemindersListCubit>().start(householdId),
+                  ),
+                ],
               ),
           };
         },
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push(AppRoutes.reminderCreate),
-        icon: const Icon(PhosphorIconsBold.plus),
-        label: Text(t.reminders.addReminder),
       ),
     );
   }
 }
 
-class _EmptyState extends StatelessWidget {
-  const _EmptyState();
+/// Empty-state hero card — same pattern as `_QuickAddCard` on Home so the
+/// two tabs feel like sibling surfaces.
+class _QuickAddReminderCard extends StatelessWidget {
+  const _QuickAddReminderCard({required this.onPressed});
+
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final palette = context.palette;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl),
+    return AppCard(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.lg,
+        AppSpacing.lg,
+        AppSpacing.md,
+      ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            PhosphorIconsBold.bell,
-            size: 64,
-            color: theme.colorScheme.primary,
+          Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primaryContainer,
+                  borderRadius: AppRadii.brMd,
+                ),
+                child: Icon(
+                  PhosphorIconsBold.bell,
+                  size: 20,
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: Text(
+                  t.reminders.empty.title,
+                  style: theme.textTheme.titleLarge,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: AppSpacing.md),
-          Text(
-            t.reminders.empty.title,
-            style: theme.textTheme.headlineSmall,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: AppSpacing.xs),
+          const SizedBox(height: AppSpacing.sm),
           Text(
             t.reminders.empty.subtitle,
-            style: theme.textTheme.bodyMedium
-                ?.copyWith(color: palette.onSurfaceMuted),
-            textAlign: TextAlign.center,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: palette.onSurfaceMuted,
+              height: 1.45,
+            ),
           ),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: AppSpacing.md),
           AppPrimaryButton(
             label: t.reminders.addReminder,
             icon: PhosphorIconsBold.plus,
-            onPressed: () => context.push(AppRoutes.reminderCreate),
+            onPressed: onPressed,
           ),
         ],
       ),
@@ -135,8 +178,13 @@ class _LoadedList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+      padding: const EdgeInsets.only(
+        top: AppSpacing.sm,
+        bottom: AppSpacing.xxl,
+      ),
       children: [
+        _SummaryStrip(state: state),
+        const SizedBox(height: AppSpacing.lg),
         _Section(
           title: t.reminders.sections.overdue,
           reminders: state.overdue,
@@ -153,8 +201,99 @@ class _LoadedList extends StatelessWidget {
           title: t.reminders.sections.later,
           reminders: state.later,
         ),
-        const SizedBox(height: 80), // FAB clearance
+        const SizedBox(height: AppSpacing.sm),
+        FeatureListCard(
+          icon: PhosphorIconsBold.plus,
+          title: t.reminders.addReminder,
+          onTap: () => context.push(AppRoutes.reminderCreate),
+        ),
       ],
+    );
+  }
+}
+
+/// At-a-glance numbers above the sections so the user immediately sees
+/// what's pressing without scrolling.
+class _SummaryStrip extends StatelessWidget {
+  const _SummaryStrip({required this.state});
+  final RemindersListLoaded state;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.palette;
+    final theme = Theme.of(context);
+    return Row(
+      children: [
+        Expanded(
+          child: _StatTile(
+            icon: PhosphorIconsBold.bell,
+            label: t.reminders.sections.today,
+            value: '${state.today.length}',
+            accent: theme.colorScheme.primary,
+          ),
+        ),
+        const SizedBox(width: AppSpacing.sm),
+        Expanded(
+          child: _StatTile(
+            icon: PhosphorIconsBold.warning,
+            label: t.reminders.sections.overdue,
+            value: '${state.overdue.length}',
+            accent: palette.danger,
+          ),
+        ),
+        const SizedBox(width: AppSpacing.sm),
+        Expanded(
+          child: _StatTile(
+            icon: PhosphorIconsBold.clock,
+            label: t.reminders.sections.thisWeek,
+            value: '${state.thisWeek.length}',
+            accent: palette.warning,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _StatTile extends StatelessWidget {
+  const _StatTile({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.accent,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final palette = context.palette;
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: palette.outline, width: 1.2),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: accent, size: 18),
+          const SizedBox(height: AppSpacing.xs),
+          Text(value, style: theme.textTheme.headlineSmall),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: palette.onSurfaceMuted,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -171,9 +310,8 @@ class _Section extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SizedBox(height: AppSpacing.sm),
         SectionHeader(title: title),
-        const SizedBox(height: AppSpacing.xs),
+        const SizedBox(height: AppSpacing.sm),
         for (final r in reminders)
           Padding(
             padding: const EdgeInsets.only(bottom: AppSpacing.sm),
@@ -187,6 +325,7 @@ class _Section extends StatelessWidget {
                   context.read<RemindersListCubit>().markDone(r),
             ),
           ),
+        const SizedBox(height: AppSpacing.sm),
       ],
     );
   }

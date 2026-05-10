@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
 import 'package:my_pet/app/theme/app_palette.dart';
+import 'package:my_pet/app/theme/app_radii.dart';
 import 'package:my_pet/app/theme/app_shadows.dart';
 import 'package:my_pet/app/theme/app_spacing.dart';
 
-/// Minimalist bottom nav: 4 items, no pill behind active. Active state is the
-/// filled icon variant + primary color + label in primary; inactive is the
-/// outline icon + faint label.
+/// Floating-pill bottom nav. The bar is inset from the screen edges, has
+/// large rounded corners, and casts a soft shadow — reads as a card hovering
+/// above the content instead of a chrome strip stuck to the bottom.
 ///
-/// Items must already include both the inactive ([NavItem.icon]) and active
-/// ([NavItem.activeIcon]) glyphs so the caller can pick e.g. Phosphor regular
-/// vs. fill variants without this widget knowing about the icon set.
+/// Active item: filled icon + primary-colored bold label + tiny dot beneath.
+/// Inactive: outline icon + muted label.
 class AppBottomNav extends StatelessWidget {
   const AppBottomNav({
     required this.currentIndex,
@@ -26,27 +26,33 @@ class AppBottomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        boxShadow: AppShadows.elevation2(theme.brightness),
+    return SafeArea(
+      top: false,
+      minimum: const EdgeInsets.fromLTRB(
+        AppSpacing.md,
+        0,
+        AppSpacing.md,
+        AppSpacing.sm,
       ),
-      child: SafeArea(
-        top: false,
-        child: SizedBox(
-          height: 64,
-          child: Row(
-            children: [
-              for (var i = 0; i < items.length; i++)
-                Expanded(
-                  child: _NavButton(
-                    item: items[i],
-                    selected: i == currentIndex,
-                    onTap: () => onTap(i),
-                  ),
+      child: Container(
+        height: 72,
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: AppRadii.brXL,
+          boxShadow: AppShadows.elevation2(theme.brightness),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Row(
+          children: [
+            for (var i = 0; i < items.length; i++)
+              Expanded(
+                child: _NavButton(
+                  item: items[i],
+                  selected: i == currentIndex,
+                  onTap: () => onTap(i),
                 ),
-            ],
-          ),
+              ),
+          ],
         ),
       ),
     );
@@ -67,10 +73,10 @@ class _NavButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final iconColor =
-        selected ? theme.colorScheme.primary : context.palette.onSurfaceFaint;
-    final labelColor =
-        selected ? theme.colorScheme.primary : context.palette.onSurfaceMuted;
+    final palette = context.palette;
+    final accent = theme.colorScheme.primary;
+    final iconColor = selected ? accent : palette.onSurfaceFaint;
+    final labelColor = selected ? accent : palette.onSurfaceMuted;
     final labelStyle = theme.textTheme.labelMedium?.copyWith(
       color: labelColor,
       fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
@@ -90,6 +96,17 @@ class _NavButton extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(item.label, style: labelStyle),
+            const SizedBox(height: 4),
+            // Active indicator dot beneath the label.
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              width: selected ? 5 : 0,
+              height: selected ? 5 : 0,
+              decoration: BoxDecoration(
+                color: accent,
+                shape: BoxShape.circle,
+              ),
+            ),
           ],
         ),
       ),

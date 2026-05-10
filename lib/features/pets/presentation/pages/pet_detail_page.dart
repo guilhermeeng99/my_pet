@@ -18,6 +18,7 @@ import 'package:my_pet/features/health/presentation/pages/pet_health_page.dart';
 import 'package:my_pet/features/pets/domain/entities/pet.dart';
 import 'package:my_pet/features/pets/domain/repositories/pet_repository.dart';
 import 'package:my_pet/features/pets/presentation/cubit/pets_list_cubit.dart';
+import 'package:my_pet/features/pets/presentation/widgets/pet_age_label.dart';
 import 'package:my_pet/features/pets/presentation/widgets/pet_avatar.dart';
 import 'package:my_pet/features/pets/presentation/widgets/species_meta.dart';
 import 'package:my_pet/features/vaccinations/presentation/pages/pet_vaccinations_page.dart';
@@ -207,7 +208,7 @@ class _Loaded extends StatelessWidget {
                   child: _InfoTile(
                     icon: PhosphorIconsBold.cake,
                     label: t.pets.detail.ageLabel,
-                    value: _ageLabel(pet),
+                    value: petAgeLabel(pet),
                   ),
                 ),
                 const SizedBox(width: AppSpacing.sm),
@@ -299,20 +300,6 @@ class _Loaded extends StatelessWidget {
   String _orDash(String? value) =>
       value == null || value.isEmpty ? '—' : value;
 
-  String _ageLabel(Pet pet) {
-    final age = pet.age;
-    if (age == null) return t.pets.detail.ageUnknown;
-    if (age.isUnderOneMonth) {
-      return t.pets.detail.ageDays(days: age.days);
-    }
-    if (age.isUnderOneYear) {
-      return t.pets.detail.ageMonths(months: age.months);
-    }
-    if (age.months == 0) {
-      return t.pets.detail.ageYears(years: age.years);
-    }
-    return t.pets.detail.ageYearsMonths(years: age.years, months: age.months);
-  }
 
   Future<void> _confirmArchive(BuildContext context, Pet pet) async {
     final confirmed = await showDialog<bool>(
