@@ -154,17 +154,17 @@ Tracker of what is done, in progress and planned. Use the checkboxes to mark pro
 - [ ] Keyboard shortcuts in lists
 
 ### 🌗 Accessibility & i18n
-- [ ] A11y audit (semantics, contrast, touch target size)
-- [ ] Add pt-BR locale via slang
-- [ ] Dynamic font scaling
+- [ ] A11y audit (semantics, contrast, touch target size) — needs manual device testing
+- [x] Add pt-BR locale via slang
+- [x] Dynamic font scaling (relies on Flutter's native MediaQuery.textScaler)
 
 ### 📊 Insights
-- [ ] "Health of the month" dashboard (visits, costs, upcoming vaccines)
-- [ ] Cumulative veterinary spending
+- [x] Insights dashboard MVP (pet count + species breakdown, active / overdue / due-this-week reminders)
+- [ ] Cumulative veterinary spending (needs household-wide health-event aggregation)
 
 ### 🆘 Emergency
-- [ ] Pet ID card (microchip, allergies, vet)
-- [ ] "Lost pet" mode — printable poster PDF
+- [x] Pet ID card (microchip, allergies, contact email; copy-summary to clipboard)
+- [ ] "Lost pet" mode — printable poster PDF (needs `pdf` package; deferred)
 
 ---
 

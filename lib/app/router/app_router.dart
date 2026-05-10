@@ -24,7 +24,7 @@ import 'package:my_pet/features/profile/presentation/pages/profile_page.dart';
 import 'package:my_pet/features/reminders/domain/entities/reminder.dart';
 import 'package:my_pet/features/reminders/presentation/pages/reminder_form_page.dart';
 import 'package:my_pet/features/reminders/presentation/pages/reminders_home_page.dart';
-import 'package:my_pet/features/stats/presentation/pages/stats_stub_page.dart';
+import 'package:my_pet/features/stats/presentation/pages/insights_page.dart';
 import 'package:my_pet/features/vaccinations/presentation/pages/pet_vaccinations_page.dart';
 import 'package:my_pet/features/vaccinations/presentation/pages/vaccination_form_page.dart';
 import 'package:my_pet/features/weight/presentation/pages/pet_weight_page.dart';
@@ -272,7 +272,7 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
             routes: [
               GoRoute(
                 path: AppRoutes.stats,
-                builder: (context, state) => const StatsStubPage(),
+                builder: (context, state) => const InsightsPage(),
               ),
             ],
           ),

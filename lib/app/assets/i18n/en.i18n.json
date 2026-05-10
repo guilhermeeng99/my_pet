@@ -281,6 +281,14 @@
     "addFirstPet": "Add your first pet",
     "addFirstPetSubtitle": "Track every vaccination, weight and memory."
   },
+  "emergency": {
+    "title": "Emergency card",
+    "copySummary": "Copy summary",
+    "copied": "Emergency summary copied.",
+    "summaryHeader": "PET: {name}",
+    "allergies": "Allergies",
+    "contact": "Contact"
+  },
   "documents": {
     "tabTitle": "Documents",
     "addDocument": "Add document",
@@ -485,10 +493,13 @@
     }
   },
   "stats": {
-    "stub": {
-      "title": "Insights coming soon",
-      "subtitle": "Health and spending dashboards land in Phase 4."
-    }
+    "sections": {
+      "household": "Household",
+      "reminders": "Reminders"
+    },
+    "totalActive": "Active",
+    "overdue": "Overdue",
+    "dueThisWeek": "This week"
   },
   "profile": {
     "title": "Profile",

@@ -281,6 +281,14 @@
     "addFirstPet": "Adicione seu primeiro pet",
     "addFirstPetSubtitle": "Acompanhe cada vacina, peso e memória."
   },
+  "emergency": {
+    "title": "Cartão de emergência",
+    "copySummary": "Copiar resumo",
+    "copied": "Resumo de emergência copiado.",
+    "summaryHeader": "PET: {name}",
+    "allergies": "Alergias",
+    "contact": "Contato"
+  },
   "documents": {
     "tabTitle": "Documentos",
     "addDocument": "Adicionar documento",
@@ -485,10 +493,13 @@
     }
   },
   "stats": {
-    "stub": {
-      "title": "Insights em breve",
-      "subtitle": "Painéis de saúde e gastos chegam na Fase 4."
-    }
+    "sections": {
+      "household": "Família",
+      "reminders": "Lembretes"
+    },
+    "totalActive": "Ativos",
+    "overdue": "Atrasados",
+    "dueThisWeek": "Esta semana"
   },
   "profile": {
     "title": "Perfil",
