@@ -250,6 +250,27 @@
     "addFirstPet": "Adicione seu primeiro pet",
     "addFirstPetSubtitle": "Acompanhe cada vacina, peso e memória."
   },
+  "gallery": {
+    "tabTitle": "Galeria",
+    "addPhoto": "Adicionar foto",
+    "captionPlaceholder": "Adicionar uma legenda…",
+    "empty": {
+      "title": "Nenhuma foto ainda",
+      "subtitle": "Tire uma memória e veja a galeria do seu pet crescer."
+    },
+    "actions": {
+      "editCaption": "Legenda",
+      "setAsProfile": "Definir como perfil",
+      "setAsProfileSuccess": "Foto de perfil atualizada."
+    },
+    "deleteConfirmTitle": "Excluir esta foto?",
+    "deleteConfirmMessage": "Isso remove a foto da galeria e do Storage.",
+    "errors": {
+      "loadFailed": "Não conseguimos carregar a galeria. Tente de novo.",
+      "uploadFailed": "Não conseguimos enviar a foto. Tente de novo.",
+      "setAsProfileFailed": "Não conseguimos atualizar a foto de perfil."
+    }
+  },
   "health": {
     "tabTitle": "Saúde",
     "addEvent": "Adicionar evento",

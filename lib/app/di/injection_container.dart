@@ -12,6 +12,9 @@ import 'package:my_pet/features/auth/data/datasources/user_profile_datasource.da
 import 'package:my_pet/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:my_pet/features/auth/domain/repositories/auth_repository.dart';
 import 'package:my_pet/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:my_pet/features/gallery/data/datasources/gallery_firestore_datasource.dart';
+import 'package:my_pet/features/gallery/data/repositories/gallery_repository_impl.dart';
+import 'package:my_pet/features/gallery/domain/repositories/gallery_repository.dart';
 import 'package:my_pet/features/health/data/datasources/health_firestore_datasource.dart';
 import 'package:my_pet/features/health/data/repositories/health_repository_impl.dart';
 import 'package:my_pet/features/health/domain/repositories/health_repository.dart';
@@ -138,6 +141,17 @@ Future<void> configureDependencies() async {
     )
     ..registerFactory<ReminderFormCubit>(
       () => ReminderFormCubit(repository: sl()),
+    )
+    // ── Gallery feature ────────────────────────────────────────────
+    ..registerLazySingleton<GalleryFirestoreDatasource>(
+      () => GalleryFirestoreDatasourceImpl(firestore: sl()),
+    )
+    ..registerLazySingleton<GalleryRepository>(
+      () => GalleryRepositoryImpl(
+        datasource: sl(),
+        storage: sl(),
+        pets: sl(),
+      ),
     )
     // ── Health feature ──────────────────────────────────────────────
     ..registerLazySingleton<HealthFirestoreDatasource>(

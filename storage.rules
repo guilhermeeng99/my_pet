@@ -4,7 +4,8 @@ rules_version = '2';
 //
 // Estrutura:
 //   households/{householdId}/pets/{petId}/profile.jpg
-//   households/{householdId}/pets/{petId}/gallery/{photoId}.jpg
+//   households/{householdId}/pets/{petId}/gallery/{photoId}/original.jpg
+//   households/{householdId}/pets/{petId}/gallery/{photoId}/thumb.jpg
 //   households/{householdId}/pets/{petId}/health/{eventId}/{filename}
 //   households/{householdId}/documents/{documentId}.{ext}
 //
@@ -54,8 +55,8 @@ service firebase.storage {
                    && request.resource.contentType.matches('image/.*');
     }
 
-    // Galeria — máx 5MB por foto
-    match /households/{hid}/pets/{petId}/gallery/{photoId} {
+    // Galeria — máx 5MB por arquivo (original + thumb sob o mesmo photoId)
+    match /households/{hid}/pets/{petId}/gallery/{photoId}/{filename} {
       allow write: if isMember(hid)
                    && request.resource.size < 5 * 1024 * 1024
                    && request.resource.contentType.matches('image/.*');

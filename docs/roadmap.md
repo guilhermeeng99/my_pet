@@ -102,9 +102,9 @@ Tracker of what is done, in progress and planned. Use the checkboxes to mark pro
 - [x] Visual alert if change > 10% (warning) / > 20% (danger) in 30 days
 
 ### 📷 Gallery — [`specs/gallery.md`](specs/gallery.md)
-- [ ] Add photos to a pet (timeline)
-- [ ] Full-screen viewer
-- [ ] Share photo
+- [x] Add photos to a pet (grid w/ thumbnails)
+- [x] Full-screen viewer (pinch-zoom + caption / set-as-profile / delete)
+- [ ] Share photo (platform share sheet — deferred)
 
 ### 📄 Documents — [`specs/documents.md`](specs/documents.md)
 - [ ] Upload PDFs / images (pet ID, exams)

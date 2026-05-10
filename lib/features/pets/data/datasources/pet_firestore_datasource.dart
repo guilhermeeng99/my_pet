@@ -21,6 +21,14 @@ abstract class PetFirestoreDatasource {
     String petId,
     double? weightKg,
   );
+
+  /// Patches `pets/{petId}.photoUrl`. Used by the gallery feature to wire
+  /// "Set as profile photo" without re-uploading the pet's profile JPEG.
+  Future<void> setProfilePhotoUrl(
+    String householdId,
+    String petId,
+    String url,
+  );
 }
 
 class PetFirestoreDatasourceImpl implements PetFirestoreDatasource {
@@ -95,6 +103,18 @@ class PetFirestoreDatasourceImpl implements PetFirestoreDatasource {
   ) async {
     await _pets(householdId).doc(petId).update({
       'currentWeightKg': weightKg,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  @override
+  Future<void> setProfilePhotoUrl(
+    String householdId,
+    String petId,
+    String url,
+  ) async {
+    await _pets(householdId).doc(petId).update({
+      'photoUrl': url,
       'updatedAt': FieldValue.serverTimestamp(),
     });
   }

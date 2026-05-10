@@ -8,6 +8,7 @@ import 'package:my_pet/app/onboarding/onboarding_preference_service.dart';
 import 'package:my_pet/app/router/app_shell.dart';
 import 'package:my_pet/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:my_pet/features/auth/presentation/pages/login_page.dart';
+import 'package:my_pet/features/gallery/presentation/pages/pet_gallery_page.dart';
 import 'package:my_pet/features/health/presentation/pages/pet_health_page.dart';
 import 'package:my_pet/features/household/presentation/pages/household_setup_page.dart';
 import 'package:my_pet/features/household/presentation/pages/join_household_page.dart';
@@ -174,6 +175,17 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
                         builder: (context, state) {
                           final args = state.extra! as PetHealthArgs;
                           return PetHealthPage(
+                            householdId: args.householdId,
+                            petId: args.petId,
+                            petName: args.petName,
+                          );
+                        },
+                      ),
+                      GoRoute(
+                        path: 'gallery',
+                        builder: (context, state) {
+                          final args = state.extra! as PetGalleryArgs;
+                          return PetGalleryPage(
                             householdId: args.householdId,
                             petId: args.petId,
                             petName: args.petName,

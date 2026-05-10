@@ -250,6 +250,27 @@
     "addFirstPet": "Add your first pet",
     "addFirstPetSubtitle": "Track every vaccination, weight and memory."
   },
+  "gallery": {
+    "tabTitle": "Gallery",
+    "addPhoto": "Add photo",
+    "captionPlaceholder": "Add a caption…",
+    "empty": {
+      "title": "No photos yet",
+      "subtitle": "Snap a memory and watch your pet's gallery grow."
+    },
+    "actions": {
+      "editCaption": "Caption",
+      "setAsProfile": "Set as profile",
+      "setAsProfileSuccess": "Profile photo updated."
+    },
+    "deleteConfirmTitle": "Delete this photo?",
+    "deleteConfirmMessage": "This removes the photo from the gallery and Storage.",
+    "errors": {
+      "loadFailed": "We couldn't load the gallery. Try again.",
+      "uploadFailed": "We couldn't upload that photo. Try again.",
+      "setAsProfileFailed": "We couldn't update the profile photo."
+    }
+  },
   "health": {
     "tabTitle": "Health",
     "addEvent": "Add event",

@@ -11,6 +11,7 @@ import 'package:my_pet/app/widgets/circle_icon_button.dart';
 import 'package:my_pet/app/widgets/feature_list_card.dart';
 import 'package:my_pet/app/widgets/section_header.dart';
 import 'package:my_pet/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:my_pet/features/gallery/presentation/pages/pet_gallery_page.dart';
 import 'package:my_pet/features/health/presentation/pages/pet_health_page.dart';
 import 'package:my_pet/features/pets/domain/entities/pet.dart';
 import 'package:my_pet/features/pets/domain/repositories/pet_repository.dart';
@@ -136,6 +137,19 @@ class _Loaded extends StatelessWidget {
               onTap: () => context.push(
                 '${AppRoutes.petDetailBase}/${pet.id}/health',
                 extra: PetHealthArgs(
+                  householdId: pet.householdId,
+                  petId: pet.id,
+                  petName: pet.name,
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            FeatureListCard(
+              icon: PhosphorIconsRegular.imagesSquare,
+              title: t.gallery.tabTitle,
+              onTap: () => context.push(
+                '${AppRoutes.petDetailBase}/${pet.id}/gallery',
+                extra: PetGalleryArgs(
                   householdId: pet.householdId,
                   petId: pet.id,
                   petName: pet.name,
