@@ -52,7 +52,7 @@ Tracker of what is done, in progress and planned. Use the checkboxes to mark pro
 - [x] Create pet (name, species, sex, birth date)
 - [x] Edit pet
 - [x] Pet list (home)
-- [ ] Profile photo (upload via Firebase Storage)
+- [x] Profile photo (upload via Firebase Storage)
 - [x] Soft-delete (archive pet)
 - [x] Age computed from birth date
 
@@ -66,7 +66,7 @@ Tracker of what is done, in progress and planned. Use the checkboxes to mark pro
 ### 🔔 Local reminders — [`specs/notifications.md`](specs/notifications.md)
 - [x] Local notification 7 days before next dose
 - [x] Local notification on the day
-- [ ] Notification permission in onboarding
+- [x] Notification permission in onboarding
 
 ---
 
@@ -79,7 +79,7 @@ Tracker of what is done, in progress and planned. Use the checkboxes to mark pro
 - [x] `StatefulShellRoute` with 4-tab bottom nav (Home / Reminders / Stats / Profile)
 - [x] Restyle Splash, Welcome, Login, Pets Home, Pet Detail, Pet Form, Vaccinations List, Vaccination Form
 - [x] Stub pages for Reminders / Stats / Profile tabs
-- [ ] Reserve `assets/illustrations/mascot.svg` slot — commissioned illustration deferred (programmatic mascot in place)
+- [x] Reserve `assets/illustrations/mascot.svg` slot — commissioned illustration deferred (programmatic mascot in place)
 - [ ] Manual QA across light / dark mode + 200 % font scale
 
 ---

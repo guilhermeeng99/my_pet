@@ -54,7 +54,7 @@ void main() {
     );
 
     blocTest<AuthBloc, AuthState>(
-      'first sign-in: NeedsHousehold then Authenticated after auto-create',
+      'first sign-in lands on NeedsHousehold (no auto-create)',
       build: () {
         final user = AuthUserFactory.withoutHousehold();
         when(repository.signInWithGoogle).thenAnswer((_) async => Right(user));
@@ -64,6 +64,29 @@ void main() {
       expect: () => [
         const AuthLoading(),
         AuthNeedsHousehold(AuthUserFactory.withoutHousehold()),
+      ],
+      verify: (_) {
+        // Auto-create was removed in favor of explicit setup choice.
+        verifyNever(() => households.createForUser(any()));
+      },
+    );
+
+    blocTest<AuthBloc, AuthState>(
+      'CreateOwnHouseholdRequested: NeedsHousehold -> Creating -> Authenticated',
+      build: () {
+        final user = AuthUserFactory.withoutHousehold();
+        when(repository.signInWithGoogle).thenAnswer((_) async => Right(user));
+        return buildBloc();
+      },
+      act: (bloc) async {
+        bloc.add(const GoogleSignInRequested());
+        await Future<void>.delayed(Duration.zero);
+        bloc.add(const CreateOwnHouseholdRequested());
+      },
+      expect: () => [
+        const AuthLoading(),
+        AuthNeedsHousehold(AuthUserFactory.withoutHousehold()),
+        AuthCreatingHousehold(AuthUserFactory.withoutHousehold()),
         AuthAuthenticated(
           AuthUserFactory.withoutHousehold().copyWith(householdId: 'household_42'),
         ),
@@ -74,7 +97,7 @@ void main() {
     );
 
     blocTest<AuthBloc, AuthState>(
-      'auto-create failure surfaces AuthErrorState after NeedsHousehold',
+      'CreateOwnHouseholdRequested failure surfaces AuthErrorState',
       build: () {
         final user = AuthUserFactory.withoutHousehold();
         when(repository.signInWithGoogle).thenAnswer((_) async => Right(user));
@@ -82,10 +105,15 @@ void main() {
             .thenAnswer((_) async => const Left(ServerFailure(message: 'boom')));
         return buildBloc();
       },
-      act: (bloc) => bloc.add(const GoogleSignInRequested()),
+      act: (bloc) async {
+        bloc.add(const GoogleSignInRequested());
+        await Future<void>.delayed(Duration.zero);
+        bloc.add(const CreateOwnHouseholdRequested());
+      },
       expect: () => [
         const AuthLoading(),
         AuthNeedsHousehold(AuthUserFactory.withoutHousehold()),
+        AuthCreatingHousehold(AuthUserFactory.withoutHousehold()),
         const AuthErrorState(ServerFailure(message: 'boom')),
       ],
     );

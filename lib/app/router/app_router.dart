@@ -3,11 +3,14 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:my_pet/app/di/injection_container.dart';
+import 'package:my_pet/app/onboarding/onboarding_preference_service.dart';
 import 'package:my_pet/app/router/app_shell.dart';
 import 'package:my_pet/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:my_pet/features/auth/presentation/pages/login_page.dart';
 import 'package:my_pet/features/household/presentation/pages/household_setup_page.dart';
 import 'package:my_pet/features/household/presentation/pages/join_household_page.dart';
+import 'package:my_pet/features/onboarding/presentation/notification_permission_page.dart';
 import 'package:my_pet/features/onboarding/presentation/splash_page.dart';
 import 'package:my_pet/features/onboarding/presentation/welcome_page.dart';
 import 'package:my_pet/features/pets/domain/entities/pet.dart';
@@ -33,6 +36,7 @@ abstract final class AppRoutes {
   static const String profile = '/profile';
   static const String householdSetup = '/household/setup';
   static const String join = '/join';
+  static const String notificationsPermission = '/onboarding/notifications';
   static const String petCreate = '/home/new';
   static const String petDetailBase = '/home/pet';
   static const String petDetailPattern = '$petDetailBase/:petId';
@@ -70,6 +74,15 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
           }
           return AppRoutes.householdSetup;
         case AuthAuthenticated():
+          final needsNotifPrompt = !sl<OnboardingPreferenceService>()
+              .notificationsPromptShown;
+          if (needsNotifPrompt && loc != AppRoutes.notificationsPermission) {
+            return AppRoutes.notificationsPermission;
+          }
+          if (!needsNotifPrompt &&
+              loc == AppRoutes.notificationsPermission) {
+            return AppRoutes.home;
+          }
           if (loc == AppRoutes.login ||
               loc == AppRoutes.welcome ||
               loc == AppRoutes.splash ||
@@ -77,6 +90,7 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
             return AppRoutes.home;
           }
           if (!isShellRoute &&
+              loc != AppRoutes.notificationsPermission &&
               loc != AppRoutes.splash &&
               loc != AppRoutes.welcome &&
               loc != AppRoutes.login &&
@@ -106,6 +120,10 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
       GoRoute(
         path: AppRoutes.join,
         builder: (context, state) => const JoinHouseholdPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.notificationsPermission,
+        builder: (context, state) => const NotificationPermissionPage(),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>

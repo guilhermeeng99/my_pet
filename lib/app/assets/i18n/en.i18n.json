@@ -21,7 +21,13 @@
   },
   "onboarding": {
     "welcomeTitle": "Welcome! Let's care for your pets together.",
-    "welcomeSubtitle": "Track vaccinations, vet visits, weight and every memory, shared with your whole family."
+    "welcomeSubtitle": "Track vaccinations, vet visits, weight and every memory, shared with your whole family.",
+    "notifications": {
+      "title": "Never miss a dose",
+      "subtitle": "Enable notifications so we can remind you 7 days before each vaccine and again on the day. You can change this anytime in Settings.",
+      "enable": "Enable notifications",
+      "skip": "Not now"
+    }
   },
   "auth": {
     "signInTitle": "Welcome",

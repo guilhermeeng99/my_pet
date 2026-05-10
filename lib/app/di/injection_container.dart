@@ -4,6 +4,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:my_pet/app/i18n/locale_preference_service.dart';
+import 'package:my_pet/app/onboarding/onboarding_preference_service.dart';
 import 'package:my_pet/core/services/firebase_photo_storage_service.dart';
 import 'package:my_pet/core/services/photo_storage_service.dart';
 import 'package:my_pet/features/auth/data/datasources/firebase_auth_datasource.dart';
@@ -26,6 +27,7 @@ import 'package:my_pet/features/vaccinations/data/repositories/vaccination_repos
 import 'package:my_pet/features/vaccinations/domain/repositories/vaccination_repository.dart';
 import 'package:my_pet/features/vaccinations/presentation/cubit/vaccination_form_cubit.dart';
 import 'package:my_pet/features/vaccinations/presentation/cubit/vaccinations_list_cubit.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Service locator. All implementations are registered here.
@@ -40,6 +42,7 @@ Future<void> configureDependencies() async {
   // SharedPreferences is async-only; eagerly resolve once so anyone needing
   // it can register synchronously below.
   final sharedPrefs = await SharedPreferences.getInstance();
+  final packageInfo = await PackageInfo.fromPlatform();
 
   sl
     // ── Firebase / Google clients ───────────────────────────────────
@@ -49,8 +52,12 @@ Future<void> configureDependencies() async {
     ..registerLazySingleton<GoogleSignIn>(() => GoogleSignIn.instance)
     // ── Shared services ─────────────────────────────────────────────
     ..registerSingleton<SharedPreferences>(sharedPrefs)
+    ..registerSingleton<PackageInfo>(packageInfo)
     ..registerLazySingleton<LocalePreferenceService>(
       () => LocalePreferenceService(prefs: sl()),
+    )
+    ..registerLazySingleton<OnboardingPreferenceService>(
+      () => OnboardingPreferenceService(prefs: sl()),
     )
     ..registerLazySingleton<PhotoStorageService>(
       () => FirebasePhotoStorageService(storage: sl()),

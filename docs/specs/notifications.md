@@ -70,7 +70,7 @@ NotificationPermissionPermanentlyDenied
 
 ## Screens
 
-- `NotificationPermissionPage` (onboarding)
+- `NotificationPermissionPage` (onboarding) — gated by `OnboardingPreferenceService.notificationsPromptShown` and shown once after the household setup. Triggers `NotificationService.requestPermission()` on the primary CTA; both Enable and "Not now" record the prompt as shown so it never re-fires unprompted. Users who already granted permission (re-install, OS settings) are auto-advanced via `hasPermission()`.
 - `NotificationsSettingsPage` (settings) — toggle list per type (vaccines, medications, manual reminders)
 
 ## Permissions (Firestore — Phase 3 only)

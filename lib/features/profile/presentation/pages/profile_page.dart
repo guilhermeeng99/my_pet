@@ -8,7 +8,6 @@ import 'package:my_pet/app/theme/app_palette.dart';
 import 'package:my_pet/app/theme/app_radii.dart';
 import 'package:my_pet/app/theme/app_spacing.dart';
 import 'package:my_pet/app/widgets/app_card.dart';
-import 'package:my_pet/app/widgets/app_primary_button.dart';
 import 'package:my_pet/app/widgets/screen_scaffold.dart';
 import 'package:my_pet/app/widgets/section_header.dart';
 import 'package:my_pet/core/constants/app_constants.dart';
@@ -21,6 +20,7 @@ import 'package:my_pet/features/household/presentation/cubit/household_cubit.dar
 import 'package:my_pet/features/household/presentation/cubit/invite_cubit.dart';
 import 'package:my_pet/features/household/presentation/widgets/invite_code_dialog.dart';
 import 'package:my_pet/gen/strings.g.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// Settings tab — identity, household / partner card with invite-code flow,
@@ -217,7 +217,7 @@ class _HouseholdSection extends StatelessWidget {
             const _HouseholdLoadingCard(),
           HouseholdLoaded(:final hasPartner) when hasPartner =>
             _PartnerCard(state: state, currentUid: user.uid),
-          HouseholdLoaded() => _NoPartnerSection(user: user),
+          HouseholdLoaded() => const SizedBox.shrink(),
           HouseholdNotFound() || HouseholdError() => const _NoPartnerFallback(),
         };
       },
@@ -250,78 +250,6 @@ class _NoPartnerFallback extends StatelessWidget {
         t.household.errors.generic,
         style: theme.textTheme.bodyMedium,
       ),
-    );
-  }
-}
-
-class _NoPartnerSection extends StatelessWidget {
-  const _NoPartnerSection({required this.user});
-
-  final AuthUser user;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final palette = context.palette;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        AppCard(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primaryContainer,
-                  borderRadius: AppRadii.brMd,
-                ),
-                child: Icon(
-                  PhosphorIconsBold.heart,
-                  color: theme.colorScheme.primary,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      t.household.noPartner.title,
-                      style: theme.textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      t.household.noPartner.subtitle,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: palette.onSurfaceMuted,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        BlocBuilder<InviteCubit, InviteState>(
-          builder: (context, invite) {
-            return AppPrimaryButton(
-              icon: PhosphorIconsBold.linkSimple,
-              label: t.household.actions.generateInvite,
-              loading: invite is InviteGenerating,
-              onPressed: invite is InviteGenerating
-                  ? null
-                  : () => context.read<InviteCubit>().generate(
-                        householdId: user.householdId!,
-                        createdBy: user.uid,
-                      ),
-            );
-          },
-        ),
-      ],
     );
   }
 }
@@ -656,8 +584,6 @@ class _AboutSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final palette = context.palette;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -665,47 +591,7 @@ class _AboutSection extends StatelessWidget {
         _InfoRow(
           icon: PhosphorIconsRegular.info,
           label: t.profile.version,
-          value: '0.1.0',
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        AppCard(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primary.withValues(alpha: 0.12),
-                  borderRadius: AppRadii.brMd,
-                ),
-                child: Icon(
-                  PhosphorIconsRegular.shield,
-                  size: 18,
-                  color: theme.colorScheme.primary,
-                ),
-              ),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      t.profile.about.privacy.title,
-                      style: theme.textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      t.profile.about.privacy.body,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: palette.onSurfaceMuted,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+          value: sl<PackageInfo>().version,
         ),
       ],
     );

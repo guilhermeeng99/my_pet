@@ -59,6 +59,7 @@ dependencies:
   image_picker: ^1.2.2
   image: ^4.8.0
   connectivity_plus: ^7.1.1
+  package_info_plus: ^9.0.0
 
   cupertino_icons: ^1.0.8
 
@@ -81,5 +82,9 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   generate: true
+  assets:
+    # Reserved slot for the commissioned mascot illustration. The
+    # programmatic PetMascot widget is the default until mascot.svg lands.
+    - assets/illustrations/
 
 # slang configuration lives in slang.yaml at the repo root.
