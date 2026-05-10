@@ -172,6 +172,37 @@
     "settingsTitle": "Família",
     "memberRoleOwner": "Admin",
     "memberRolePartner": "Parceiro(a)",
+    "manageFamily": "Gerenciar família",
+    "members": {
+      "title": "Família",
+      "sectionTitle": "Membros",
+      "remove": "Remover",
+      "transfer": "Transferir admin",
+      "leave": "Sair da família",
+      "leaveSubtitle": "Você perde acesso a esta família; os dados continuam com o admin.",
+      "danger": "Zona de perigo",
+      "history": "Histórico",
+      "audit": "Histórico de alterações",
+      "removeConfirmTitle": "Remover esta pessoa?",
+      "removeConfirmBody": "{name} vai perder acesso a esta família.",
+      "transferConfirmTitle": "Transferir admin?",
+      "transferConfirmBody": "{name} vira o novo admin e você perde os poderes de admin.",
+      "leaveConfirmTitle": "Sair desta família?",
+      "leaveConfirmBody": "Você sai desta família e cai na tela de configuração inicial na próxima abertura."
+    },
+    "audit": {
+      "title": "Histórico de alterações",
+      "empty": "Nada registrado ainda.",
+      "lines": {
+        "householdCreated": "{actor} criou esta família.",
+        "inviteGenerated": "{actor} gerou um novo código de convite.",
+        "inviteAccepted": "{actor} entrou na família.",
+        "memberRemoved": "{actor} removeu {target}.",
+        "memberLeft": "{actor} saiu da família.",
+        "ownerTransferred": "{actor} transferiu o admin para {target}.",
+        "householdRenamed": "{actor} renomeou a família."
+      }
+    },
     "setup": {
       "title": "Como você quer começar?",
       "subtitle": "Você pode criar a sua própria família ou entrar em uma que seu parceiro(a) já criou.",

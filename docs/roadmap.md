@@ -128,11 +128,11 @@ Tracker of what is done, in progress and planned. Use the checkboxes to mark pro
 - [x] Generate invite code (6 chars, 24h TTL) — top-level `inviteCodes/{code}`
 - [x] Accept invite (atomic batched write, drops empty old household)
 - [x] Danger zone — delete-all-data cascade (Firestore + Firebase Auth, idempotent, sole-member only)
-- [ ] Remove member (admin only)
-- [ ] Transfer admin
-- [ ] Delete-all-data for partner (leave household instead of nuking it)
-- [ ] Minimal audit ("who changed what")
-- [ ] Tests for cubits + repository
+- [x] Remove member (admin only)
+- [x] Transfer admin
+- [x] Leave household (partner-only; data stays with the remaining owner)
+- [x] Minimal audit log (`households/{id}/audit`, append-only, capped at 100)
+- [x] Tests for repository member-management ops
 
 ### ☁️ Sync & offline — [`specs/sync.md`](specs/sync.md)
 - [ ] Local Hive cache (read-through)

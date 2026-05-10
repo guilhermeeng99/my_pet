@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import 'package:my_pet/features/household/data/repositories/household_repository_impl.dart';
+import 'package:my_pet/features/household/domain/entities/audit_event.dart';
 
 import '../../../../harness/factories/auth_user_factory.dart';
 import '../../../../harness/factories/household_factory.dart';
@@ -11,9 +12,25 @@ void main() {
   late MockHouseholdFirestoreDatasource datasource;
   late HouseholdRepositoryImpl repository;
 
+  setUpAll(() {
+    registerFallbackValue(AuditAction.householdCreated);
+  });
+
   setUp(() {
     datasource = MockHouseholdFirestoreDatasource();
     repository = HouseholdRepositoryImpl(datasource: datasource);
+
+    // createForUser now writes a best-effort audit entry; stub it to
+    // succeed so the surrounding behavior is what we're really asserting.
+    when(() => datasource.appendAudit(
+          householdId: any(named: 'householdId'),
+          action: any(named: 'action'),
+          actorId: any(named: 'actorId'),
+          actorName: any(named: 'actorName'),
+          targetUserId: any(named: 'targetUserId'),
+          targetName: any(named: 'targetName'),
+          note: any(named: 'note'),
+        )).thenAnswer((_) async {});
   });
 
   group('createForUser', () {

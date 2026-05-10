@@ -172,6 +172,37 @@
     "settingsTitle": "Family",
     "memberRoleOwner": "Admin",
     "memberRolePartner": "Partner",
+    "manageFamily": "Manage family",
+    "members": {
+      "title": "Family",
+      "sectionTitle": "Members",
+      "remove": "Remove",
+      "transfer": "Transfer admin",
+      "leave": "Leave household",
+      "leaveSubtitle": "Your access to this household ends; existing data stays with the owner.",
+      "danger": "Danger zone",
+      "history": "History",
+      "audit": "Audit log",
+      "removeConfirmTitle": "Remove this partner?",
+      "removeConfirmBody": "{name} will lose access to this household.",
+      "transferConfirmTitle": "Transfer admin rights?",
+      "transferConfirmBody": "{name} becomes the new admin and you lose admin-only abilities.",
+      "leaveConfirmTitle": "Leave this household?",
+      "leaveConfirmBody": "You'll be signed out of this family and dropped back to the setup screen on next launch."
+    },
+    "audit": {
+      "title": "Audit log",
+      "empty": "Nothing recorded yet.",
+      "lines": {
+        "householdCreated": "{actor} created this household.",
+        "inviteGenerated": "{actor} generated a new invite code.",
+        "inviteAccepted": "{actor} joined the household.",
+        "memberRemoved": "{actor} removed {target}.",
+        "memberLeft": "{actor} left the household.",
+        "ownerTransferred": "{actor} transferred admin to {target}.",
+        "householdRenamed": "{actor} renamed the household."
+      }
+    },
     "setup": {
       "title": "How do you want to start?",
       "subtitle": "You can create your own family or join one your partner already created.",

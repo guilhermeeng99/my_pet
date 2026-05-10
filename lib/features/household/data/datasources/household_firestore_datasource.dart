@@ -3,8 +3,10 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:my_pet/features/auth/data/models/auth_user_model.dart';
+import 'package:my_pet/features/household/data/models/audit_event_model.dart';
 import 'package:my_pet/features/household/data/models/household_model.dart';
 import 'package:my_pet/features/household/data/models/invite_model.dart';
+import 'package:my_pet/features/household/domain/entities/audit_event.dart';
 
 /// Project-owned wrapper around the Firestore docs that back the household
 /// feature: `households/{id}`, `inviteCodes/{code}`, and the cross-cutting
@@ -46,6 +48,52 @@ abstract class HouseholdFirestoreDatasource {
     required String householdId,
     required String userId,
   });
+
+  /// Removes [memberUserId] from the household and clears their
+  /// `users/{uid}.householdId`. Only the owner may call this; the
+  /// repository validates ownership before invoking.
+  ///
+  /// Throws [HouseholdNotFoundException] when the household no longer
+  /// exists, [NotMemberException] when the target isn't actually in the
+  /// household, and [CannotRemoveOwnerException] when the target is the
+  /// current owner.
+  Future<HouseholdModel> removeMember({
+    required String householdId,
+    required String actorUserId,
+    required String memberUserId,
+  });
+
+  /// Reassigns ownership to [newOwnerId]. Both UIDs must already be in
+  /// `memberIds`. Throws [NotMemberException] when [newOwnerId] is not.
+  Future<HouseholdModel> transferOwnership({
+    required String householdId,
+    required String actorUserId,
+    required String newOwnerId,
+  });
+
+  /// Removes [userId] from the household (the partner leaves but the
+  /// household data lives on with the remaining owner). Throws
+  /// [CannotLeaveAsOwnerException] when the user is the current owner —
+  /// owners must transfer first or wipe.
+  Future<void> leaveHousehold({
+    required String householdId,
+    required String userId,
+  });
+
+  /// Live audit feed for the household, newest first.
+  Stream<List<AuditEventModel>> watchAudit(String householdId);
+
+  /// Writes a single audit entry. The repository wraps action calls so
+  /// the actor + target context is captured consistently.
+  Future<void> appendAudit({
+    required String householdId,
+    required AuditAction action,
+    required String actorId,
+    required String actorName,
+    String? targetUserId,
+    String? targetName,
+    String? note,
+  });
 }
 
 /// Sealed exceptions thrown only inside this datasource and translated into
@@ -78,6 +126,26 @@ class HouseholdNotEmptyException extends HouseholdDatasourceException {
   const HouseholdNotEmptyException();
 }
 
+class HouseholdNotFoundException extends HouseholdDatasourceException {
+  const HouseholdNotFoundException();
+}
+
+class NotMemberException extends HouseholdDatasourceException {
+  const NotMemberException();
+}
+
+class CannotRemoveOwnerException extends HouseholdDatasourceException {
+  const CannotRemoveOwnerException();
+}
+
+class CannotLeaveAsOwnerException extends HouseholdDatasourceException {
+  const CannotLeaveAsOwnerException();
+}
+
+class NotOwnerException extends HouseholdDatasourceException {
+  const NotOwnerException();
+}
+
 class HouseholdFirestoreDatasourceImpl implements HouseholdFirestoreDatasource {
   HouseholdFirestoreDatasourceImpl({required FirebaseFirestore firestore})
       : _firestore = firestore;
@@ -98,6 +166,9 @@ class HouseholdFirestoreDatasourceImpl implements HouseholdFirestoreDatasource {
 
   CollectionReference<Map<String, dynamic>> get _inviteCodes =>
       _firestore.collection('inviteCodes');
+
+  CollectionReference<Map<String, dynamic>> _audit(String hid) =>
+      _households.doc(hid).collection('audit');
 
   @override
   Stream<HouseholdModel?> watch(String householdId) {
@@ -317,6 +388,139 @@ class HouseholdFirestoreDatasourceImpl implements HouseholdFirestoreDatasource {
       batch.delete(d.reference);
     }
     await batch.commit();
+  }
+
+  @override
+  Future<HouseholdModel> removeMember({
+    required String householdId,
+    required String actorUserId,
+    required String memberUserId,
+  }) async {
+    final snap = await _households.doc(householdId).get();
+    if (!snap.exists) throw const HouseholdNotFoundException();
+    final data = snap.data()!;
+    final ownerId = (data['ownerId'] ?? '') as String;
+    final memberIds =
+        List<String>.from(data['memberIds'] as List? ?? const <String>[]);
+
+    if (ownerId != actorUserId) throw const NotOwnerException();
+    if (memberUserId == ownerId) throw const CannotRemoveOwnerException();
+    if (!memberIds.contains(memberUserId)) {
+      throw const NotMemberException();
+    }
+
+    final batch = _firestore.batch()
+      ..update(_households.doc(householdId), {
+        'memberIds': FieldValue.arrayRemove([memberUserId]),
+      })
+      ..set(
+        _users.doc(memberUserId),
+        {'householdId': null},
+        SetOptions(merge: true),
+      );
+    await batch.commit();
+
+    return HouseholdModel(
+      id: householdId,
+      name: (data['name'] ?? '') as String,
+      ownerId: ownerId,
+      memberIds: memberIds.where((id) => id != memberUserId).toList(),
+      createdAt: (data['createdAt'] as Timestamp?)?.toDate() ??
+          DateTime.now().toUtc(),
+    );
+  }
+
+  @override
+  Future<HouseholdModel> transferOwnership({
+    required String householdId,
+    required String actorUserId,
+    required String newOwnerId,
+  }) async {
+    final snap = await _households.doc(householdId).get();
+    if (!snap.exists) throw const HouseholdNotFoundException();
+    final data = snap.data()!;
+    final ownerId = (data['ownerId'] ?? '') as String;
+    final memberIds =
+        List<String>.from(data['memberIds'] as List? ?? const <String>[]);
+
+    if (ownerId != actorUserId) throw const NotOwnerException();
+    if (!memberIds.contains(newOwnerId)) {
+      throw const NotMemberException();
+    }
+
+    await _households.doc(householdId).update({'ownerId': newOwnerId});
+
+    return HouseholdModel(
+      id: householdId,
+      name: (data['name'] ?? '') as String,
+      ownerId: newOwnerId,
+      memberIds: memberIds,
+      createdAt: (data['createdAt'] as Timestamp?)?.toDate() ??
+          DateTime.now().toUtc(),
+    );
+  }
+
+  @override
+  Future<void> leaveHousehold({
+    required String householdId,
+    required String userId,
+  }) async {
+    final snap = await _households.doc(householdId).get();
+    if (!snap.exists) throw const HouseholdNotFoundException();
+    final data = snap.data()!;
+    final ownerId = (data['ownerId'] ?? '') as String;
+    final memberIds =
+        List<String>.from(data['memberIds'] as List? ?? const <String>[]);
+
+    if (!memberIds.contains(userId)) throw const NotMemberException();
+    if (userId == ownerId) throw const CannotLeaveAsOwnerException();
+
+    final batch = _firestore.batch()
+      ..update(_households.doc(householdId), {
+        'memberIds': FieldValue.arrayRemove([userId]),
+      })
+      ..set(
+        _users.doc(userId),
+        {'householdId': null},
+        SetOptions(merge: true),
+      );
+    await batch.commit();
+  }
+
+  @override
+  Stream<List<AuditEventModel>> watchAudit(String householdId) {
+    return _audit(householdId)
+        .orderBy('at', descending: true)
+        .limit(100)
+        .snapshots()
+        .map((snap) => snap.docs
+            .map((d) => AuditEventModel.fromFirestore(d.id, d.data()))
+            .toList(growable: false));
+  }
+
+  @override
+  Future<void> appendAudit({
+    required String householdId,
+    required AuditAction action,
+    required String actorId,
+    required String actorName,
+    String? targetUserId,
+    String? targetName,
+    String? note,
+  }) async {
+    final ref = _audit(householdId).doc();
+    final event = AuditEventModel(
+      id: ref.id,
+      householdId: householdId,
+      action: action,
+      actorId: actorId,
+      actorName: actorName,
+      targetUserId: targetUserId,
+      targetName: targetName,
+      at: DateTime.now().toUtc(),
+      note: note,
+    );
+    await ref.set(event.toFirestoreCreate());
   }
 
   @override

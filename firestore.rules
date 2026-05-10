@@ -71,6 +71,17 @@ service cloud.firestore {
       allow update: if isSelf(userId)
                     && fieldUnchanged('uid');
 
+      // Update: o owner de uma household pode DESATRELAR um membro removido
+      // limpando apenas `householdId`. Necessário porque a regra acima
+      // bloqueia escritas cruzadas — o owner precisa zerar o link do
+      // ex-membro para que o auth dele volte ao fluxo de setup.
+      allow update: if isSignedIn()
+                    && resource.data.householdId != null
+                    && isOwner(resource.data.householdId)
+                    && request.resource.data.diff(resource.data)
+                         .affectedKeys().hasOnly(['householdId'])
+                    && request.resource.data.householdId == null;
+
       // Delete só pelo próprio (não usado pelo app no MVP — manter restrito).
       allow delete: if isSelf(userId);
 
@@ -117,6 +128,18 @@ service cloud.firestore {
                     && fieldUnchanged('ownerId')
                     && fieldUnchanged('createdAt');
 
+      // Self-leave: signed-in non-owner member removes themselves.
+      // Owner-self-leave is intentionally disallowed — owners must transfer
+      // first (enforced in the datasource).
+      allow update: if isSignedIn()
+                    && uid() in resource.data.memberIds
+                    && !(uid() in request.resource.data.memberIds)
+                    && uid() != resource.data.ownerId
+                    && fieldUnchanged('ownerId')
+                    && fieldUnchanged('createdAt')
+                    && request.resource.data.memberIds.size() + 1
+                         == resource.data.memberIds.size();
+
       // Delete só pelo owner e somente quando ele é o único membro.
       allow delete: if isOwner(hid)
                     && resource.data.memberIds.size() == 1;
@@ -155,6 +178,16 @@ service cloud.firestore {
           allow read: if isMember(hid);
           allow create, update, delete: if isMember(hid);
         }
+      }
+
+      // ─── audit log ──────────────────────────────────────────────
+      // Append-only journal of household management actions. Visible
+      // to all members; updates and deletes are forbidden.
+      match /audit/{eventId} {
+        allow read: if isMember(hid);
+        allow create: if isMember(hid)
+                      && request.resource.data.actorId == uid();
+        allow update, delete: if false;
       }
 
       // ─── reminders ─────────────────────────────────────────────────

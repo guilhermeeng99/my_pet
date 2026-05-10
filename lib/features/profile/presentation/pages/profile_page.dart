@@ -18,6 +18,7 @@ import 'package:my_pet/features/household/domain/entities/household_member.dart'
 import 'package:my_pet/features/household/presentation/cubit/account_deletion_cubit.dart';
 import 'package:my_pet/features/household/presentation/cubit/household_cubit.dart';
 import 'package:my_pet/features/household/presentation/cubit/invite_cubit.dart';
+import 'package:my_pet/features/household/presentation/pages/household_members_page.dart';
 import 'package:my_pet/features/household/presentation/widgets/invite_code_dialog.dart';
 import 'package:my_pet/gen/strings.g.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -91,6 +92,8 @@ class _ProfileView extends StatelessWidget {
             _IdentityCard(user: user),
             const SizedBox(height: AppSpacing.md),
             _HouseholdSection(user: user),
+            const SizedBox(height: AppSpacing.md),
+            const _ManageFamilyCard(),
             const SizedBox(height: AppSpacing.lg),
             const _PreferencesSection(),
             const SizedBox(height: AppSpacing.lg),
@@ -594,6 +597,55 @@ class _AboutSection extends StatelessWidget {
           value: sl<PackageInfo>().version,
         ),
       ],
+    );
+  }
+}
+
+/// Routes the user to the Family management screen (members + audit
+/// log). Surfaced as a stand-alone card under the household section so
+/// the action is discoverable for both owners and partners.
+class _ManageFamilyCard extends StatelessWidget {
+  const _ManageFamilyCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final palette = context.palette;
+    return AppCard(
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => const HouseholdMembersPage(),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primary.withValues(alpha: 0.12),
+              borderRadius: AppRadii.brMd,
+            ),
+            child: Icon(
+              PhosphorIconsRegular.usersThree,
+              size: 18,
+              color: theme.colorScheme.primary,
+            ),
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Text(
+              t.household.manageFamily,
+              style: theme.textTheme.titleMedium,
+            ),
+          ),
+          Icon(
+            PhosphorIconsRegular.caretRight,
+            size: 18,
+            color: palette.onSurfaceMuted,
+          ),
+        ],
+      ),
     );
   }
 }

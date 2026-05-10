@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 
 import 'package:my_pet/core/errors/failures.dart';
 import 'package:my_pet/features/auth/domain/entities/auth_user.dart';
+import 'package:my_pet/features/household/domain/entities/audit_event.dart';
 import 'package:my_pet/features/household/domain/entities/household.dart';
 import 'package:my_pet/features/household/domain/entities/household_member.dart';
 import 'package:my_pet/features/household/domain/entities/invite.dart';
@@ -47,4 +48,31 @@ abstract class HouseholdRepository {
     required String householdId,
     required String userId,
   });
+
+  /// Owner removes a member from the household. The member's pet/health
+  /// data stays in the household; only the partner is detached.
+  Future<Either<Failure, Household>> removeMember({
+    required String householdId,
+    required AuthUser actor,
+    required HouseholdMember target,
+  });
+
+  /// Owner transfers ownership to another member. Both must already be in
+  /// the household.
+  Future<Either<Failure, Household>> transferOwnership({
+    required String householdId,
+    required AuthUser actor,
+    required HouseholdMember newOwner,
+  });
+
+  /// Partner leaves the household. The household data stays with the
+  /// remaining owner; the partner's `users/{uid}.householdId` is cleared
+  /// so they land on the setup flow on next sign-in.
+  Future<Either<Failure, Unit>> leaveHousehold({
+    required String householdId,
+    required AuthUser actor,
+  });
+
+  /// Live audit feed, newest first. Capped at 100 events on the server.
+  Stream<List<AuditEvent>> watchAudit(String householdId);
 }
