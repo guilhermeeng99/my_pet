@@ -31,6 +31,10 @@ import 'package:my_pet/features/vaccinations/data/repositories/vaccination_repos
 import 'package:my_pet/features/vaccinations/domain/repositories/vaccination_repository.dart';
 import 'package:my_pet/features/vaccinations/presentation/cubit/vaccination_form_cubit.dart';
 import 'package:my_pet/features/vaccinations/presentation/cubit/vaccinations_list_cubit.dart';
+import 'package:my_pet/features/weight/data/datasources/weight_firestore_datasource.dart';
+import 'package:my_pet/features/weight/data/repositories/weight_repository_impl.dart';
+import 'package:my_pet/features/weight/domain/repositories/weight_repository.dart';
+import 'package:my_pet/features/weight/presentation/cubit/weight_form_cubit.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -130,6 +134,16 @@ Future<void> configureDependencies() async {
     )
     ..registerFactory<ReminderFormCubit>(
       () => ReminderFormCubit(repository: sl()),
+    )
+    // ── Weight feature ──────────────────────────────────────────────
+    ..registerLazySingleton<WeightFirestoreDatasource>(
+      () => WeightFirestoreDatasourceImpl(firestore: sl()),
+    )
+    ..registerLazySingleton<WeightRepository>(
+      () => WeightRepositoryImpl(datasource: sl(), pets: sl()),
+    )
+    ..registerFactory<WeightFormCubit>(
+      () => WeightFormCubit(repository: sl()),
     )
     ..registerSingleton<bool>(true, instanceName: '_diReady');
 }

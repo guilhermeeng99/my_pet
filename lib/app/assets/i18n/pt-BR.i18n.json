@@ -250,6 +250,40 @@
     "addFirstPet": "Adicione seu primeiro pet",
     "addFirstPetSubtitle": "Acompanhe cada vacina, peso e memória."
   },
+  "weight": {
+    "tabTitle": "Peso",
+    "addWeight": "Adicionar pesagem",
+    "historySection": "Histórico",
+    "empty": {
+      "title": "Nenhuma pesagem ainda",
+      "subtitle": "Registre o peso do seu pet para ver tendências e identificar problemas cedo."
+    },
+    "stats": {
+      "latest": "Última",
+      "thirtyDays": "30 dias",
+      "average": "Média"
+    },
+    "alerts": {
+      "warning": "Atenção: mais de 10% de variação nos últimos 30 dias.",
+      "danger": "Variação grande — mais de 20% em 30 dias. Considere falar com o vet."
+    },
+    "deleteConfirmTitle": "Excluir esta pesagem?",
+    "deleteConfirmMessage": "Você pode adicionar de novo quando quiser.",
+    "form": {
+      "title": "Pesagem de {petName}",
+      "weightKg": "Peso (kg)",
+      "date": "Data",
+      "notesOptional": "Notas (opcional)",
+      "save": "Salvar pesagem",
+      "errors": {
+        "invalidWeight": "Informe um peso entre 0 e 200 kg."
+      }
+    },
+    "errors": {
+      "loadFailed": "Não conseguimos carregar as pesagens. Tente de novo.",
+      "saveFailed": "Não conseguimos salvar a pesagem. Tente de novo."
+    }
+  },
   "reminders": {
     "addReminder": "Adicionar lembrete",
     "empty": {

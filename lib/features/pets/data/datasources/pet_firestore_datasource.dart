@@ -11,6 +11,16 @@ abstract class PetFirestoreDatasource {
   Future<PetModel> update(PetModel pet);
   Future<void> archive(String householdId, String petId);
   Future<void> unarchive(String householdId, String petId);
+
+  /// Patches `pets/{petId}.currentWeightKg`. Used by the weight feature to
+  /// cascade the latest weigh-in onto the pet doc without re-writing the
+  /// rest of the entity. Pass `null` to clear (e.g. after deleting the
+  /// last entry).
+  Future<void> setCurrentWeight(
+    String householdId,
+    String petId,
+    double? weightKg,
+  );
 }
 
 class PetFirestoreDatasourceImpl implements PetFirestoreDatasource {
@@ -73,6 +83,18 @@ class PetFirestoreDatasourceImpl implements PetFirestoreDatasource {
   Future<void> unarchive(String householdId, String petId) async {
     await _pets(householdId).doc(petId).update({
       'archivedAt': null,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  @override
+  Future<void> setCurrentWeight(
+    String householdId,
+    String petId,
+    double? weightKg,
+  ) async {
+    await _pets(householdId).doc(petId).update({
+      'currentWeightKg': weightKg,
       'updatedAt': FieldValue.serverTimestamp(),
     });
   }

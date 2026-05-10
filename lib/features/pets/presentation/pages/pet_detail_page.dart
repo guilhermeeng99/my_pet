@@ -17,6 +17,7 @@ import 'package:my_pet/features/pets/presentation/cubit/pets_list_cubit.dart';
 import 'package:my_pet/features/pets/presentation/widgets/pet_avatar.dart';
 import 'package:my_pet/features/pets/presentation/widgets/species_meta.dart';
 import 'package:my_pet/features/vaccinations/presentation/pages/pet_vaccinations_page.dart';
+import 'package:my_pet/features/weight/presentation/pages/pet_weight_page.dart';
 import 'package:my_pet/gen/strings.g.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
@@ -124,6 +125,22 @@ class _Loaded extends StatelessWidget {
                   householdId: pet.householdId,
                   petId: pet.id,
                   species: pet.species,
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            FeatureListCard(
+              icon: PhosphorIconsRegular.scales,
+              title: t.weight.tabTitle,
+              subtitle: pet.currentWeightKg == null
+                  ? null
+                  : '${pet.currentWeightKg!.toStringAsFixed(2)} kg',
+              onTap: () => context.push(
+                '${AppRoutes.petDetailBase}/${pet.id}/weights',
+                extra: PetWeightArgs(
+                  householdId: pet.householdId,
+                  petId: pet.id,
+                  petName: pet.name,
                 ),
               ),
             ),

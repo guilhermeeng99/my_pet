@@ -97,9 +97,9 @@ Tracker of what is done, in progress and planned. Use the checkboxes to mark pro
 - [ ] Optional cost (currency-agnostic) per event
 
 ### ⚖️ Weight & growth — [`specs/weight.md`](specs/weight.md)
-- [ ] Register weigh-in
-- [ ] Weight evolution chart (fl_chart)
-- [ ] Visual alert if change > 10% month over month
+- [x] Register weigh-in (bottom-sheet form; updates `pet.currentWeightKg`)
+- [x] Weight evolution chart (custom sparkline; fl_chart deferred)
+- [x] Visual alert if change > 10% (warning) / > 20% (danger) in 30 days
 
 ### 📷 Gallery — [`specs/gallery.md`](specs/gallery.md)
 - [ ] Add photos to a pet (timeline)

@@ -6,7 +6,6 @@ import 'package:my_pet/core/errors/failures.dart';
 import 'package:my_pet/features/reminders/data/models/reminder_model.dart';
 import 'package:my_pet/features/reminders/data/repositories/reminder_repository_impl.dart';
 import 'package:my_pet/features/reminders/domain/entities/recurrence.dart';
-import 'package:my_pet/features/reminders/domain/entities/reminder.dart';
 
 import '../../../../harness/factories/reminder_factory.dart';
 import '../../../../harness/mocks.dart';

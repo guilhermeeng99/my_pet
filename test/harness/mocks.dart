@@ -16,6 +16,8 @@ import 'package:my_pet/features/reminders/data/datasources/reminder_firestore_da
 import 'package:my_pet/features/reminders/domain/repositories/reminder_repository.dart';
 import 'package:my_pet/features/vaccinations/data/datasources/vaccination_firestore_datasource.dart';
 import 'package:my_pet/features/vaccinations/domain/repositories/vaccination_repository.dart';
+import 'package:my_pet/features/weight/data/datasources/weight_firestore_datasource.dart';
+import 'package:my_pet/features/weight/domain/repositories/weight_repository.dart';
 
 class MockFirebaseAuthDatasource extends Mock
     implements FirebaseAuthDatasource {}
@@ -42,5 +44,10 @@ class MockReminderFirestoreDatasource extends Mock
     implements ReminderFirestoreDatasource {}
 
 class MockReminderRepository extends Mock implements ReminderRepository {}
+
+class MockWeightFirestoreDatasource extends Mock
+    implements WeightFirestoreDatasource {}
+
+class MockWeightRepository extends Mock implements WeightRepository {}
 
 class MockNotificationService extends Mock implements NotificationService {}

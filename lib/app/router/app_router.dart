@@ -24,6 +24,7 @@ import 'package:my_pet/features/reminders/presentation/pages/reminders_home_page
 import 'package:my_pet/features/stats/presentation/pages/stats_stub_page.dart';
 import 'package:my_pet/features/vaccinations/presentation/pages/pet_vaccinations_page.dart';
 import 'package:my_pet/features/vaccinations/presentation/pages/vaccination_form_page.dart';
+import 'package:my_pet/features/weight/presentation/pages/pet_weight_page.dart';
 
 /// Route paths kept as constants so deep links / navigation calls stay
 /// consistent across the app. Every screen the user can land on must have
@@ -155,6 +156,17 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
                         path: 'edit',
                         builder: (context, state) =>
                             PetFormPage(existing: state.extra as Pet?),
+                      ),
+                      GoRoute(
+                        path: 'weights',
+                        builder: (context, state) {
+                          final args = state.extra! as PetWeightArgs;
+                          return PetWeightPage(
+                            householdId: args.householdId,
+                            petId: args.petId,
+                            petName: args.petName,
+                          );
+                        },
                       ),
                       GoRoute(
                         path: 'vaccinations',

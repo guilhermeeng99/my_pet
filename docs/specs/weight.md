@@ -40,9 +40,16 @@ abstract class WeightRepository {
   Future<Either<Failure, WeightEntry>> create(WeightEntry entry);
   Future<Either<Failure, WeightEntry>> update(WeightEntry entry);
   Future<Either<Failure, Unit>> delete(String householdId, String petId, String entryId);
-  Future<Either<Failure, WeightStats>> computeStats(String householdId, String petId);
 }
+```
 
+`WeightStats` is computed in-process by `WeightStatsCalculator` over the
+full entry stream and surfaced on `WeightHistoryLoaded.stats`. Spec rules
+1 and 2 are enforced inside `WeightRepositoryImpl` via
+`PetFirestoreDatasource.setCurrentWeight(...)`; backfilled (non-latest)
+entries do not overwrite the pet doc.
+
+```dart
 class WeightStats {
   final WeightEntry? latest;
   final double? change30dPercent;
@@ -78,8 +85,15 @@ WeightHistoryError(failure)
 
 ## Screens
 
-- `WeightTab` (inside PetDetail) — chart on top, list below
-- `WeightFormSheet` — bottom sheet with numeric input + date picker
+- `PetWeightPage` (routed from PetDetail's "Weight" FeatureListCard) —
+  alert banner (when applicable), sparkline chart, stats row
+  (Latest / 30-day / Average), then the history list.
+- `_WeightFormSheet` (bottom sheet) — numeric input + date picker +
+  optional notes. Triggered by the FAB on `PetWeightPage`.
+
+The MVP sparkline is rendered with `CustomPaint` to keep the dependency
+surface small; `fl_chart` will replace it when richer interactions
+(tooltip on tap, range toggle) are needed.
 
 ## Permissions
 

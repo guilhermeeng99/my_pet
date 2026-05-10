@@ -250,6 +250,40 @@
     "addFirstPet": "Add your first pet",
     "addFirstPetSubtitle": "Track every vaccination, weight and memory."
   },
+  "weight": {
+    "tabTitle": "Weight",
+    "addWeight": "Add weigh-in",
+    "historySection": "History",
+    "empty": {
+      "title": "No weigh-ins yet",
+      "subtitle": "Record your pet's weight to spot trends and catch problems early."
+    },
+    "stats": {
+      "latest": "Latest",
+      "thirtyDays": "30 days",
+      "average": "Average"
+    },
+    "alerts": {
+      "warning": "Heads up: this is more than a 10% change in the last 30 days.",
+      "danger": "Big change — over 20% in 30 days. Consider talking to the vet."
+    },
+    "deleteConfirmTitle": "Delete this weigh-in?",
+    "deleteConfirmMessage": "This is the only entry on that day; you can re-add it anytime.",
+    "form": {
+      "title": "{petName} weigh-in",
+      "weightKg": "Weight (kg)",
+      "date": "Date",
+      "notesOptional": "Notes (optional)",
+      "save": "Save weigh-in",
+      "errors": {
+        "invalidWeight": "Enter a weight between 0 and 200 kg."
+      }
+    },
+    "errors": {
+      "loadFailed": "We couldn't load weigh-ins. Try again.",
+      "saveFailed": "We couldn't save this weigh-in. Try again."
+    }
+  },
   "reminders": {
     "addReminder": "Add reminder",
     "empty": {
