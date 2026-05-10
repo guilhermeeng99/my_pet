@@ -24,6 +24,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthStarted>(_onStarted);
     on<GoogleSignInRequested>(_onGoogleSignInRequested);
     on<SignOutRequested>(_onSignOutRequested);
+    on<CreateOwnHouseholdRequested>(_onCreateOwnHouseholdRequested);
     on<_AuthStreamUpdated>(_onStreamUpdated);
 
     add(const AuthStarted());
@@ -46,8 +47,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(const AuthLoading());
     final result = await _repository.signInWithGoogle();
-    await result.fold(
-      (failure) async {
+    result.fold(
+      (failure) {
         // Cancellation is not a destructive error — return silently to the
         // sign-in screen (spec rule 5).
         if (failure is AuthCancelledFailure) {
@@ -71,26 +72,43 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  Future<void> _onStreamUpdated(
+  void _onStreamUpdated(
     _AuthStreamUpdated event,
     Emitter<AuthState> emit,
-  ) async {
+  ) {
     final user = event.user;
     if (user == null) {
       emit(const AuthUnauthenticated());
       return;
     }
-    await _resolveAndEmit(user, emit);
+    // Skip while a create-household round-trip is in flight — otherwise a
+    // stream tick mid-operation would clobber AuthCreatingHousehold.
+    if (state is AuthCreatingHousehold) return;
+    _resolveAndEmit(user, emit);
   }
 
-  /// Decides whether the user lands on Authenticated or NeedsHousehold and,
-  /// if NeedsHousehold, kicks off the auto-create flow (household.md rule 1).
-  Future<void> _resolveAndEmit(AuthUser user, Emitter<AuthState> emit) async {
+  /// Resolves the post-sign-in destination. Users with `householdId` go
+  /// straight to Home; users without one land on the household-setup page
+  /// (NeedsHousehold) and pick between creating or joining.
+  void _resolveAndEmit(AuthUser user, Emitter<AuthState> emit) {
     if (user.hasHousehold) {
       emit(AuthAuthenticated(user));
       return;
     }
     emit(AuthNeedsHousehold(user));
+  }
+
+  Future<void> _onCreateOwnHouseholdRequested(
+    CreateOwnHouseholdRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    final user = switch (state) {
+      AuthNeedsHousehold(:final user) => user,
+      AuthAuthenticated(:final user) => user,
+      _ => null,
+    };
+    if (user == null || user.hasHousehold) return;
+    emit(AuthCreatingHousehold(user));
     final created = await _households.createForUser(user);
     created.fold(
       (failure) => emit(AuthErrorState(failure)),

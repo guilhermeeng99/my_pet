@@ -1,7 +1,7 @@
 base_locale: en
 fallback_strategy: base_locale
-input_directory: i18n
 input_file_pattern: .i18n.json
+input_directory: lib/app/assets/i18n
 output_directory: lib/gen
 output_file_name: strings.g.dart
 namespaces: false

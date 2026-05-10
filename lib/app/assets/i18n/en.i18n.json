@@ -164,9 +164,60 @@
   },
   "household": {
     "settingsTitle": "Family",
-    "inviteMember": "Invite member",
     "memberRoleOwner": "Admin",
-    "memberRoleMember": "Member"
+    "memberRolePartner": "Partner",
+    "setup": {
+      "title": "How do you want to start?",
+      "subtitle": "You can create your own family or join one your partner already created.",
+      "createOwn": {
+        "title": "Create my family",
+        "subtitle": "You'll be the admin and can invite your partner later."
+      },
+      "joinExisting": {
+        "title": "Enter with a code",
+        "subtitle": "Use the code your partner shared with you."
+      }
+    },
+    "noPartner": {
+      "title": "No partner yet",
+      "subtitle": "Generate an invite code to share with your partner."
+    },
+    "withPartner": {
+      "title": "Sharing with"
+    },
+    "you": "You",
+    "actions": {
+      "generateInvite": "Generate invite code",
+      "joinWithCode": "Have a code? Join",
+      "regenerate": "Generate another"
+    },
+    "invite": {
+      "title": "Invite your partner",
+      "subtitle": "Share this code. It expires in 24 hours.",
+      "copy": "Copy code",
+      "copied": "Code copied",
+      "share": "Share",
+      "close": "Done",
+      "validity": "Valid until {datetime}"
+    },
+    "join": {
+      "title": "Join with a code",
+      "subtitle": "Type the 6-digit code your partner shared.",
+      "codeLabel": "Invite code",
+      "codePlaceholder": "ABC123",
+      "submit": "Join",
+      "successTitle": "You're in!",
+      "successSubtitle": "You're now sharing pets with your family."
+    },
+    "errors": {
+      "generic": "Something went wrong. Try again.",
+      "householdFull": "This family is already full (max 2 people).",
+      "inviteExpired": "This code has expired. Ask for a fresh one.",
+      "inviteAlreadyUsed": "This code was already used.",
+      "inviteNotFound": "We couldn't find that code. Check the spelling.",
+      "alreadyInHousehold": "Your account already has data. Sign out and sign back in with the partner account, or clear your pets first.",
+      "invalidLength": "The code must have 6 characters."
+    }
   },
   "nav": {
     "home": "Home",
@@ -208,6 +259,35 @@
   "profile": {
     "title": "Profile",
     "household": "Household",
-    "version": "Version"
+    "version": "Version",
+    "preferences": {
+      "title": "Preferences",
+      "language": "Language",
+      "languageEnglish": "English",
+      "languagePortuguese": "Portuguese"
+    },
+    "about": {
+      "title": "About",
+      "privacy": {
+        "title": "Privacy",
+        "body": "my_pet stores your pets' data in your own Firebase project. There are no analytics on the content of your records. Your partner can read your data; nobody else."
+      }
+    },
+    "dangerZone": {
+      "title": "Danger zone",
+      "deleteAll": {
+        "title": "Delete all data",
+        "subtitle": "Erases pets, vaccines, family and your account.",
+        "confirmTitle": "Delete everything?",
+        "confirmBody": "This can't be undone. We'll erase every pet, vaccine record, your family and your account from {appName}.",
+        "confirmCta": "Delete forever",
+        "cancel": "Cancel",
+        "deleting": "Erasing…",
+        "partnerBlockTitle": "Remove your partner first",
+        "partnerBlockBody": "We can't erase the account while it's shared with someone else. Removing partners isn't available yet — sign out for now.",
+        "requiresRecentLogin": "For security, sign out and sign back in, then try again.",
+        "error": "We couldn't finish. Try again in a moment."
+      }
+    }
   }
 }

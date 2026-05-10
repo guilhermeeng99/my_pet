@@ -2,7 +2,25 @@
 
 Personal pet management app built with Flutter. Tracks pets, vaccinations, health history, vet visits and more. Supports Android, iOS and Web. Designed for a household (multiple humans, multiple pets) with Google Sign-In and Firebase backend.
 
-This repository is **public**. No secrets, no Firebase config files, no service account keys are ever committed. Every fork must plug in its own Firebase project — see [`SETUP.md`](SETUP.md).
+This repository is **public**. No secrets, no Firebase config files, no service account keys are ever committed. Every fork must plug in its own Firebase project.
+
+---
+
+## Onboarding (read this first)
+
+Before working on any task in this repo, the agent MUST orient itself using these sources:
+
+* **`docs/roadmap.md`** — current status of every feature (✅ done · 🟡 in progress · ⬜ planned · ❄️ idea). Auto-loaded with this file (see bottom).
+* **`docs/specs/<feature>.md`** — one spec per feature (`auth`, `design`, `documents`, `gallery`, `health`, `household`, `notifications`, `pets`, `reminders`, `sync`, `vaccinations`, `weight`). Read the relevant spec **before** modifying that feature's code or tests.
+* **This file (`CLAUDE.md`)** — project-wide conventions. Already auto-loaded.
+
+**Keep these in sync with the code.** Whenever implementation, requirements, or scope change:
+
+* Update the spec under `docs/specs/` to reflect the new behavior.
+* Tick / untick / move items in `docs/roadmap.md` so its status stays truthful.
+* Update `CLAUDE.md` itself if a project-wide convention changed.
+
+If a feature is touched without a corresponding spec update, the spec is now lying — fix it in the same change.
 
 ---
 
@@ -69,7 +87,7 @@ Each feature follows:
 | **Error handling**   | dartz `Either<Failure, T>` pattern                                |
 | **Linting**          | very_good_analysis (strict)                                       |
 | **i18n**             | slang (generated in `lib/gen/`) — English primary; pt-BR later    |
-| **Theme**            | Light + Dark Material 3, Ahead-inspired tokens (see `specs/design.md`) |
+| **Theme**            | Light + Dark Material 3, Ahead-inspired tokens (see `docs/specs/design.md`) |
 | **Date/Time**        | `intl` + native `DateTime` (UTC stored, local rendered)           |
 
 ---
@@ -102,7 +120,7 @@ After every code change:
 
 ## Spec-Driven Development
 
-Every feature MUST have a spec at `specs/<feature>.md` before writing new code or tests.
+Every feature MUST have a spec at `docs/specs/<feature>.md` before writing new code or tests.
 
 ### Workflow
 
@@ -209,7 +227,7 @@ Test infrastructure lives in `test/harness/`:
 * Boxes are typed (`Box<PetCacheModel>`); models live in `lib/features/<feature>/data/models/<entity>_cache_model.dart` with `@HiveType` annotation
 * All boxes are opened during app bootstrap (`AppBootstrap.openBoxes()`); never lazy-open in feature code
 * Cache models include a `_updatedAtServer` field for sync ordering
-* Hive is **cache only**, never source of truth — Firestore is canonical (see [`specs/sync.md`](specs/sync.md))
+* Hive is **cache only**, never source of truth — Firestore is canonical (see [`docs/specs/sync.md`](docs/specs/sync.md))
 * Type IDs are managed centrally in `lib/core/storage/hive_type_ids.dart` to avoid collisions
 
 ---
@@ -278,4 +296,12 @@ households/{householdId}/documents/{id}         → petId?, title, fileUrl, mime
 
 ## Design System
 
-The visual language is documented in [`specs/design.md`](specs/design.md). It is inspired by the **Ahead** app's aesthetic — vibrant purple primary, generous whitespace, oversized bold headlines, friendly illustrations, large pill buttons. All tokens (colors, typography, spacing, radii, shadows) are defined in `lib/app/theme/` and consumed via `Theme.of(context)` extensions; never inline literals.
+The visual language is documented in [`docs/specs/design.md`](docs/specs/design.md). It is inspired by the **Ahead** app's aesthetic — vibrant purple primary, generous whitespace, oversized bold headlines, friendly illustrations, large pill buttons. All tokens (colors, typography, spacing, radii, shadows) are defined in `lib/app/theme/` and consumed via `Theme.of(context)` extensions; never inline literals.
+
+---
+
+## Auto-loaded context
+
+The line below imports `docs/roadmap.md` so its full contents are always present in the agent's context — no need to ask the agent to "look at the roadmap".
+
+@docs/roadmap.md

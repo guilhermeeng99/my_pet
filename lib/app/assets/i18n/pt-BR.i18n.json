@@ -1,0 +1,293 @@
+{
+  "app": {
+    "name": "my_pet",
+    "tagline": "Tudo para os seus pets, num lugar só"
+  },
+  "common": {
+    "continue": "Continuar",
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "back": "Voltar",
+    "done": "Pronto",
+    "loading": "Carregando...",
+    "retry": "Tentar de novo",
+    "required": "Obrigatório",
+    "optional": "Opcional",
+    "yes": "Sim",
+    "no": "Não",
+    "unknown": "Desconhecido"
+  },
+  "onboarding": {
+    "welcomeTitle": "Boas-vindas! Vamos cuidar dos seus pets juntos.",
+    "welcomeSubtitle": "Acompanhe vacinas, idas ao vet, peso e cada memória, compartilhado com a família toda."
+  },
+  "auth": {
+    "signInTitle": "Boas-vindas",
+    "signInSubtitle": "Entre para começar a cuidar dos seus pets",
+    "signInWithGoogle": "Continuar com o Google",
+    "signOut": "Sair",
+    "errors": {
+      "network": "Não conseguimos chegar no servidor. Confira sua conexão e tente de novo.",
+      "cancelled": "Login cancelado.",
+      "unknown": "Algo deu errado. Tente de novo, por favor."
+    }
+  },
+  "pets": {
+    "homeTitle": "Meus pets",
+    "addPet": "Adicionar pet",
+    "empty": {
+      "title": "Nenhum pet ainda",
+      "subtitle": "Adicione seu primeiro companheiro para começar a acompanhar os cuidados."
+    },
+    "form": {
+      "createTitle": "Detalhes do pet",
+      "createSubtitle": "Conte sobre o seu melhor amigo.",
+      "editTitle": "Editar pet",
+      "editSubtitle": "Mantenha o perfil atualizado.",
+      "name": "Nome do pet",
+      "namePlaceholder": "ex.: Mia, Thor, Luna…",
+      "species": "Espécie",
+      "speciesPlaceholder": "Selecione a espécie",
+      "breed": "Raça",
+      "breedPlaceholder": "ex.: Siamês",
+      "sex": "Sexo",
+      "sexPlaceholder": "Selecione o sexo",
+      "neutered": "Castrado(a)",
+      "neuteredHint": "Já é castrado(a)?",
+      "birthDate": "Data de nascimento",
+      "adoptionDate": "Data de adoção",
+      "color": "Cor da pelagem",
+      "colorPlaceholder": "ex.: Preto, Tigrado, Branco…",
+      "microchipId": "Número do microchip",
+      "microchipPlaceholder": "Opcional",
+      "notes": "Observações",
+      "notesOptional": "Observações (opcional)",
+      "notesPlaceholder": "Algo importante sobre o seu pet…",
+      "save": "Salvar e continuar",
+      "selectDate": "Selecionar",
+      "errors": {
+        "nameRequired": "O nome do pet é obrigatório.",
+        "futureDate": "A data não pode estar no futuro.",
+        "saveFailed": "Não conseguimos salvar seu pet. Tente de novo.",
+        "photoUploadFailed": "Não conseguimos enviar a foto. Tente de novo.",
+        "photoTooLarge": "A foto está muito grande — tente uma imagem menor."
+      },
+      "photo": {
+        "addAria": "Adicionar foto do pet",
+        "changeAria": "Trocar foto do pet",
+        "uploading": "Enviando…"
+      }
+    },
+    "species": {
+      "cat": "Gato",
+      "dog": "Cachorro",
+      "bird": "Pássaro",
+      "rabbit": "Coelho",
+      "other": "Outro"
+    },
+    "sex": {
+      "male": "Macho",
+      "female": "Fêmea",
+      "unknown": "Desconhecido"
+    },
+    "actions": {
+      "archive": "Arquivar",
+      "unarchive": "Restaurar",
+      "archiveConfirmTitle": "Arquivar {petName}?",
+      "archiveConfirmMessage": "Pets arquivados ficam em Configurações → Pets arquivados e podem ser restaurados a qualquer momento."
+    },
+    "detail": {
+      "ageLabel": "Idade",
+      "detailsHeader": "Detalhes",
+      "ageYearsMonths": "{years}a {months}m",
+      "ageYears": "{years}a",
+      "ageMonths": "{months}m",
+      "ageDays": "{days}d",
+      "ageUnknown": "Idade desconhecida"
+    }
+  },
+  "vaccinations": {
+    "tabTitle": "Vacinas",
+    "tabSubtitle": "Doses, vencimentos e lembretes.",
+    "addVaccine": "Adicionar vacina",
+    "empty": {
+      "title": "Nenhuma vacina ainda",
+      "subtitle": "Registre cada dose para nunca perder a próxima."
+    },
+    "form": {
+      "createTitle": "Adicionar vacina",
+      "createSubtitle": "Registre uma dose para manter o calendário em dia.",
+      "editTitle": "Editar vacina",
+      "editSubtitle": "Atualizar dados da vacina.",
+      "name": "Vacina",
+      "namePlaceholder": "ex.: V4, Antirrábica…",
+      "category": "Categoria",
+      "appliedDate": "Aplicada em",
+      "nextDueDate": "Próxima em",
+      "vetName": "Veterinário(a)",
+      "vetPlaceholder": "Opcional",
+      "clinicName": "Clínica",
+      "clinicPlaceholder": "Opcional",
+      "batchNumber": "Número do lote",
+      "batchPlaceholder": "Opcional",
+      "manufacturer": "Fabricante",
+      "manufacturerPlaceholder": "Opcional",
+      "notes": "Observações",
+      "notesOptional": "Observações (opcional)",
+      "notesPlaceholder": "Algo importante…",
+      "save": "Salvar vacina",
+      "delete": "Excluir vacina",
+      "deleteConfirmTitle": "Excluir esta vacina?",
+      "deleteConfirmMessage": "Isto vai remover o registro do histórico de {petName}.",
+      "presetSection": "Comuns para essa espécie",
+      "presetTooltip": "Toque para preencher",
+      "errors": {
+        "saveFailed": "Não conseguimos salvar a vacina. Tente de novo."
+      }
+    },
+    "category": {
+      "core": "Essencial",
+      "noncore": "Não essencial",
+      "rabies": "Antirrábica",
+      "other": "Outra"
+    },
+    "status": {
+      "overdue": "Atrasada",
+      "dueSoon": "Próxima",
+      "upToDate": "Em dia",
+      "noNextDose": "Sem lembrete"
+    },
+    "dueIn": "Em {days}d",
+    "overdueBy": "Atrasada {days}d"
+  },
+  "household": {
+    "settingsTitle": "Família",
+    "memberRoleOwner": "Admin",
+    "memberRolePartner": "Parceiro(a)",
+    "setup": {
+      "title": "Como você quer começar?",
+      "subtitle": "Você pode criar a sua própria família ou entrar em uma que seu parceiro(a) já criou.",
+      "createOwn": {
+        "title": "Criar minha família",
+        "subtitle": "Você será o admin e poderá convidar seu parceiro(a) depois."
+      },
+      "joinExisting": {
+        "title": "Entrar com código",
+        "subtitle": "Use o código que seu parceiro(a) compartilhou com você."
+      }
+    },
+    "noPartner": {
+      "title": "Sem parceiro(a) ainda",
+      "subtitle": "Gere um código de convite para compartilhar."
+    },
+    "withPartner": {
+      "title": "Compartilhando com"
+    },
+    "you": "Você",
+    "actions": {
+      "generateInvite": "Gerar código de convite",
+      "joinWithCode": "Tem um código? Entrar",
+      "regenerate": "Gerar outro"
+    },
+    "invite": {
+      "title": "Convide seu parceiro(a)",
+      "subtitle": "Compartilhe este código. Ele expira em 24 horas.",
+      "copy": "Copiar código",
+      "copied": "Código copiado",
+      "share": "Compartilhar",
+      "close": "Pronto",
+      "validity": "Válido até {datetime}"
+    },
+    "join": {
+      "title": "Entrar com código",
+      "subtitle": "Digite o código de 6 caracteres que seu parceiro(a) compartilhou.",
+      "codeLabel": "Código de convite",
+      "codePlaceholder": "ABC123",
+      "submit": "Entrar",
+      "successTitle": "Você entrou!",
+      "successSubtitle": "Agora vocês compartilham os pets em família."
+    },
+    "errors": {
+      "generic": "Algo deu errado. Tente de novo.",
+      "householdFull": "Esta família já está cheia (máx. 2 pessoas).",
+      "inviteExpired": "Este código expirou. Peça outro.",
+      "inviteAlreadyUsed": "Este código já foi usado.",
+      "inviteNotFound": "Não encontramos esse código. Confira a digitação.",
+      "alreadyInHousehold": "Sua conta já tem dados. Saia e entre com a outra conta, ou apague seus pets antes.",
+      "invalidLength": "O código precisa ter 6 caracteres."
+    }
+  },
+  "nav": {
+    "home": "Início",
+    "reminders": "Lembretes",
+    "stats": "Insights",
+    "profile": "Perfil"
+  },
+  "home": {
+    "appTitle": "my_pet",
+    "greetingTitle": "Olá, {name} 👋",
+    "greetingTitleAnon": "Olá! 👋",
+    "greetingSubtitle": "Pronto para dar um carinho hoje?",
+    "quickAdd": {
+      "title": "Adicionar um pet",
+      "subtitle": "Crie um perfil para acompanhar cada vacina,\npeso e memória.",
+      "cta": "Adicionar um pet"
+    },
+    "addAnother": "Adicionar outro pet",
+    "stats": {
+      "pets": "Pets",
+      "species": "Espécies"
+    },
+    "myPets": "Meus pets",
+    "addFirstPet": "Adicione seu primeiro pet",
+    "addFirstPetSubtitle": "Acompanhe cada vacina, peso e memória."
+  },
+  "reminders": {
+    "stub": {
+      "title": "Lembretes em breve",
+      "subtitle": "Lembretes avulsos chegam na Fase 2."
+    }
+  },
+  "stats": {
+    "stub": {
+      "title": "Insights em breve",
+      "subtitle": "Painéis de saúde e gastos chegam na Fase 4."
+    }
+  },
+  "profile": {
+    "title": "Perfil",
+    "household": "Família",
+    "version": "Versão",
+    "preferences": {
+      "title": "Preferências",
+      "language": "Idioma",
+      "languageEnglish": "Inglês",
+      "languagePortuguese": "Português"
+    },
+    "about": {
+      "title": "Sobre",
+      "privacy": {
+        "title": "Privacidade",
+        "body": "O my_pet guarda os dados dos seus pets no seu próprio projeto Firebase. Não há analytics sobre o conteúdo dos registros. Seu parceiro(a) pode ler seus dados; mais ninguém."
+      }
+    },
+    "dangerZone": {
+      "title": "Zona de risco",
+      "deleteAll": {
+        "title": "Excluir todos os dados",
+        "subtitle": "Apaga pets, vacinas, família e sua conta.",
+        "confirmTitle": "Excluir tudo?",
+        "confirmBody": "Isto não pode ser desfeito. Vamos apagar cada pet, registro de vacina, sua família e sua conta do {appName}.",
+        "confirmCta": "Excluir para sempre",
+        "cancel": "Cancelar",
+        "deleting": "Apagando…",
+        "partnerBlockTitle": "Remova o(a) parceiro(a) primeiro",
+        "partnerBlockBody": "Não dá pra apagar a conta enquanto ela é compartilhada com outra pessoa. Remover parceiro(a) ainda não está disponível — por enquanto, é só sair.",
+        "requiresRecentLogin": "Por segurança, saia e entre novamente, depois tente outra vez.",
+        "error": "Não conseguimos concluir. Tente de novo em instantes."
+      }
+    }
+  }
+}

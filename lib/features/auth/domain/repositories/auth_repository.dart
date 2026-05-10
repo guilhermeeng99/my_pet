@@ -9,4 +9,9 @@ abstract class AuthRepository {
   Future<Either<Failure, AuthUser>> signInWithGoogle();
   Future<Either<Failure, Unit>> signOut();
   Future<Either<Failure, AuthUser>> getCurrentUser();
+
+  /// Permanently deletes the Firebase Auth user. Used by the danger-zone
+  /// flow after household data has already been wiped. Returns
+  /// [RequiresRecentLoginFailure] when the credential is too old.
+  Future<Either<Failure, Unit>> deleteCurrentAccount();
 }

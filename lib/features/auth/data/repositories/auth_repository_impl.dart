@@ -75,6 +75,21 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<Either<Failure, Unit>> deleteCurrentAccount() async {
+    try {
+      await _auth.deleteCurrentUser();
+      return const Right(unit);
+    } on fb.FirebaseAuthException catch (e, st) {
+      if (e.code == 'requires-recent-login') {
+        return const Left(RequiresRecentLoginFailure());
+      }
+      return Left(AuthUnknownFailure(message: e.message, cause: st));
+    } on Exception catch (e, st) {
+      return Left(AuthUnknownFailure(message: e.toString(), cause: st));
+    }
+  }
+
+  @override
   Future<Either<Failure, AuthUser>> getCurrentUser() async {
     final fbUser = _auth.currentUser;
     if (fbUser == null) {

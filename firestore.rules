@@ -83,7 +83,11 @@ service cloud.firestore {
 
     // ─── households ──────────────────────────────────────────────────
     match /households/{hid} {
-      allow read: if isMember(hid);
+      // Lista (queries) só por membros; get individual aberto a qualquer
+      // signed-in para suportar o aceite de invite (cliente precisa verificar
+      // memberIds antes do batched-write).
+      allow list: if isMember(hid);
+      allow get: if isSignedIn();
 
       // Criação: usuário cria sua própria household, sendo owner e único member.
       allow create: if isSignedIn()
@@ -92,24 +96,30 @@ service cloud.firestore {
                     && uid() in request.resource.data.memberIds
                     && request.resource.data.memberIds.size() == 1;
 
-      // Update: members podem mudar nome; ownerId e memberIds só pelo owner.
+      // Update: members podem mudar nome; ownerId e memberIds (até 2) só pelo owner.
       allow update: if isMember(hid)
                     && fieldUnchanged('ownerId')
                     && fieldUnchanged('memberIds')
                     && fieldUnchanged('createdAt');
       allow update: if isOwner(hid)
+                    && fieldUnchanged('createdAt')
+                    && request.resource.data.memberIds.size() <= 2;
+
+      // Self-join: a non-member appending themselves (and only themselves)
+      // when memberIds was [owner]. Brings memberIds from size 1 to size 2,
+      // enforces the 2-member cap.
+      allow update: if isSignedIn()
+                    && resource.data.memberIds.size() == 1
+                    && request.resource.data.memberIds.size() == 2
+                    && uid() in request.resource.data.memberIds
+                    && !(uid() in resource.data.memberIds)
+                    && request.resource.data.memberIds.hasAll(resource.data.memberIds)
+                    && fieldUnchanged('ownerId')
                     && fieldUnchanged('createdAt');
 
       // Delete só pelo owner e somente quando ele é o único membro.
       allow delete: if isOwner(hid)
                     && resource.data.memberIds.size() == 1;
-
-      // ─── invites ───────────────────────────────────────────────────
-      // Members veem invites da sua household; só owner cria/atualiza/deleta.
-      match /invites/{inviteId} {
-        allow read: if isMember(hid);
-        allow create, update, delete: if isOwner(hid);
-      }
 
       // ─── pets ──────────────────────────────────────────────────────
       match /pets/{petId} {
@@ -158,6 +168,32 @@ service cloud.firestore {
         allow read: if isMember(hid);
         allow create, update, delete: if isMember(hid);
       }
+    }
+
+    // ─── inviteCodes ─────────────────────────────────────────────────
+    // Top-level lookup table for invite-by-code (doc id == code).
+    // - Qualquer signed-in pode ler um code (precisa para validar antes de
+    //   aceitar — sem isso o aceite é impossível).
+    // - Cria: signed-in que seja owner da household referenciada e que set
+    //   createdBy == uid e usedBy == null.
+    // - Update: o usuário aceitando, marcando usedBy = uid (apenas se ainda
+    //   não usado).
+    // - Delete: owner da household referenciada.
+    match /inviteCodes/{code} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn()
+                    && request.resource.data.createdBy == uid()
+                    && request.resource.data.usedBy == null
+                    && isOwner(request.resource.data.householdId);
+      allow update: if isSignedIn()
+                    && resource.data.usedBy == null
+                    && request.resource.data.usedBy == uid()
+                    && fieldUnchanged('householdId')
+                    && fieldUnchanged('createdBy')
+                    && fieldUnchanged('createdAt')
+                    && fieldUnchanged('expiresAt');
+      allow delete: if isSignedIn()
+                    && isOwner(resource.data.householdId);
     }
 
     // ─── default deny ────────────────────────────────────────────────

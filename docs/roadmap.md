@@ -44,9 +44,9 @@ Tracker of what is done, in progress and planned. Use the checkboxes to mark pro
 - [x] Network / cancellation error handling
 
 ### 🏠 Household (account) — [`specs/household.md`](specs/household.md)
-- [x] Auto-create household on first sign-in
+- [x] Setup page after sign-in: "Create my family" / "Enter with a code"
 - [x] Persist `householdId` in `users/{uid}`
-- [ ] Settings placeholder screens (members come in Phase 3)
+- [x] Settings tab with identity card + partner section (members management UI)
 
 ### 🐾 Pets — [`specs/pets.md`](specs/pets.md)
 - [x] Create pet (name, species, sex, birth date)
@@ -123,12 +123,16 @@ Tracker of what is done, in progress and planned. Use the checkboxes to mark pro
 > You + spouse access the same pets. Real push.
 
 ### 👥 Shared household — [`specs/household.md`](specs/household.md)
-- [ ] Family members screen
-- [ ] Generate invite code (6 chars, 24h TTL)
-- [ ] Accept invite
+> Pulled forward into Phase 1.5: app supports owner + 1 partner (max 2 members).
+- [x] Family members screen (settings tab, partner card)
+- [x] Generate invite code (6 chars, 24h TTL) — top-level `inviteCodes/{code}`
+- [x] Accept invite (atomic batched write, drops empty old household)
+- [x] Danger zone — delete-all-data cascade (Firestore + Firebase Auth, idempotent, sole-member only)
 - [ ] Remove member (admin only)
 - [ ] Transfer admin
+- [ ] Delete-all-data for partner (leave household instead of nuking it)
 - [ ] Minimal audit ("who changed what")
+- [ ] Tests for cubits + repository
 
 ### ☁️ Sync & offline — [`specs/sync.md`](specs/sync.md)
 - [ ] Local Hive cache (read-through)

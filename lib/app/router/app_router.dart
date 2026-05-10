@@ -6,6 +6,8 @@ import 'package:go_router/go_router.dart';
 import 'package:my_pet/app/router/app_shell.dart';
 import 'package:my_pet/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:my_pet/features/auth/presentation/pages/login_page.dart';
+import 'package:my_pet/features/household/presentation/pages/household_setup_page.dart';
+import 'package:my_pet/features/household/presentation/pages/join_household_page.dart';
 import 'package:my_pet/features/onboarding/presentation/splash_page.dart';
 import 'package:my_pet/features/onboarding/presentation/welcome_page.dart';
 import 'package:my_pet/features/pets/domain/entities/pet.dart';
@@ -29,6 +31,8 @@ abstract final class AppRoutes {
   static const String reminders = '/reminders';
   static const String stats = '/stats';
   static const String profile = '/profile';
+  static const String householdSetup = '/household/setup';
+  static const String join = '/join';
   static const String petCreate = '/home/new';
   static const String petDetailBase = '/home/pet';
   static const String petDetailPattern = '$petDetailBase/:petId';
@@ -57,20 +61,26 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
         case AuthUnauthenticated() || AuthErrorState():
           if (loc == AppRoutes.login || loc == AppRoutes.welcome) return null;
           return AppRoutes.welcome;
-        case AuthNeedsHousehold():
-          // While auto-create runs, anchor the user on Home (it shows a
-          // loading state). Anywhere else would crash on empty householdId.
-          return loc == AppRoutes.home ? null : AppRoutes.home;
+        case AuthNeedsHousehold() || AuthCreatingHousehold():
+          // User has no householdId yet — anchor on setup (or /join when they
+          // chose that branch). Anywhere else would crash on empty
+          // householdId.
+          if (loc == AppRoutes.householdSetup || loc == AppRoutes.join) {
+            return null;
+          }
+          return AppRoutes.householdSetup;
         case AuthAuthenticated():
           if (loc == AppRoutes.login ||
               loc == AppRoutes.welcome ||
-              loc == AppRoutes.splash) {
+              loc == AppRoutes.splash ||
+              loc == AppRoutes.householdSetup) {
             return AppRoutes.home;
           }
           if (!isShellRoute &&
               loc != AppRoutes.splash &&
               loc != AppRoutes.welcome &&
-              loc != AppRoutes.login) {
+              loc != AppRoutes.login &&
+              loc != AppRoutes.join) {
             return AppRoutes.home;
           }
           return null;
@@ -88,6 +98,14 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
       GoRoute(
         path: AppRoutes.login,
         builder: (context, state) => const LoginPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.householdSetup,
+        builder: (context, state) => const HouseholdSetupPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.join,
+        builder: (context, state) => const JoinHouseholdPage(),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>

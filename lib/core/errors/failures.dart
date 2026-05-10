@@ -69,6 +69,28 @@ final class InviteAlreadyUsedFailure extends Failure {
   const InviteAlreadyUsedFailure();
 }
 
+final class InviteNotFoundFailure extends Failure {
+  const InviteNotFoundFailure();
+}
+
+final class HouseholdFullFailure extends Failure {
+  const HouseholdFullFailure();
+}
+
+/// Blocks "delete everything" when the user still shares the household with
+/// a partner. They have to remove the partner (or transfer admin) first —
+/// surfaced so the UI can render a helpful explanation, not a generic error.
+final class HouseholdNotEmptyFailure extends Failure {
+  const HouseholdNotEmptyFailure();
+}
+
+/// Firebase requires a fresh credential for `User.delete()`. Surface this
+/// distinctly so the UI can ask the user to sign out and back in before
+/// retrying.
+final class RequiresRecentLoginFailure extends Failure {
+  const RequiresRecentLoginFailure();
+}
+
 // ── Storage ───────────────────────────────────────────────────────────
 final class PhotoTooLargeFailure extends Failure {
   const PhotoTooLargeFailure({required int sizeBytes, required int maxBytes})

@@ -12,6 +12,11 @@ abstract class FirebaseAuthDatasource {
   Future<fb.User> signInWithGoogle();
 
   Future<void> signOut();
+
+  /// Deletes the currently signed-in Firebase user. Throws
+  /// `FirebaseAuthException(code: 'requires-recent-login')` if the credential
+  /// is stale — the repository translates that to a `RequiresRecentLoginFailure`.
+  Future<void> deleteCurrentUser();
 }
 
 class FirebaseAuthDatasourceImpl implements FirebaseAuthDatasource {
@@ -49,5 +54,19 @@ class FirebaseAuthDatasourceImpl implements FirebaseAuthDatasource {
       _googleSignIn.signOut(),
       _firebaseAuth.signOut(),
     ]);
+  }
+
+  @override
+  Future<void> deleteCurrentUser() async {
+    final user = _firebaseAuth.currentUser;
+    if (user == null) return;
+    await user.delete();
+    // Google session is invalid after the Firebase user is gone — best-effort
+    // sign-out so a stale account doesn't linger if the user re-installs.
+    try {
+      await _googleSignIn.signOut();
+    } on Exception {
+      // ignore: post-delete clean-up is non-critical
+    }
   }
 }
