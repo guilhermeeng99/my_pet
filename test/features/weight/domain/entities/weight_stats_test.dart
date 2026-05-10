@@ -20,23 +20,23 @@ void main() {
         WeightEntryFactory.build(
           id: 'a',
           date: base.subtract(const Duration(days: 60)),
-          weightKg: 4.0,
+          weightKg: 4,
         ),
         WeightEntryFactory.build(
           id: 'b',
           date: base.subtract(const Duration(days: 30)),
-          weightKg: 5.0,
+          weightKg: 5,
         ),
-        WeightEntryFactory.build(id: 'c', date: base, weightKg: 6.0),
+        WeightEntryFactory.build(id: 'c', date: base, weightKg: 6),
       ];
 
       final stats = calculator.from(entries);
 
       expect(stats.latest?.id, 'c');
-      expect(stats.min, 4.0);
-      expect(stats.max, 6.0);
+      expect(stats.min, 4);
+      expect(stats.max, 6);
       // (4 + 5 + 6) / 3 = 5
-      expect(stats.avg, 5.0);
+      expect(stats.avg, 5);
       // (6 - 5) / 5 * 100 = 20%
       expect(stats.change30dPercent, closeTo(20, 0.01));
       expect(stats.hasDanger, isTrue);
@@ -48,9 +48,9 @@ void main() {
         WeightEntryFactory.build(
           id: 'a',
           date: base.subtract(const Duration(days: 30)),
-          weightKg: 4.0,
+          weightKg: 4,
         ),
-        WeightEntryFactory.build(id: 'b', date: base, weightKg: 4.5),
+        WeightEntryFactory.build(),
       ]);
       // (4.5 - 4) / 4 * 100 = 12.5%
       expect(stats.change30dPercent, closeTo(12.5, 0.01));

@@ -58,7 +58,7 @@ void main() {
 
     test('persists and cascades to pet.currentWeightKg when latest',
         () async {
-      final entry = WeightEntryFactory.build(weightKg: 4.5);
+      final entry = WeightEntryFactory.build();
       when(() => datasource.create(any()))
           .thenAnswer((_) async => WeightEntryModel.fromEntity(entry));
       when(() => datasource.watchByPet(any(), any())).thenAnswer(
@@ -78,11 +78,11 @@ void main() {
       final newer = WeightEntryFactory.build(
         id: 'newer',
         date: DateTime.utc(2026, 5, 10),
-        weightKg: 5.0,
+        weightKg: 5,
       );
       final backfilled = WeightEntryFactory.build(
         id: 'older',
-        date: DateTime.utc(2026, 1, 1),
+        date: DateTime.utc(2026, 2),
         weightKg: 3.5,
       );
       when(() => datasource.create(any()))

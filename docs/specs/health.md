@@ -25,8 +25,11 @@ Centralize every health event for a pet that is **not** a vaccine: vet visits, m
 | `cost`          | `double?`             | Amount paid (currency stored in user settings)              |
 | `reminderIds`   | `List<String>`        | Linked reminders (e.g. take medicine)                       |
 | `createdAt`     | `DateTime`            |                                                             |
-| `updatedAt`     | `DateTime`            |                                                             |
 | `createdBy`     | `String`              |                                                             |
+
+The MVP entity does not carry an `updatedAt` — Firestore docs are
+immutable beyond the explicit fields in `_toMap` and there is no
+sync-conflict logic yet that would consume it.
 
 ```dart
 enum HealthEventType {

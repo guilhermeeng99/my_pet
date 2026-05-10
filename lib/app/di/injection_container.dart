@@ -12,6 +12,10 @@ import 'package:my_pet/features/auth/data/datasources/user_profile_datasource.da
 import 'package:my_pet/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:my_pet/features/auth/domain/repositories/auth_repository.dart';
 import 'package:my_pet/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:my_pet/features/health/data/datasources/health_firestore_datasource.dart';
+import 'package:my_pet/features/health/data/repositories/health_repository_impl.dart';
+import 'package:my_pet/features/health/domain/repositories/health_repository.dart';
+import 'package:my_pet/features/health/presentation/cubit/health_form_cubit.dart';
 import 'package:my_pet/features/household/data/datasources/household_firestore_datasource.dart';
 import 'package:my_pet/features/household/data/repositories/household_repository_impl.dart';
 import 'package:my_pet/features/household/domain/repositories/household_repository.dart';
@@ -134,6 +138,16 @@ Future<void> configureDependencies() async {
     )
     ..registerFactory<ReminderFormCubit>(
       () => ReminderFormCubit(repository: sl()),
+    )
+    // ── Health feature ──────────────────────────────────────────────
+    ..registerLazySingleton<HealthFirestoreDatasource>(
+      () => HealthFirestoreDatasourceImpl(firestore: sl()),
+    )
+    ..registerLazySingleton<HealthRepository>(
+      () => HealthRepositoryImpl(datasource: sl()),
+    )
+    ..registerFactory<HealthFormCubit>(
+      () => HealthFormCubit(repository: sl()),
     )
     // ── Weight feature ──────────────────────────────────────────────
     ..registerLazySingleton<WeightFirestoreDatasource>(

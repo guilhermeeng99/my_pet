@@ -250,6 +250,61 @@
     "addFirstPet": "Add your first pet",
     "addFirstPetSubtitle": "Track every vaccination, weight and memory."
   },
+  "health": {
+    "tabTitle": "Health",
+    "addEvent": "Add event",
+    "totalCost": "Total cost",
+    "types": {
+      "vetVisit": "Vet visit",
+      "medication": "Medication",
+      "deworming": "Deworming",
+      "fleaTickControl": "Flea/tick",
+      "grooming": "Grooming",
+      "exam": "Exam",
+      "symptom": "Symptom",
+      "other": "Other"
+    },
+    "filters": {
+      "all": "All"
+    },
+    "empty": {
+      "title": "No health events yet",
+      "filteredTitle": "Nothing here for this filter",
+      "subtitle": "Log vet visits, medications and treatments so you have the full story."
+    },
+    "form": {
+      "createTitle": "Log health event",
+      "editTitle": "Edit health event",
+      "type": "Type",
+      "titleLabel": "Title",
+      "titlePlaceholder": "e.g. Annual checkup, Antibiotic round…",
+      "date": "Date",
+      "vetName": "Veterinarian",
+      "clinicName": "Clinic",
+      "descriptionOptional": "Notes (optional)",
+      "descriptionPlaceholder": "Anything extra you want to remember…",
+      "costOptional": "Cost (optional)",
+      "save": "Save event",
+      "medication": {
+        "name": "Medication name",
+        "dosage": "Dosage",
+        "dosageHint": "e.g. 10 mg",
+        "frequency": "Frequency",
+        "frequencyHint": "e.g. every 12h",
+        "durationDays": "Duration (days)",
+        "prescribedBy": "Prescribed by"
+      },
+      "errors": {
+        "titleRequired": "Title is required.",
+        "invalidDuration": "Enter a positive number of days.",
+        "invalidCost": "Cost must be zero or greater."
+      }
+    },
+    "errors": {
+      "loadFailed": "We couldn't load health events. Try again.",
+      "saveFailed": "We couldn't save this event. Try again."
+    }
+  },
   "weight": {
     "tabTitle": "Weight",
     "addWeight": "Add weigh-in",

@@ -89,12 +89,12 @@ Tracker of what is done, in progress and planned. Use the checkboxes to mark pro
 > Health history, weight, more love.
 
 ### 🩺 Health — [`specs/health.md`](specs/health.md)
-- [ ] Log vet visit
-- [ ] Log medication (with schedule)
-- [ ] Log dewormer
-- [ ] Log grooming session
-- [ ] Attach photo / PDF per event
-- [ ] Optional cost (currency-agnostic) per event
+- [x] Log vet visit
+- [x] Log medication (with schedule — name, dosage, frequency, duration)
+- [x] Log dewormer (`HealthEventType.deworming` / `fleaTickControl`)
+- [x] Log grooming session
+- [ ] Attach photo / PDF per event (deferred — lands with Gallery/Documents)
+- [x] Optional cost (currency-agnostic) per event
 
 ### ⚖️ Weight & growth — [`specs/weight.md`](specs/weight.md)
 - [x] Register weigh-in (bottom-sheet form; updates `pet.currentWeightKg`)

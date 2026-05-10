@@ -7,6 +7,8 @@ import 'package:mocktail/mocktail.dart';
 import 'package:my_pet/features/auth/data/datasources/firebase_auth_datasource.dart';
 import 'package:my_pet/features/auth/data/datasources/user_profile_datasource.dart';
 import 'package:my_pet/features/auth/domain/repositories/auth_repository.dart';
+import 'package:my_pet/features/health/data/datasources/health_firestore_datasource.dart';
+import 'package:my_pet/features/health/domain/repositories/health_repository.dart';
 import 'package:my_pet/features/household/data/datasources/household_firestore_datasource.dart';
 import 'package:my_pet/features/household/domain/repositories/household_repository.dart';
 import 'package:my_pet/features/notifications/domain/notification_service.dart';
@@ -25,6 +27,11 @@ class MockFirebaseAuthDatasource extends Mock
 class MockUserProfileDatasource extends Mock implements UserProfileDatasource {}
 
 class MockAuthRepository extends Mock implements AuthRepository {}
+
+class MockHealthFirestoreDatasource extends Mock
+    implements HealthFirestoreDatasource {}
+
+class MockHealthRepository extends Mock implements HealthRepository {}
 
 class MockHouseholdFirestoreDatasource extends Mock
     implements HouseholdFirestoreDatasource {}
