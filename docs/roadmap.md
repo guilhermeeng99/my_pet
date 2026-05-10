@@ -107,9 +107,9 @@ Tracker of what is done, in progress and planned. Use the checkboxes to mark pro
 - [ ] Share photo (platform share sheet — deferred)
 
 ### 📄 Documents — [`specs/documents.md`](specs/documents.md)
-- [ ] Upload PDFs / images (pet ID, exams)
-- [ ] Category per type
-- [ ] Inline preview (PDF + image)
+- [x] Upload PDFs / images (pet ID, exams)
+- [x] Category per type (`DocumentCategory` enum)
+- [x] Inline preview (image fullscreen viewer; PDFs copy link to clipboard until a PDF viewer ships)
 
 ### 🔔 Generic reminders — [`specs/reminders.md`](specs/reminders.md)
 - [x] Standalone reminders (not tied to vaccines)

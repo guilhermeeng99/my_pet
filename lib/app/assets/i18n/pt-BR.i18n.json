@@ -250,6 +250,41 @@
     "addFirstPet": "Adicione seu primeiro pet",
     "addFirstPetSubtitle": "Acompanhe cada vacina, peso e memória."
   },
+  "documents": {
+    "tabTitle": "Documentos",
+    "addDocument": "Adicionar documento",
+    "empty": {
+      "title": "Nenhum documento ainda",
+      "subtitle": "Envie exames, recibos e RG do pet para guardar tudo num lugar só."
+    },
+    "categories": {
+      "petId": "RG do pet",
+      "exam": "Exame",
+      "receipt": "Recibo",
+      "contract": "Contrato",
+      "prescription": "Receita",
+      "other": "Outro"
+    },
+    "upload": {
+      "title": "Enviar documento",
+      "titleLabel": "Título",
+      "category": "Categoria",
+      "notesOptional": "Notas (opcional)",
+      "pickFile": "Escolher arquivo",
+      "fileSelected": "Arquivo selecionado",
+      "save": "Enviar",
+      "errors": {
+        "noFile": "Escolha um arquivo primeiro."
+      }
+    },
+    "deleteConfirmTitle": "Excluir este documento?",
+    "deleteConfirmMessage": "O arquivo é removido do Storage e da sua biblioteca.",
+    "linkCopied": "Link copiado para a área de transferência.",
+    "errors": {
+      "loadFailed": "Não conseguimos carregar os documentos. Tente de novo.",
+      "uploadFailed": "Não conseguimos enviar o documento. Tente de novo."
+    }
+  },
   "gallery": {
     "tabTitle": "Galeria",
     "addPhoto": "Adicionar foto",

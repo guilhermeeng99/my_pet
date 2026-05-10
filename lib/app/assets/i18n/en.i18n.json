@@ -250,6 +250,41 @@
     "addFirstPet": "Add your first pet",
     "addFirstPetSubtitle": "Track every vaccination, weight and memory."
   },
+  "documents": {
+    "tabTitle": "Documents",
+    "addDocument": "Add document",
+    "empty": {
+      "title": "No documents yet",
+      "subtitle": "Upload exam results, receipts and ID cards to keep everything in one place."
+    },
+    "categories": {
+      "petId": "Pet ID",
+      "exam": "Exam",
+      "receipt": "Receipt",
+      "contract": "Contract",
+      "prescription": "Prescription",
+      "other": "Other"
+    },
+    "upload": {
+      "title": "Upload document",
+      "titleLabel": "Title",
+      "category": "Category",
+      "notesOptional": "Notes (optional)",
+      "pickFile": "Pick a file",
+      "fileSelected": "File selected",
+      "save": "Upload",
+      "errors": {
+        "noFile": "Pick a file first."
+      }
+    },
+    "deleteConfirmTitle": "Delete this document?",
+    "deleteConfirmMessage": "The file is removed from Storage and your library.",
+    "linkCopied": "Link copied to clipboard.",
+    "errors": {
+      "loadFailed": "We couldn't load documents. Try again.",
+      "uploadFailed": "We couldn't upload that document. Try again."
+    }
+  },
   "gallery": {
     "tabTitle": "Gallery",
     "addPhoto": "Add photo",

@@ -5,6 +5,8 @@ import 'package:get_it/get_it.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:my_pet/app/i18n/locale_preference_service.dart';
 import 'package:my_pet/app/onboarding/onboarding_preference_service.dart';
+import 'package:my_pet/core/services/document_storage_service.dart';
+import 'package:my_pet/core/services/firebase_document_storage_service.dart';
 import 'package:my_pet/core/services/firebase_photo_storage_service.dart';
 import 'package:my_pet/core/services/photo_storage_service.dart';
 import 'package:my_pet/features/auth/data/datasources/firebase_auth_datasource.dart';
@@ -12,6 +14,9 @@ import 'package:my_pet/features/auth/data/datasources/user_profile_datasource.da
 import 'package:my_pet/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:my_pet/features/auth/domain/repositories/auth_repository.dart';
 import 'package:my_pet/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:my_pet/features/documents/data/datasources/document_firestore_datasource.dart';
+import 'package:my_pet/features/documents/data/repositories/document_repository_impl.dart';
+import 'package:my_pet/features/documents/domain/repositories/document_repository.dart';
 import 'package:my_pet/features/gallery/data/datasources/gallery_firestore_datasource.dart';
 import 'package:my_pet/features/gallery/data/repositories/gallery_repository_impl.dart';
 import 'package:my_pet/features/gallery/domain/repositories/gallery_repository.dart';
@@ -77,6 +82,9 @@ Future<void> configureDependencies() async {
     ..registerLazySingleton<PhotoStorageService>(
       () => FirebasePhotoStorageService(storage: sl()),
     )
+    ..registerLazySingleton<DocumentStorageService>(
+      () => FirebaseDocumentStorageService(storage: sl()),
+    )
     // ── Auth feature ────────────────────────────────────────────────
     ..registerLazySingleton<FirebaseAuthDatasource>(
       () => FirebaseAuthDatasourceImpl(
@@ -141,6 +149,13 @@ Future<void> configureDependencies() async {
     )
     ..registerFactory<ReminderFormCubit>(
       () => ReminderFormCubit(repository: sl()),
+    )
+    // ── Documents feature ──────────────────────────────────────────
+    ..registerLazySingleton<DocumentFirestoreDatasource>(
+      () => DocumentFirestoreDatasourceImpl(firestore: sl()),
+    )
+    ..registerLazySingleton<DocumentRepository>(
+      () => DocumentRepositoryImpl(datasource: sl(), storage: sl()),
     )
     // ── Gallery feature ────────────────────────────────────────────
     ..registerLazySingleton<GalleryFirestoreDatasource>(
