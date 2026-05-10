@@ -42,25 +42,42 @@
       "subtitle": "Add your first companion to start tracking their care."
     },
     "form": {
-      "createTitle": "Add a pet",
+      "createTitle": "Pet details",
+      "createSubtitle": "Tell us about your best friend.",
       "editTitle": "Edit pet",
-      "name": "Name",
-      "namePlaceholder": "e.g. Mia",
+      "editSubtitle": "Keep their profile up to date.",
+      "name": "Pet name",
+      "namePlaceholder": "e.g. Mia, Thor, Luna…",
       "species": "Species",
+      "speciesPlaceholder": "Select species",
       "breed": "Breed",
+      "breedPlaceholder": "e.g. Siamese",
       "sex": "Sex",
-      "neutered": "Neutered/spayed",
+      "sexPlaceholder": "Select sex",
+      "neutered": "Neutered / spayed",
+      "neuteredHint": "Already neutered or spayed?",
       "birthDate": "Birth date",
       "adoptionDate": "Adoption date",
-      "color": "Color",
+      "color": "Coat color",
+      "colorPlaceholder": "e.g. Black, Tabby, White…",
       "microchipId": "Microchip number",
+      "microchipPlaceholder": "Optional",
       "notes": "Notes",
-      "save": "Save pet",
-      "selectDate": "Select date",
+      "notesOptional": "Notes (optional)",
+      "notesPlaceholder": "Anything important about your pet…",
+      "save": "Save and continue",
+      "selectDate": "Select",
       "errors": {
         "nameRequired": "Pet name is required.",
         "futureDate": "Date cannot be in the future.",
-        "saveFailed": "We couldn't save your pet. Try again."
+        "saveFailed": "We couldn't save your pet. Try again.",
+        "photoUploadFailed": "We couldn't upload that photo. Try again.",
+        "photoTooLarge": "Photo is too large — try a smaller image."
+      },
+      "photo": {
+        "addAria": "Add a photo of your pet",
+        "changeAria": "Change pet photo",
+        "uploading": "Uploading…"
       }
     },
     "species": {
@@ -82,6 +99,8 @@
       "archiveConfirmMessage": "Archived pets are kept under Settings → Archived pets and can be restored anytime."
     },
     "detail": {
+      "ageLabel": "Age",
+      "detailsHeader": "Details",
       "ageYearsMonths": "{years}y {months}m",
       "ageYears": "{years}y",
       "ageMonths": "{months}m",
@@ -91,6 +110,7 @@
   },
   "vaccinations": {
     "tabTitle": "Vaccines",
+    "tabSubtitle": "Doses, due dates and reminders.",
     "addVaccine": "Add vaccine",
     "empty": {
       "title": "No vaccines yet",
@@ -98,16 +118,25 @@
     },
     "form": {
       "createTitle": "Add vaccine",
+      "createSubtitle": "Log a dose to keep their schedule on track.",
       "editTitle": "Edit vaccine",
-      "name": "Name",
+      "editSubtitle": "Update vaccine details.",
+      "name": "Vaccine",
+      "namePlaceholder": "e.g. V4, Rabies…",
       "category": "Category",
       "appliedDate": "Applied on",
       "nextDueDate": "Next due",
       "vetName": "Veterinarian",
+      "vetPlaceholder": "Optional",
       "clinicName": "Clinic",
+      "clinicPlaceholder": "Optional",
       "batchNumber": "Batch number",
+      "batchPlaceholder": "Optional",
       "manufacturer": "Manufacturer",
+      "manufacturerPlaceholder": "Optional",
       "notes": "Notes",
+      "notesOptional": "Notes (optional)",
+      "notesPlaceholder": "Anything important…",
       "save": "Save vaccine",
       "delete": "Delete vaccine",
       "deleteConfirmTitle": "Delete this vaccine?",
@@ -138,5 +167,47 @@
     "inviteMember": "Invite member",
     "memberRoleOwner": "Admin",
     "memberRoleMember": "Member"
+  },
+  "nav": {
+    "home": "Home",
+    "reminders": "Reminders",
+    "stats": "Stats",
+    "profile": "Profile"
+  },
+  "home": {
+    "appTitle": "my_pet",
+    "greetingTitle": "Hi, {name} 👋",
+    "greetingTitleAnon": "Hello! 👋",
+    "greetingSubtitle": "Ready to give some love today?",
+    "quickAdd": {
+      "title": "Add a pet",
+      "subtitle": "Start a profile to track every vaccination,\nweight and memory.",
+      "cta": "Add a pet"
+    },
+    "addAnother": "Add another pet",
+    "stats": {
+      "pets": "Pets",
+      "species": "Species"
+    },
+    "myPets": "My pets",
+    "addFirstPet": "Add your first pet",
+    "addFirstPetSubtitle": "Track every vaccination, weight and memory."
+  },
+  "reminders": {
+    "stub": {
+      "title": "Reminders coming soon",
+      "subtitle": "Standalone reminders land in Phase 2."
+    }
+  },
+  "stats": {
+    "stub": {
+      "title": "Insights coming soon",
+      "subtitle": "Health and spending dashboards land in Phase 4."
+    }
+  },
+  "profile": {
+    "title": "Profile",
+    "household": "Household",
+    "version": "Version"
   }
 }

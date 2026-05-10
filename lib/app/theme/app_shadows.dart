@@ -2,20 +2,20 @@ import 'package:flutter/widgets.dart';
 
 /// Soft shadow elevations. See specs/design.md.
 ///
-/// Light-mode values are tuned for the lavender background; dark variants get
-/// triple alpha to keep depth visible against deep purple-black surfaces.
+/// Light-mode values are tuned for the soft sky background; dark variants get
+/// triple alpha to keep depth visible against deep navy surfaces.
 abstract final class AppShadows {
-  static const Color _lightInk = Color(0xFF1A1626);
+  static const Color _lightInk = Color(0xFF0B1B3A);
   static const Color _darkInk = Color(0xFF000000);
 
   static const List<BoxShadow> elevation1Light = [
-    BoxShadow(color: Color(0x0F1A1626), blurRadius: 8, offset: Offset(0, 2)),
+    BoxShadow(color: Color(0x0F0B1B3A), blurRadius: 8, offset: Offset(0, 2)),
   ];
   static const List<BoxShadow> elevation2Light = [
-    BoxShadow(color: Color(0x141A1626), blurRadius: 16, offset: Offset(0, 4)),
+    BoxShadow(color: Color(0x140B1B3A), blurRadius: 16, offset: Offset(0, 4)),
   ];
   static const List<BoxShadow> elevation3Light = [
-    BoxShadow(color: Color(0x1A1A1626), blurRadius: 24, offset: Offset(0, 8)),
+    BoxShadow(color: Color(0x1A0B1B3A), blurRadius: 24, offset: Offset(0, 8)),
   ];
 
   static const List<BoxShadow> elevation1Dark = [

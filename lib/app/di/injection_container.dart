@@ -4,6 +4,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
+import 'package:my_pet/core/services/firebase_photo_storage_service.dart';
+import 'package:my_pet/core/services/photo_storage_service.dart';
 import 'package:my_pet/features/auth/data/datasources/firebase_auth_datasource.dart';
 import 'package:my_pet/features/auth/data/datasources/user_profile_datasource.dart';
 import 'package:my_pet/features/auth/data/repositories/auth_repository_impl.dart';
@@ -40,6 +42,10 @@ Future<void> configureDependencies() async {
     ..registerLazySingleton<FirebaseFirestore>(() => FirebaseFirestore.instance)
     ..registerLazySingleton<FirebaseStorage>(() => FirebaseStorage.instance)
     ..registerLazySingleton<GoogleSignIn>(() => GoogleSignIn.instance)
+    // ── Shared services ─────────────────────────────────────────────
+    ..registerLazySingleton<PhotoStorageService>(
+      () => FirebasePhotoStorageService(storage: sl()),
+    )
     // ── Auth feature ────────────────────────────────────────────────
     ..registerLazySingleton<FirebaseAuthDatasource>(
       () => FirebaseAuthDatasourceImpl(

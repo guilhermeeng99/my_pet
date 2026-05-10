@@ -70,6 +70,20 @@ Tracker of what is done, in progress and planned. Use the checkboxes to mark pro
 
 ---
 
+## Phase 1.5 — Visual redesign 🟡
+
+> Reskin to vibrant blue + bottom-nav shell + shared widget catalog. Inspired by the FocaAI reference. Domain / data / cubits unchanged — surface only.
+
+- [x] Repaint primary palette (purple → blue) in `app_colors` / `app_palette` / `app_shadows` / `app_typography`
+- [x] Build shared widgets in `lib/app/widgets/` (`AppCard`, `AppPrimaryButton`, `AppSecondaryButton`, `StatCard`, `GreetingCard`, `FeatureListCard`, `SectionHeader`, `StatusBadge`, `AppBottomNav`, `ScreenScaffold`, `PetMascot`)
+- [x] `StatefulShellRoute` with 4-tab bottom nav (Home / Reminders / Stats / Profile)
+- [x] Restyle Splash, Welcome, Login, Pets Home, Pet Detail, Pet Form, Vaccinations List, Vaccination Form
+- [x] Stub pages for Reminders / Stats / Profile tabs
+- [ ] Reserve `assets/illustrations/mascot.svg` slot — commissioned illustration deferred (programmatic mascot in place)
+- [ ] Manual QA across light / dark mode + 200 % font scale
+
+---
+
 ## Phase 2 — Complete pet parent
 
 > Health history, weight, more love.

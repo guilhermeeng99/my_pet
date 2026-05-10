@@ -7,36 +7,36 @@ import 'package:flutter/material.dart';
 /// correct light/dark variant automatically.
 abstract final class AppColors {
   // ── Brand ────────────────────────────────────────────────────────────
-  static const Color primary = Color(0xFF6B55FF);
-  static const Color primaryPressed = Color(0xFF4D3DD9);
-  static const Color primaryContainer = Color(0xFFEFECFF);
+  static const Color primary = Color(0xFF2563EB);
+  static const Color primaryPressed = Color(0xFF1D4ED8);
+  static const Color primaryContainer = Color(0xFFE6EFFF);
   static const Color onPrimary = Color(0xFFFFFFFF);
-  static const Color onPrimaryContainer = Color(0xFF2A2070);
+  static const Color onPrimaryContainer = Color(0xFF0B2A6B);
 
-  static const Color primaryDark = Color(0xFF8C7BFF);
-  static const Color primaryPressedDark = Color(0xFF6B55FF);
-  static const Color primaryContainerDark = Color(0xFF2A2348);
-  static const Color onPrimaryContainerDark = Color(0xFFD9D2FF);
+  static const Color primaryDark = Color(0xFF5B8DEF);
+  static const Color primaryPressedDark = Color(0xFF2563EB);
+  static const Color primaryContainerDark = Color(0xFF13234A);
+  static const Color onPrimaryContainerDark = Color(0xFFCFE0FF);
 
   // ── Neutral surfaces (light) ─────────────────────────────────────────
-  static const Color background = Color(0xFFF7F6FB);
+  static const Color background = Color(0xFFF2F7FF);
   static const Color surface = Color(0xFFFFFFFF);
-  static const Color surfaceMuted = Color(0xFFF1EFF7);
-  static const Color outline = Color(0xFFE5E1F0);
-  static const Color onBackground = Color(0xFF1A1626);
-  static const Color onSurface = Color(0xFF1A1626);
-  static const Color onSurfaceMuted = Color(0xFF6B6580);
-  static const Color onSurfaceFaint = Color(0xFF9A93B0);
+  static const Color surfaceMuted = Color(0xFFEAF2FF);
+  static const Color outline = Color(0xFFDDE6F4);
+  static const Color onBackground = Color(0xFF0E1830);
+  static const Color onSurface = Color(0xFF0E1830);
+  static const Color onSurfaceMuted = Color(0xFF5C6985);
+  static const Color onSurfaceFaint = Color(0xFF8E99B3);
 
   // ── Neutral surfaces (dark) ──────────────────────────────────────────
-  static const Color backgroundDark = Color(0xFF0F0E1A);
-  static const Color surfaceDark = Color(0xFF1C1A2E);
-  static const Color surfaceMutedDark = Color(0xFF252338);
-  static const Color outlineDark = Color(0xFF3A3654);
-  static const Color onBackgroundDark = Color(0xFFF2EFFF);
-  static const Color onSurfaceDark = Color(0xFFF2EFFF);
-  static const Color onSurfaceMutedDark = Color(0xFFA29CC0);
-  static const Color onSurfaceFaintDark = Color(0xFF7A7596);
+  static const Color backgroundDark = Color(0xFF0B1220);
+  static const Color surfaceDark = Color(0xFF131C30);
+  static const Color surfaceMutedDark = Color(0xFF1B2540);
+  static const Color outlineDark = Color(0xFF2D3957);
+  static const Color onBackgroundDark = Color(0xFFEDF2FF);
+  static const Color onSurfaceDark = Color(0xFFEDF2FF);
+  static const Color onSurfaceMutedDark = Color(0xFFA5B0C9);
+  static const Color onSurfaceFaintDark = Color(0xFF7480A0);
 
   // ── Semantic ─────────────────────────────────────────────────────────
   static const Color success = Color(0xFF3FBF7F);
@@ -53,7 +53,7 @@ abstract final class AppColors {
   static const Color accentCat = Color(0xFFFF8C73);
   static const Color accentDog = Color(0xFFFFB84D);
   static const Color accentBird = Color(0xFF5FBEFF);
-  static const Color accentRabbit = Color(0xFFA685FF);
+  static const Color accentRabbit = Color(0xFF7C8CFF);
   static const Color accentOther = Color(0xFF7AC4A8);
 
   // ── ColorScheme builders ─────────────────────────────────────────────
@@ -86,7 +86,7 @@ abstract final class AppColors {
     secondaryContainer: primaryContainerDark,
     onSecondaryContainer: onPrimaryContainerDark,
     error: dangerDark,
-    onError: Color(0xFF1A1626),
+    onError: Color(0xFF0E1830),
     surface: surfaceDark,
     onSurface: onSurfaceDark,
     surfaceContainerHighest: surfaceMutedDark,

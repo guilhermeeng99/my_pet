@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:my_pet/app/router/app_shell.dart';
 import 'package:my_pet/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:my_pet/features/auth/presentation/pages/login_page.dart';
 import 'package:my_pet/features/onboarding/presentation/splash_page.dart';
@@ -11,6 +12,9 @@ import 'package:my_pet/features/pets/domain/entities/pet.dart';
 import 'package:my_pet/features/pets/presentation/pages/pet_detail_page.dart';
 import 'package:my_pet/features/pets/presentation/pages/pet_form_page.dart';
 import 'package:my_pet/features/pets/presentation/pages/pets_home_page.dart';
+import 'package:my_pet/features/profile/presentation/pages/profile_page.dart';
+import 'package:my_pet/features/reminders/presentation/pages/reminders_stub_page.dart';
+import 'package:my_pet/features/stats/presentation/pages/stats_stub_page.dart';
 import 'package:my_pet/features/vaccinations/presentation/pages/pet_vaccinations_page.dart';
 import 'package:my_pet/features/vaccinations/presentation/pages/vaccination_form_page.dart';
 
@@ -22,6 +26,9 @@ abstract final class AppRoutes {
   static const String welcome = '/welcome';
   static const String login = '/login';
   static const String home = '/home';
+  static const String reminders = '/reminders';
+  static const String stats = '/stats';
+  static const String profile = '/profile';
   static const String petCreate = '/home/new';
   static const String petDetailBase = '/home/pet';
   static const String petDetailPattern = '$petDetailBase/:petId';
@@ -29,7 +36,8 @@ abstract final class AppRoutes {
 }
 
 /// Builds the app router. Redirects on every auth state change so the user
-/// is always on the right page for their session.
+/// is always on the right page for their session. Authenticated tabs live
+/// behind a [StatefulShellRoute] so each tab keeps its own back-stack.
 GoRouter buildAppRouter(AuthBloc authBloc) {
   return GoRouter(
     initialLocation: AppRoutes.splash,
@@ -37,9 +45,12 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
     redirect: (context, state) {
       final auth = authBloc.state;
       final loc = state.matchedLocation;
+      final isShellRoute = loc == AppRoutes.home ||
+          loc == AppRoutes.reminders ||
+          loc == AppRoutes.stats ||
+          loc == AppRoutes.profile ||
+          loc.startsWith('${AppRoutes.home}/');
 
-      // Splash decides where to go on first frame; once auth resolves we
-      // stop letting the user linger there.
       switch (auth) {
         case AuthInitial() || AuthLoading():
           return null;
@@ -47,13 +58,19 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
           if (loc == AppRoutes.login || loc == AppRoutes.welcome) return null;
           return AppRoutes.welcome;
         case AuthNeedsHousehold():
-          // Phase 1 simplification: auto-create runs in the bloc; while it
-          // resolves the user sees Home in a loading state.
+          // While auto-create runs, anchor the user on Home (it shows a
+          // loading state). Anywhere else would crash on empty householdId.
           return loc == AppRoutes.home ? null : AppRoutes.home;
         case AuthAuthenticated():
           if (loc == AppRoutes.login ||
               loc == AppRoutes.welcome ||
               loc == AppRoutes.splash) {
+            return AppRoutes.home;
+          }
+          if (!isShellRoute &&
+              loc != AppRoutes.splash &&
+              loc != AppRoutes.welcome &&
+              loc != AppRoutes.login) {
             return AppRoutes.home;
           }
           return null;
@@ -72,59 +89,95 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
         path: AppRoutes.login,
         builder: (context, state) => const LoginPage(),
       ),
-      GoRoute(
-        path: AppRoutes.home,
-        builder: (context, state) => const PetsHomePage(),
-        routes: [
-          GoRoute(
-            path: 'new',
-            builder: (context, state) => const PetFormPage(),
-          ),
-          GoRoute(
-            path: 'pet/:petId',
-            builder: (context, state) =>
-                PetDetailPage(petId: state.pathParameters['petId']!),
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) =>
+            AppShell(navigationShell: navigationShell),
+        branches: [
+          StatefulShellBranch(
             routes: [
               GoRoute(
-                path: 'edit',
-                builder: (context, state) =>
-                    PetFormPage(existing: state.extra as Pet?),
-              ),
-              GoRoute(
-                path: 'vaccinations',
-                builder: (context, state) {
-                  final args = state.extra! as VaccinationFormArgs;
-                  return PetVaccinationsPage(
-                    householdId: args.householdId,
-                    petId: args.petId,
-                    species: args.species,
-                  );
-                },
+                path: AppRoutes.home,
+                builder: (context, state) => const PetsHomePage(),
                 routes: [
                   GoRoute(
                     path: 'new',
-                    builder: (context, state) {
-                      final args = state.extra! as VaccinationFormArgs;
-                      return VaccinationFormPage(
-                        householdId: args.householdId,
-                        petId: args.petId,
-                        species: args.species,
-                      );
-                    },
+                    builder: (context, state) => const PetFormPage(),
                   ),
                   GoRoute(
-                    path: ':vaccinationId/edit',
-                    builder: (context, state) {
-                      final args = state.extra! as VaccinationFormArgs;
-                      return VaccinationFormPage(
-                        householdId: args.householdId,
-                        petId: args.petId,
-                        species: args.species,
-                        existing: args.existing,
-                      );
-                    },
+                    path: 'pet/:petId',
+                    builder: (context, state) =>
+                        PetDetailPage(petId: state.pathParameters['petId']!),
+                    routes: [
+                      GoRoute(
+                        path: 'edit',
+                        builder: (context, state) =>
+                            PetFormPage(existing: state.extra as Pet?),
+                      ),
+                      GoRoute(
+                        path: 'vaccinations',
+                        builder: (context, state) {
+                          final args = state.extra! as VaccinationFormArgs;
+                          return PetVaccinationsPage(
+                            householdId: args.householdId,
+                            petId: args.petId,
+                            species: args.species,
+                          );
+                        },
+                        routes: [
+                          GoRoute(
+                            path: 'new',
+                            builder: (context, state) {
+                              final args =
+                                  state.extra! as VaccinationFormArgs;
+                              return VaccinationFormPage(
+                                householdId: args.householdId,
+                                petId: args.petId,
+                                species: args.species,
+                              );
+                            },
+                          ),
+                          GoRoute(
+                            path: ':vaccinationId/edit',
+                            builder: (context, state) {
+                              final args =
+                                  state.extra! as VaccinationFormArgs;
+                              return VaccinationFormPage(
+                                householdId: args.householdId,
+                                petId: args.petId,
+                                species: args.species,
+                                existing: args.existing,
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.reminders,
+                builder: (context, state) => const RemindersStubPage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.stats,
+                builder: (context, state) => const StatsStubPage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.profile,
+                builder: (context, state) => const ProfilePage(),
               ),
             ],
           ),

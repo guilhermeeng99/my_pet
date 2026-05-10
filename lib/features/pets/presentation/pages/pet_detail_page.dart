@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-
 import 'package:my_pet/app/di/injection_container.dart';
 import 'package:my_pet/app/router/app_router.dart';
 import 'package:my_pet/app/theme/app_palette.dart';
+import 'package:my_pet/app/theme/app_radii.dart';
 import 'package:my_pet/app/theme/app_spacing.dart';
+import 'package:my_pet/app/widgets/circle_icon_button.dart';
+import 'package:my_pet/app/widgets/feature_list_card.dart';
+import 'package:my_pet/app/widgets/section_header.dart';
 import 'package:my_pet/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:my_pet/features/pets/domain/entities/pet.dart';
 import 'package:my_pet/features/pets/domain/repositories/pet_repository.dart';
@@ -15,6 +18,7 @@ import 'package:my_pet/features/pets/presentation/widgets/pet_avatar.dart';
 import 'package:my_pet/features/pets/presentation/widgets/species_meta.dart';
 import 'package:my_pet/features/vaccinations/presentation/pages/pet_vaccinations_page.dart';
 import 'package:my_pet/gen/strings.g.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// Pet detail — overview only in Phase 1. Vaccinations / Health / Weight
 /// tabs land alongside their own features.
@@ -68,45 +72,52 @@ class _Loaded extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final muted = context.palette.onSurfaceMuted;
     final dateFmt = DateFormat.yMMMd();
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(pet.name),
-        actions: [
-          IconButton(
-            tooltip: t.common.edit,
-            icon: const Icon(Icons.edit_rounded),
-            onPressed: () => context.push(
-              '${AppRoutes.petDetailBase}/${pet.id}/edit',
-              extra: pet,
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.md,
+            AppSpacing.sm,
+            AppSpacing.md,
+            AppSpacing.xxl,
+          ),
+          children: [
+            _DetailHeader(
+              onEdit: () => context.push(
+                '${AppRoutes.petDetailBase}/${pet.id}/edit',
+                extra: pet,
+              ),
+              onArchive: () => _confirmArchive(context, pet),
             ),
-          ),
-          IconButton(
-            tooltip: t.pets.actions.archive,
-            icon: const Icon(Icons.archive_outlined),
-            onPressed: () => _confirmArchive(context, pet),
-          ),
-        ],
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        children: [
-          Center(child: PetAvatar(pet: pet, size: 160)),
-          const SizedBox(height: AppSpacing.lg),
-          Center(
-            child: Text(
-              SpeciesMeta.label(pet.species),
-              style: theme.textTheme.titleMedium?.copyWith(color: muted),
+            const SizedBox(height: AppSpacing.md),
+            Center(child: PetAvatar(pet: pet, size: 160)),
+            const SizedBox(height: AppSpacing.md),
+            Center(
+              child: Text(pet.name, style: theme.textTheme.headlineLarge),
             ),
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.vaccines_rounded),
-              title: Text(t.vaccinations.tabTitle),
-              trailing: const Icon(Icons.chevron_right_rounded),
+            const SizedBox(height: AppSpacing.xs),
+            Center(
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primaryContainer,
+                  borderRadius: AppRadii.brPill,
+                ),
+                child: Text(
+                  SpeciesMeta.label(pet.species),
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    color: theme.colorScheme.onPrimaryContainer,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            FeatureListCard(
+              icon: PhosphorIconsRegular.syringe,
+              title: t.vaccinations.tabTitle,
               onTap: () => context.push(
                 '${AppRoutes.petDetailBase}/${pet.id}/vaccinations',
                 extra: VaccinationFormArgs(
@@ -116,27 +127,107 @@ class _Loaded extends StatelessWidget {
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          _Field(label: t.pets.form.sex, value: SexMeta.label(pet.sex)),
-          if (pet.breed?.isNotEmpty ?? false)
-            _Field(label: t.pets.form.breed, value: pet.breed!),
-          _Field(label: t.pets.form.neutered, value: pet.neutered ? t.common.yes : t.common.no),
-          if (pet.birthDate != null)
-            _Field(label: t.pets.form.birthDate, value: dateFmt.format(pet.birthDate!)),
-          _Field(label: 'Age', value: _ageLabel(pet)),
-          if (pet.adoptionDate != null)
-            _Field(label: t.pets.form.adoptionDate, value: dateFmt.format(pet.adoptionDate!)),
-          if (pet.color?.isNotEmpty ?? false)
-            _Field(label: t.pets.form.color, value: pet.color!),
-          if (pet.microchipId?.isNotEmpty ?? false)
-            _Field(label: t.pets.form.microchipId, value: pet.microchipId!),
-          if (pet.notes?.isNotEmpty ?? false)
-            _Field(label: t.pets.form.notes, value: pet.notes!),
-        ],
+            const SizedBox(height: AppSpacing.lg),
+            SectionHeader(title: t.pets.detail.detailsHeader),
+            const SizedBox(height: AppSpacing.sm),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: _InfoTile(
+                    icon: PhosphorIconsBold.cake,
+                    label: t.pets.detail.ageLabel,
+                    value: _ageLabel(pet),
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: _InfoTile(
+                    icon: PhosphorIconsBold.identificationCard,
+                    label: t.pets.form.sex,
+                    value: SexMeta.label(pet.sex),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: _InfoTile(
+                    icon: PhosphorIconsBold.tag,
+                    label: t.pets.form.breed,
+                    value: _orDash(pet.breed),
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: _InfoTile(
+                    icon: PhosphorIconsBold.shieldCheck,
+                    label: t.pets.form.neutered,
+                    value: pet.neutered ? t.common.yes : t.common.no,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: _InfoTile(
+                    icon: PhosphorIconsBold.calendarBlank,
+                    label: t.pets.form.birthDate,
+                    value: pet.birthDate == null
+                        ? '—'
+                        : dateFmt.format(pet.birthDate!),
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: _InfoTile(
+                    icon: PhosphorIconsBold.heart,
+                    label: t.pets.form.adoptionDate,
+                    value: pet.adoptionDate == null
+                        ? '—'
+                        : dateFmt.format(pet.adoptionDate!),
+                  ),
+                ),
+              ],
+            ),
+            if (pet.color?.isNotEmpty ?? false) ...[
+              const SizedBox(height: AppSpacing.sm),
+              _InfoTile(
+                icon: PhosphorIconsBold.palette,
+                label: t.pets.form.color,
+                value: pet.color!,
+              ),
+            ],
+            if (pet.microchipId?.isNotEmpty ?? false) ...[
+              const SizedBox(height: AppSpacing.sm),
+              _InfoTile(
+                icon: PhosphorIconsBold.barcode,
+                label: t.pets.form.microchipId,
+                value: pet.microchipId!,
+              ),
+            ],
+            if (pet.notes?.isNotEmpty ?? false) ...[
+              const SizedBox(height: AppSpacing.sm),
+              _InfoTile(
+                icon: PhosphorIconsBold.notePencil,
+                label: t.pets.form.notes,
+                value: pet.notes!,
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
+
+  String _orDash(String? value) =>
+      value == null || value.isEmpty ? '—' : value;
 
   String _ageLabel(Pet pet) {
     final age = pet.age;
@@ -190,31 +281,85 @@ class _Loaded extends StatelessWidget {
   }
 }
 
-class _Field extends StatelessWidget {
-  const _Field({required this.label, required this.value});
+class _DetailHeader extends StatelessWidget {
+  const _DetailHeader({required this.onEdit, required this.onArchive});
+
+  final VoidCallback onEdit;
+  final VoidCallback onArchive;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        CircleIconButton(
+          icon: PhosphorIconsBold.arrowLeft,
+          onTap: () => Navigator.of(context).pop(),
+        ),
+        const Spacer(),
+        CircleIconButton(
+          icon: PhosphorIconsBold.pencilSimple,
+          onTap: onEdit,
+          tooltip: t.common.edit,
+        ),
+        const SizedBox(width: AppSpacing.xs),
+        CircleIconButton(
+          icon: PhosphorIconsBold.archive,
+          onTap: onArchive,
+          tooltip: t.pets.actions.archive,
+        ),
+      ],
+    );
+  }
+}
+
+class _InfoTile extends StatelessWidget {
+  const _InfoTile({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  final IconData icon;
   final String label;
   final String value;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.md),
-      child: Row(
+    return Container(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.md,
+        AppSpacing.sm + 2,
+        AppSpacing.md,
+        AppSpacing.sm + 2,
+      ),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        borderRadius: AppRadii.brLg,
+        border: Border.all(color: context.palette.outline, width: 1.2),
+      ),
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(
-            width: 140,
-            child: Text(
-              label,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: context.palette.onSurfaceMuted,
+          Row(
+            children: [
+              Icon(icon, size: 16, color: theme.colorScheme.primary),
+              const SizedBox(width: AppSpacing.xs),
+              Expanded(
+                child: Text(
+                  label,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: context.palette.onSurfaceMuted,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-            ),
+            ],
           ),
-          Expanded(
-            child: Text(value, style: theme.textTheme.bodyLarge),
-          ),
+          const SizedBox(height: 4),
+          Text(value, style: theme.textTheme.titleMedium),
         ],
       ),
     );

@@ -2,7 +2,7 @@
 
 ## Goal
 
-Define the visual language of my_pet: a friendly, calm, modern look that fits a "pet parent" app. The aesthetic is **inspired** by the Ahead app — vibrant purple primary, oversized bold headlines, generous whitespace, large pill-shaped buttons, soft pastel accents, friendly illustrations. We rebuild every asset (illustrations, icons, copy) ourselves; we mirror only the functional design decisions (tokens, hierarchy, spacing, button shapes), not any specific brand artwork or wording.
+Define the visual language of my_pet: a friendly, calm, modern look that fits a "pet parent" app. The aesthetic is **inspired** by the FocaAI focus-app reference — vibrant blue primary, soft sky-blue background wash, oversized bold black headlines, generous whitespace, large pill-shaped buttons, soft white rounded cards with subtle shadows, friendly mascot illustration on welcome / home / empty states, minimalist 4-item bottom nav. We rebuild every asset (illustrations, icons, copy) ourselves; we mirror only the functional design decisions (tokens, hierarchy, spacing, button shapes), not any specific brand artwork or wording.
 
 The system is implemented in `lib/app/theme/`. Widgets must consume these tokens via `Theme.of(context)` extensions — no hardcoded literals.
 
@@ -27,24 +27,24 @@ All values defined in `lib/app/theme/app_colors.dart` as a const class. Do not r
 
 | Token              | Light       | Dark        | Use                                                  |
 | ------------------ | ----------- | ----------- | ---------------------------------------------------- |
-| `primary`          | `#6B55FF`   | `#8C7BFF`   | Primary CTAs, headers, key accents                   |
-| `primaryPressed`   | `#4D3DD9`   | `#6B55FF`   | Pressed/hover state                                  |
-| `primaryContainer` | `#EFECFF`   | `#2A2348`   | Tinted backgrounds, selected chips, badges           |
+| `primary`          | `#2563EB`   | `#5B8DEF`   | Primary CTAs, headers, key accents                   |
+| `primaryPressed`   | `#1D4ED8`   | `#2563EB`   | Pressed/hover state                                  |
+| `primaryContainer` | `#E6EFFF`   | `#13234A`   | Tinted backgrounds, selected chips, badges           |
 | `onPrimary`        | `#FFFFFF`   | `#FFFFFF`   | Text/icons on `primary`                              |
-| `onPrimaryContainer` | `#2A2070` | `#D9D2FF`   | Text/icons on `primaryContainer`                     |
+| `onPrimaryContainer` | `#0B2A6B` | `#CFE0FF`   | Text/icons on `primaryContainer`                     |
 
 ### Neutral surfaces
 
 | Token              | Light       | Dark        | Use                                                  |
 | ------------------ | ----------- | ----------- | ---------------------------------------------------- |
-| `background`       | `#F7F6FB`   | `#0F0E1A`   | Scaffold background (subtle lavender tint)           |
-| `surface`          | `#FFFFFF`   | `#1C1A2E`   | Cards, sheets, dialogs                               |
-| `surfaceMuted`     | `#F1EFF7`   | `#252338`   | Inset cards, list zebra, disabled fields             |
-| `outline`          | `#E5E1F0`   | `#3A3654`   | Borders, dividers                                    |
-| `onBackground`     | `#1A1626`   | `#F2EFFF`   | Primary text on background                           |
-| `onSurface`        | `#1A1626`   | `#F2EFFF`   | Primary text on surface                              |
-| `onSurfaceMuted`   | `#6B6580`   | `#A29CC0`   | Secondary text                                       |
-| `onSurfaceFaint`   | `#9A93B0`   | `#7A7596`   | Tertiary text, placeholders                          |
+| `background`       | `#F2F7FF`   | `#0B1220`   | Scaffold background (soft sky wash)                  |
+| `surface`          | `#FFFFFF`   | `#131C30`   | Cards, sheets, dialogs                               |
+| `surfaceMuted`     | `#EAF2FF`   | `#1B2540`   | Inset cards, list zebra, disabled fields             |
+| `outline`          | `#DDE6F4`   | `#2D3957`   | Borders, dividers                                    |
+| `onBackground`     | `#0E1830`   | `#EDF2FF`   | Primary text on background                           |
+| `onSurface`        | `#0E1830`   | `#EDF2FF`   | Primary text on surface                              |
+| `onSurfaceMuted`   | `#5C6985`   | `#A5B0C9`   | Secondary text                                       |
+| `onSurfaceFaint`   | `#8E99B3`   | `#7480A0`   | Tertiary text, placeholders                          |
 
 ### Semantic
 
@@ -64,7 +64,7 @@ Used to color-code species and as palette for empty-state illustrations. Pure de
 | `accentCat`  | `#FF8C73`   |
 | `accentDog`  | `#FFB84D`   |
 | `accentBird` | `#5FBEFF`   |
-| `accentRabbit` | `#A685FF` |
+| `accentRabbit` | `#7C8CFF` |
 | `accentOther` | `#7AC4A8`  |
 
 ---
@@ -127,10 +127,10 @@ Default screen horizontal padding: `md` (16). Default vertical between unrelated
 Soft shadows only — no harsh black drop shadows.
 
 ```dart
-// app_shadows.dart
-static const elevation1 = [BoxShadow(color: Color(0x0F1A1626), blurRadius: 8,  offset: Offset(0, 2))];
-static const elevation2 = [BoxShadow(color: Color(0x141A1626), blurRadius: 16, offset: Offset(0, 4))];
-static const elevation3 = [BoxShadow(color: Color(0x1A1A1626), blurRadius: 24, offset: Offset(0, 8))];
+// app_shadows.dart — ink shifted to navy-black so depth reads naturally on the sky-blue ground.
+static const elevation1 = [BoxShadow(color: Color(0x0F0B1B3A), blurRadius: 8,  offset: Offset(0, 2))];
+static const elevation2 = [BoxShadow(color: Color(0x140B1B3A), blurRadius: 16, offset: Offset(0, 4))];
+static const elevation3 = [BoxShadow(color: Color(0x1A0B1B3A), blurRadius: 24, offset: Offset(0, 8))];
 ```
 
 | Token        | Use                                                  |
@@ -215,12 +215,38 @@ Use `overline` typography. Padding 6 vertical / 12 horizontal. Pill shape.
 
 ### Bottom nav
 
-- 4 items maximum (Home, Health, Reminders, Profile)
-- Active item: `primary` icon + `label` style label
-- Inactive: `onSurfaceFaint` icon, no label OR small label
-- Pill background behind active item: `primaryContainer`, `radiusPill`
+- 4 items: Home, Reminders, Stats, Profile
+- Active item: filled icon variant (`PhosphorIconsFill.*`) tinted `primary`, label colored `primary` and weighted 700
+- Inactive item: outline icon variant (`PhosphorIconsRegular.*`) tinted `onSurfaceFaint`, label tinted `onSurfaceMuted` weight 600
+- **No pill behind active item** — the active state is communicated only by color + weight + filled glyph (matches reference)
+- Background: `surface`; height 64 + safe-area inset bottom; soft `elevation2` shadow
+- Implementation lives in `lib/app/widgets/app_bottom_nav.dart`; consumed by the [`StatefulShellRoute`](#shell-and-tabs) in `lib/app/router/app_shell.dart`
 
 ---
+
+## Shared widgets (`lib/app/widgets/`)
+
+The design system ships a small catalog of token-only widgets. Every page must compose these instead of building one-off Material widgets, so radius / shadow / padding / typography stay consistent.
+
+| Widget               | Purpose                                                              |
+| -------------------- | -------------------------------------------------------------------- |
+| `ScreenScaffold`     | Page shell — soft-sky background, edge padding, optional left-aligned title |
+| `AppCard`            | Soft white rounded surface (`radiusLg`, `elevation1`), optional `onTap` |
+| `AppPrimaryButton`   | Pill `FilledButton` with optional leading icon, three sizes, built-in loading |
+| `AppSecondaryButton` | Pill outlined counterpart for secondary actions                      |
+| `AppBottomNav`       | 4-item minimalist nav (filled vs. outline icons, no pill, see above) |
+| `GreetingCard`       | Hero card on Home: greeting headline + mascot peek                   |
+| `StatCard`           | Compact stat (icon + label + value), designed to live in 2-up Row    |
+| `FeatureListCard`    | Tinted-icon row with title + subtitle + chevron, used for nav and CTA empty states |
+| `SectionHeader`      | Bold left-aligned section title with optional trailing chevron       |
+| `StatusBadge`        | Pill badge tinted by `StatusTone` (success / warning / danger / info / neutral) |
+| `PetMascot`          | Programmatic placeholder cat-face mascot (CustomPaint), no asset dependency |
+
+The mascot will be replaced with a commissioned illustration shipped at `assets/illustrations/mascot.svg`. Until then, the placeholder renders the same friendly silhouette using primary tokens.
+
+## Shell and tabs
+
+Authenticated tabs (Home / Reminders / Stats / Profile) live behind a `StatefulShellRoute.indexedStack` in `lib/app/router/app_router.dart`, wrapped by `AppShell` (`lib/app/router/app_shell.dart`). Each tab keeps its own navigator stack — pet detail / vaccinations sub-routes never leak across tab switches. Auth-only routes (`/`, `/welcome`, `/login`) live outside the shell.
 
 ## Iconography
 
@@ -252,7 +278,7 @@ Use `overline` typography. Padding 6 vertical / 12 horizontal. Pill shape.
 
 ## Dark mode
 
-All tokens are pre-defined for dark in the tables above. The dark surface is **deep purple-black** (`#0F0E1A`) — not pure black — to keep the brand warm. Cards lift to `#1C1A2E`. Shadows become more pronounced (3× alpha) to keep depth visible against the darker background.
+All tokens are pre-defined for dark in the tables above. The dark surface is **deep navy** (`#0B1220`) — not pure black — to keep the brand cohesive with the daylight blue palette. Cards lift to `#131C30`. Shadows become more pronounced (3× alpha) to keep depth visible against the darker background.
 
 ---
 

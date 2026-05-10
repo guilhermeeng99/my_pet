@@ -19,11 +19,11 @@ abstract final class AppTypography {
 
   static TextTheme textTheme({required Brightness brightness}) {
     final ink = brightness == Brightness.light
-        ? const Color(0xFF1A1626)
-        : const Color(0xFFF2EFFF);
+        ? const Color(0xFF0E1830)
+        : const Color(0xFFEDF2FF);
     final muted = brightness == Brightness.light
-        ? const Color(0xFF6B6580)
-        : const Color(0xFFA29CC0);
+        ? const Color(0xFF5C6985)
+        : const Color(0xFFA5B0C9);
 
     return TextTheme(
       displayLarge: _base(36, FontWeight.w700, 1.1, -0.5, ink),

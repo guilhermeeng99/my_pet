@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:my_pet/app/theme/app_palette.dart';
-import 'package:my_pet/app/theme/app_radii.dart';
 import 'package:my_pet/app/theme/app_spacing.dart';
+import 'package:my_pet/app/widgets/app_primary_button.dart';
+import 'package:my_pet/app/widgets/pet_mascot.dart';
 import 'package:my_pet/core/errors/failures.dart';
 import 'package:my_pet/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:my_pet/gen/strings.g.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -37,21 +39,7 @@ class LoginPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const Spacer(flex: 2),
-                  Center(
-                    child: Container(
-                      width: 160,
-                      height: 160,
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.primaryContainer,
-                        borderRadius: AppRadii.brXL,
-                      ),
-                      child: Icon(
-                        Icons.pets_rounded,
-                        size: 80,
-                        color: theme.colorScheme.primary,
-                      ),
-                    ),
-                  ),
+                  const Center(child: PetMascot()),
                   const SizedBox(height: AppSpacing.xl),
                   Text(
                     t.auth.signInTitle,
@@ -66,20 +54,13 @@ class LoginPage extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                   const Spacer(flex: 3),
-                  FilledButton.icon(
-                    onPressed: loading
-                        ? null
-                        : () => context
-                            .read<AuthBloc>()
-                            .add(const GoogleSignInRequested()),
-                    icon: loading
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.login_rounded),
-                    label: Text(t.auth.signInWithGoogle),
+                  AppPrimaryButton(
+                    label: t.auth.signInWithGoogle,
+                    icon: PhosphorIconsBold.googleLogo,
+                    loading: loading,
+                    onPressed: () => context
+                        .read<AuthBloc>()
+                        .add(const GoogleSignInRequested()),
                   ),
                   const SizedBox(height: AppSpacing.md),
                 ],

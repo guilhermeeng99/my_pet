@@ -4,7 +4,11 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:my_pet/app/di/injection_container.dart';
 import 'package:my_pet/app/theme/app_palette.dart';
+import 'package:my_pet/app/theme/app_radii.dart';
 import 'package:my_pet/app/theme/app_spacing.dart';
+import 'package:my_pet/app/widgets/app_field.dart';
+import 'package:my_pet/app/widgets/app_primary_button.dart';
+import 'package:my_pet/app/widgets/circle_icon_button.dart';
 import 'package:my_pet/core/data/vaccine_presets.dart';
 import 'package:my_pet/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:my_pet/features/pets/domain/entities/species.dart';
@@ -13,6 +17,7 @@ import 'package:my_pet/features/vaccinations/domain/entities/vaccine_category.da
 import 'package:my_pet/features/vaccinations/presentation/cubit/vaccination_form_cubit.dart';
 import 'package:my_pet/features/vaccinations/presentation/widgets/vaccination_meta.dart';
 import 'package:my_pet/gen/strings.g.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 import 'package:uuid/uuid.dart';
 
 class VaccinationFormPage extends StatelessWidget {
@@ -122,140 +127,171 @@ class _VaccinationFormViewState extends State<_VaccinationFormView> {
       builder: (context, state) {
         final submitting = state is VaccinationFormSubmitting;
         return Scaffold(
-          appBar: AppBar(
-            title: Text(_isEdit
-                ? t.vaccinations.form.editTitle
-                : t.vaccinations.form.createTitle),
-            actions: [
-              if (_isEdit)
-                IconButton(
-                  tooltip: t.vaccinations.form.delete,
-                  icon: const Icon(Icons.delete_outline_rounded),
-                  onPressed: submitting ? null : () => _confirmDelete(context),
-                ),
-            ],
-          ),
           body: SafeArea(
             child: Form(
               key: _formKey,
-              child: ListView(
-                padding: const EdgeInsets.all(AppSpacing.md),
+              child: Column(
                 children: [
-                  if (presets.isNotEmpty) ...[
-                    Text(
-                      t.vaccinations.form.presetSection,
-                      style: Theme.of(context).textTheme.titleMedium,
+                  Expanded(
+                    child: ListView(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.md,
+                        AppSpacing.sm,
+                        AppSpacing.md,
+                        AppSpacing.md,
+                      ),
+                      children: [
+                        _FormHeader(
+                          isEdit: _isEdit,
+                          onDelete: _isEdit && !submitting
+                              ? () => _confirmDelete(context)
+                              : null,
+                        ),
+                        const SizedBox(height: AppSpacing.lg),
+                        if (presets.isNotEmpty) ...[
+                          _PresetChips(
+                            presets: presets,
+                            onPick: _applyPreset,
+                          ),
+                          const SizedBox(height: AppSpacing.md),
+                        ],
+                        AppField(
+                          icon: PhosphorIconsBold.syringe,
+                          label: t.vaccinations.form.name,
+                          child: TextFormField(
+                            controller: _nameCtrl,
+                            decoration: _bare(
+                              t.vaccinations.form.namePlaceholder,
+                            ),
+                            validator: (v) => (v == null || v.trim().isEmpty)
+                                ? t.common.required
+                                : null,
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.sm),
+                        AppField(
+                          icon: PhosphorIconsBold.tag,
+                          label: t.vaccinations.form.category,
+                          child: DropdownButtonFormField<VaccineCategory>(
+                            initialValue: _category,
+                            decoration: _bare(null),
+                            isExpanded: true,
+                            items: VaccineCategory.values
+                                .map((c) => DropdownMenuItem(
+                                      value: c,
+                                      child:
+                                          Text(VaccineCategoryMeta.label(c)),
+                                    ))
+                                .toList(),
+                            onChanged: (v) =>
+                                setState(() => _category = v ?? _category),
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.sm),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: AppField(
+                                icon: PhosphorIconsBold.calendarBlank,
+                                label: t.vaccinations.form.appliedDate,
+                                child: _DateInline(
+                                  value: _appliedDate,
+                                  formatter: dateFmt,
+                                  nullable: false,
+                                  onPick: (d) => setState(
+                                    () => _appliedDate = d ?? _appliedDate,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: AppSpacing.sm),
+                            Expanded(
+                              child: AppField(
+                                icon: PhosphorIconsBold.calendarPlus,
+                                label: t.vaccinations.form.nextDueDate,
+                                child: _DateInline(
+                                  value: _nextDueDate,
+                                  formatter: dateFmt,
+                                  nullable: true,
+                                  onPick: (d) =>
+                                      setState(() => _nextDueDate = d),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: AppSpacing.sm),
+                        AppField(
+                          icon: PhosphorIconsBold.stethoscope,
+                          label: t.vaccinations.form.vetName,
+                          child: TextFormField(
+                            controller: _vetCtrl,
+                            decoration: _bare(
+                              t.vaccinations.form.vetPlaceholder,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.sm),
+                        AppField(
+                          icon: PhosphorIconsBold.house,
+                          label: t.vaccinations.form.clinicName,
+                          child: TextFormField(
+                            controller: _clinicCtrl,
+                            decoration: _bare(
+                              t.vaccinations.form.clinicPlaceholder,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.sm),
+                        AppField(
+                          icon: PhosphorIconsBold.barcode,
+                          label: t.vaccinations.form.batchNumber,
+                          child: TextFormField(
+                            controller: _batchCtrl,
+                            decoration: _bare(
+                              t.vaccinations.form.batchPlaceholder,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.sm),
+                        AppField(
+                          icon: PhosphorIconsBold.factory,
+                          label: t.vaccinations.form.manufacturer,
+                          child: TextFormField(
+                            controller: _manufacturerCtrl,
+                            decoration: _bare(
+                              t.vaccinations.form.manufacturerPlaceholder,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.sm),
+                        AppField(
+                          icon: PhosphorIconsBold.notePencil,
+                          label: t.vaccinations.form.notesOptional,
+                          child: TextFormField(
+                            controller: _notesCtrl,
+                            decoration: _bare(
+                              t.vaccinations.form.notesPlaceholder,
+                            ),
+                            maxLines: 3,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: AppSpacing.sm),
-                    Wrap(
-                      spacing: AppSpacing.xs,
-                      runSpacing: AppSpacing.xs,
-                      children: presets
-                          .map((p) => ActionChip(
-                                label: Text(p.name),
-                                tooltip: t.vaccinations.form.presetTooltip,
-                                onPressed: () {
-                                  setState(() {
-                                    _nameCtrl.text = p.name;
-                                    _category = p.category;
-                                    _nextDueDate = _appliedDate.add(
-                                      Duration(
-                                        days: p.defaultBoosterIntervalDays,
-                                      ),
-                                    );
-                                  });
-                                },
-                              ))
-                          .toList(),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.md,
+                      AppSpacing.sm,
+                      AppSpacing.md,
+                      AppSpacing.md,
                     ),
-                    const SizedBox(height: AppSpacing.md),
-                  ],
-                  TextFormField(
-                    controller: _nameCtrl,
-                    decoration: InputDecoration(
-                      labelText: t.vaccinations.form.name,
+                    child: AppPrimaryButton(
+                      label: t.vaccinations.form.save,
+                      loading: submitting,
+                      onPressed: _submit,
                     ),
-                    validator: (v) => (v == null || v.trim().isEmpty)
-                        ? t.common.required
-                        : null,
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  DropdownButtonFormField<VaccineCategory>(
-                    initialValue: _category,
-                    decoration: InputDecoration(
-                      labelText: t.vaccinations.form.category,
-                    ),
-                    items: VaccineCategory.values
-                        .map((c) => DropdownMenuItem(
-                              value: c,
-                              child: Text(VaccineCategoryMeta.label(c)),
-                            ))
-                        .toList(),
-                    onChanged: (v) =>
-                        setState(() => _category = v ?? _category),
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  _DateField(
-                    label: t.vaccinations.form.appliedDate,
-                    value: _appliedDate,
-                    formatter: dateFmt,
-                    onPick: (d) => setState(() => _appliedDate = d ?? _appliedDate),
-                    nullable: false,
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  _DateField(
-                    label: t.vaccinations.form.nextDueDate,
-                    value: _nextDueDate,
-                    formatter: dateFmt,
-                    onPick: (d) => setState(() => _nextDueDate = d),
-                    nullable: true,
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  TextFormField(
-                    controller: _vetCtrl,
-                    decoration: InputDecoration(
-                      labelText: t.vaccinations.form.vetName,
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  TextFormField(
-                    controller: _clinicCtrl,
-                    decoration: InputDecoration(
-                      labelText: t.vaccinations.form.clinicName,
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  TextFormField(
-                    controller: _batchCtrl,
-                    decoration: InputDecoration(
-                      labelText: t.vaccinations.form.batchNumber,
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  TextFormField(
-                    controller: _manufacturerCtrl,
-                    decoration: InputDecoration(
-                      labelText: t.vaccinations.form.manufacturer,
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  TextFormField(
-                    controller: _notesCtrl,
-                    decoration: InputDecoration(
-                      labelText: t.vaccinations.form.notes,
-                    ),
-                    maxLines: 3,
-                  ),
-                  const SizedBox(height: AppSpacing.xl),
-                  FilledButton(
-                    onPressed: submitting ? null : _submit,
-                    child: submitting
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : Text(t.vaccinations.form.save),
                   ),
                 ],
               ),
@@ -264,6 +300,30 @@ class _VaccinationFormViewState extends State<_VaccinationFormView> {
         );
       },
     );
+  }
+
+  InputDecoration _bare(String? hint) {
+    return InputDecoration(
+      hintText: hint,
+      isDense: true,
+      filled: false,
+      border: InputBorder.none,
+      enabledBorder: InputBorder.none,
+      focusedBorder: InputBorder.none,
+      errorBorder: InputBorder.none,
+      focusedErrorBorder: InputBorder.none,
+      contentPadding: EdgeInsets.zero,
+    );
+  }
+
+  void _applyPreset(VaccinePreset p) {
+    setState(() {
+      _nameCtrl.text = p.name;
+      _category = p.category;
+      _nextDueDate = _appliedDate.add(
+        Duration(days: p.defaultBoosterIntervalDays),
+      );
+    });
   }
 
   void _submit() {
@@ -332,16 +392,133 @@ class _VaccinationFormViewState extends State<_VaccinationFormView> {
   }
 }
 
-class _DateField extends StatelessWidget {
-  const _DateField({
-    required this.label,
+class _FormHeader extends StatelessWidget {
+  const _FormHeader({required this.isEdit, this.onDelete});
+
+  final bool isEdit;
+  final VoidCallback? onDelete;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final delete = onDelete;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            CircleIconButton(
+              icon: PhosphorIconsBold.arrowLeft,
+              onTap: () => Navigator.of(context).pop(),
+            ),
+            const Spacer(),
+            if (delete != null)
+              CircleIconButton(
+                icon: PhosphorIconsBold.trash,
+                onTap: delete,
+                tooltip: t.vaccinations.form.delete,
+                foregroundColor: theme.colorScheme.error,
+              ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.md),
+        Text(
+          isEdit
+              ? t.vaccinations.form.editTitle
+              : t.vaccinations.form.createTitle,
+          style: theme.textTheme.headlineLarge?.copyWith(
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Text(
+          isEdit
+              ? t.vaccinations.form.editSubtitle
+              : t.vaccinations.form.createSubtitle,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: context.palette.onSurfaceMuted,
+            height: 1.4,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _PresetChips extends StatelessWidget {
+  const _PresetChips({required this.presets, required this.onPick});
+
+  final List<VaccinePreset> presets;
+  final ValueChanged<VaccinePreset> onPick;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          t.vaccinations.form.presetSection,
+          style: theme.textTheme.titleSmall?.copyWith(
+            color: context.palette.onSurfaceMuted,
+          ),
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Wrap(
+          spacing: AppSpacing.xs,
+          runSpacing: AppSpacing.xs,
+          children: presets
+              .map((p) => _PresetChip(
+                    label: p.name,
+                    onTap: () => onPick(p),
+                  ))
+              .toList(),
+        ),
+      ],
+    );
+  }
+}
+
+class _PresetChip extends StatelessWidget {
+  const _PresetChip({required this.label, required this.onTap});
+
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Material(
+      color: theme.colorScheme.primaryContainer,
+      shape: const RoundedRectangleBorder(borderRadius: AppRadii.brPill),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: AppRadii.brPill,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.sm,
+            vertical: AppSpacing.xxs + 2,
+          ),
+          child: Text(
+            label,
+            style: theme.textTheme.labelLarge?.copyWith(
+              color: theme.colorScheme.onPrimaryContainer,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DateInline extends StatelessWidget {
+  const _DateInline({
     required this.value,
     required this.formatter,
     required this.onPick,
     required this.nullable,
   });
 
-  final String label;
   final DateTime? value;
   final DateFormat formatter;
   final ValueChanged<DateTime?> onPick;
@@ -349,41 +526,52 @@ class _DateField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InputDecorator(
-      decoration: InputDecoration(labelText: label),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              value == null
-                  ? t.pets.form.selectDate
-                  : formatter.format(value!),
-              style: TextStyle(
-                color: value == null
-                    ? context.palette.onSurfaceMuted
-                    : null,
+    final theme = Theme.of(context);
+    final palette = context.palette;
+    return InkWell(
+      onTap: () async {
+        final now = DateTime.now();
+        final picked = await showDatePicker(
+          context: context,
+          initialDate: value ?? now,
+          firstDate: DateTime(now.year - 30),
+          lastDate: DateTime(now.year + 10),
+        );
+        if (picked != null) onPick(picked);
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 2),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                value == null
+                    ? t.pets.form.selectDate
+                    : formatter.format(value!),
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: value == null ? palette.onSurfaceFaint : null,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
-          ),
-          if (nullable && value != null)
-            IconButton(
-              icon: const Icon(Icons.clear_rounded),
-              onPressed: () => onPick(null),
-            ),
-          IconButton(
-            icon: const Icon(Icons.calendar_today_rounded),
-            onPressed: () async {
-              final now = DateTime.now();
-              final picked = await showDatePicker(
-                context: context,
-                initialDate: value ?? now,
-                firstDate: DateTime(now.year - 30),
-                lastDate: DateTime(now.year + 10),
-              );
-              if (picked != null) onPick(picked);
-            },
-          ),
-        ],
+            if (nullable && value != null)
+              GestureDetector(
+                onTap: () => onPick(null),
+                child: Icon(
+                  PhosphorIconsRegular.x,
+                  size: 16,
+                  color: palette.onSurfaceFaint,
+                ),
+              )
+            else
+              Icon(
+                PhosphorIconsRegular.caretDown,
+                size: 16,
+                color: palette.onSurfaceFaint,
+              ),
+          ],
+        ),
       ),
     );
   }

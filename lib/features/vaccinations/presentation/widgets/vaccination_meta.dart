@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-
+import 'package:my_pet/app/widgets/status_badge.dart';
 import 'package:my_pet/features/vaccinations/domain/entities/vaccination_status.dart';
 import 'package:my_pet/features/vaccinations/domain/entities/vaccine_category.dart';
 import 'package:my_pet/gen/strings.g.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 abstract final class VaccineCategoryMeta {
   static String label(VaccineCategory c) {
@@ -25,21 +26,21 @@ abstract final class VaccinationStatusMeta {
     };
   }
 
-  static Color colorFor(VaccinationStatus s, ColorScheme scheme) {
+  static StatusTone toneFor(VaccinationStatus s) {
     return switch (s) {
-      VaccinationStatus.overdue => scheme.error,
-      VaccinationStatus.dueSoon => scheme.tertiary,
-      VaccinationStatus.upToDate => scheme.primary,
-      VaccinationStatus.noNextDose => scheme.outline,
+      VaccinationStatus.overdue => StatusTone.danger,
+      VaccinationStatus.dueSoon => StatusTone.warning,
+      VaccinationStatus.upToDate => StatusTone.success,
+      VaccinationStatus.noNextDose => StatusTone.neutral,
     };
   }
 
   static IconData iconFor(VaccinationStatus s) {
     return switch (s) {
-      VaccinationStatus.overdue => Icons.error_outline_rounded,
-      VaccinationStatus.dueSoon => Icons.schedule_rounded,
-      VaccinationStatus.upToDate => Icons.check_circle_outline_rounded,
-      VaccinationStatus.noNextDose => Icons.help_outline_rounded,
+      VaccinationStatus.overdue => PhosphorIconsBold.warning,
+      VaccinationStatus.dueSoon => PhosphorIconsBold.clock,
+      VaccinationStatus.upToDate => PhosphorIconsBold.checkCircle,
+      VaccinationStatus.noNextDose => PhosphorIconsBold.question,
     };
   }
 }

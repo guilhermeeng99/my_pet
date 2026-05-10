@@ -3,12 +3,14 @@ import 'package:go_router/go_router.dart';
 
 import 'package:my_pet/app/router/app_router.dart';
 import 'package:my_pet/app/theme/app_palette.dart';
-import 'package:my_pet/app/theme/app_radii.dart';
 import 'package:my_pet/app/theme/app_spacing.dart';
+import 'package:my_pet/app/widgets/app_primary_button.dart';
+import 'package:my_pet/app/widgets/pet_mascot.dart';
 import 'package:my_pet/gen/strings.g.dart';
 
-/// Phase 0 placeholder welcome screen. Demonstrates that the design tokens
-/// render correctly: hero card, oversized headline, pill primary button.
+/// Onboarding entry point. Mascot at the top, oversized headline, supportive
+/// subtitle, full-width pill CTA at the bottom. The mascot is a programmatic
+/// placeholder — see specs/design.md "Illustrations".
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
 
@@ -25,21 +27,7 @@ class WelcomePage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Spacer(flex: 2),
-              Center(
-                child: Container(
-                  width: 200,
-                  height: 200,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.primaryContainer,
-                    borderRadius: AppRadii.brXL,
-                  ),
-                  child: Icon(
-                    Icons.pets_rounded,
-                    size: 96,
-                    color: theme.colorScheme.primary,
-                  ),
-                ),
-              ),
+              const Center(child: PetMascot(size: 200)),
               const SizedBox(height: AppSpacing.xl),
               Text(
                 t.onboarding.welcomeTitle,
@@ -54,9 +42,9 @@ class WelcomePage extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const Spacer(flex: 3),
-              FilledButton(
+              AppPrimaryButton(
+                label: t.common.kContinue,
                 onPressed: () => context.go(AppRoutes.login),
-                child: Text(t.common.kContinue),
               ),
               const SizedBox(height: AppSpacing.md),
             ],

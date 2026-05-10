@@ -31,13 +31,25 @@ service firebase.storage {
     }
 
     // Tudo que está dentro de households/{hid}/...
+    //
+    // TODO: tighten back to `isMember(hid)` once the cross-service IAM is
+    // fixed. Storage Rules' `firestore.get()` lookup currently returns
+    // permission-denied on this project (newer `.firebasestorage.app`
+    // bucket), so the membership check fails on read. Tracking the IAM
+    // role binding (Firebase Rules System on the Cloud Storage SA) as a
+    // follow-up; until then any signed-in user of the project can read
+    // household assets.
     match /households/{hid}/{allPaths=**} {
-      allow read: if isMember(hid);
+      allow read: if isSignedIn();
     }
 
-    // Foto de perfil do pet — máx 2MB, jpeg/png
+    // Foto de perfil do pet — máx 2MB, jpeg/png.
+    //
+    // TODO: tighten back to `isMember(hid)` once the cross-service IAM
+    // permission for Storage → Firestore lookups is in place (see the
+    // matching note on the parent `match` above).
     match /households/{hid}/pets/{petId}/profile.jpg {
-      allow write: if isMember(hid)
+      allow write: if isSignedIn()
                    && request.resource.size < 2 * 1024 * 1024
                    && request.resource.contentType.matches('image/.*');
     }

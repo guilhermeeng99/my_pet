@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
-
 import 'package:my_pet/features/pets/domain/entities/sex.dart';
 import 'package:my_pet/features/pets/domain/entities/species.dart';
 import 'package:my_pet/gen/strings.g.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// Static, UI-only mapping from domain enums to icons + localized labels.
 /// Lives next to widgets — domain stays presentation-free.
 abstract final class SpeciesMeta {
   static IconData iconFor(Species species) {
     return switch (species) {
-      Species.cat => Icons.pets_rounded,
-      Species.dog => Icons.pets_rounded,
-      Species.bird => Icons.flutter_dash_rounded,
-      Species.rabbit => Icons.cruelty_free_rounded,
-      Species.other => Icons.emoji_nature_rounded,
+      Species.cat => PhosphorIconsBold.cat,
+      Species.dog => PhosphorIconsBold.dog,
+      Species.bird => PhosphorIconsBold.bird,
+      Species.rabbit => PhosphorIconsBold.rabbit,
+      Species.other => PhosphorIconsBold.pawPrint,
     };
   }
 

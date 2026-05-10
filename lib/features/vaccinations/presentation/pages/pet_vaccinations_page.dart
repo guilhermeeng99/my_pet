@@ -5,13 +5,20 @@ import 'package:intl/intl.dart';
 import 'package:my_pet/app/di/injection_container.dart';
 import 'package:my_pet/app/router/app_router.dart';
 import 'package:my_pet/app/theme/app_palette.dart';
+import 'package:my_pet/app/theme/app_radii.dart';
 import 'package:my_pet/app/theme/app_spacing.dart';
+import 'package:my_pet/app/widgets/app_card.dart';
+import 'package:my_pet/app/widgets/circle_icon_button.dart';
+import 'package:my_pet/app/widgets/feature_list_card.dart';
+import 'package:my_pet/app/widgets/section_header.dart';
+import 'package:my_pet/app/widgets/status_badge.dart';
 import 'package:my_pet/features/pets/domain/entities/species.dart';
 import 'package:my_pet/features/vaccinations/domain/entities/vaccination.dart';
 import 'package:my_pet/features/vaccinations/domain/entities/vaccination_status.dart';
 import 'package:my_pet/features/vaccinations/presentation/cubit/vaccinations_list_cubit.dart';
 import 'package:my_pet/features/vaccinations/presentation/widgets/vaccination_meta.dart';
 import 'package:my_pet/gen/strings.g.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 /// Vaccinations list for a single pet, grouped by status.
 class PetVaccinationsPage extends StatelessWidget {
@@ -54,148 +61,210 @@ class _View extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(t.vaccinations.tabTitle)),
-      floatingActionButton: FloatingActionButton.extended(
-        icon: const Icon(Icons.add_rounded),
-        label: Text(t.vaccinations.addVaccine),
-        onPressed: () => context.push(
+      body: SafeArea(
+        child: BlocBuilder<VaccinationsListCubit, VaccinationsListState>(
+          builder: (context, state) {
+            final isEmpty = state is VaccinationsListLoaded &&
+                state.grouped.values.every((l) => l.isEmpty);
+            return ListView(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.md,
+                AppSpacing.sm,
+                AppSpacing.md,
+                AppSpacing.xxl,
+              ),
+              children: [
+                _PageHeader(
+                  // Hide the top-right + when there are no vaccines yet —
+                  // the inline "Add vaccine" card in the empty state takes
+                  // over as the primary CTA.
+                  onAdd: isEmpty ? null : () => _goToCreate(context),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                _Title(),
+                const SizedBox(height: AppSpacing.lg),
+                ..._bodyFor(context, state),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  void _goToCreate(BuildContext context) {
+    context
+        .push(
           '${AppRoutes.petDetailBase}/$petId/vaccinations/new',
           extra: VaccinationFormArgs(
             householdId: householdId,
             petId: petId,
             species: species,
           ),
-        ),
-      ),
-      body: BlocBuilder<VaccinationsListCubit, VaccinationsListState>(
-        builder: (context, state) {
-          return switch (state) {
-            VaccinationsListLoading() || VaccinationsListInitial() =>
-              const Center(child: CircularProgressIndicator()),
-            VaccinationsListError(failure: final f) => Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.lg),
-                  child: Text(
-                    f.message ?? t.auth.errors.unknown,
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ),
-            VaccinationsListLoaded(:final grouped) =>
-              grouped.values.every((l) => l.isEmpty)
-                  ? const _EmptyState()
-                  : _Sections(
-                      grouped: grouped,
-                      householdId: householdId,
-                      petId: petId,
-                      species: species,
-                    ),
-          };
-        },
-      ),
-    );
+        )
+        .ignore();
   }
-}
 
-class _EmptyState extends StatelessWidget {
-  const _EmptyState();
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.vaccines_rounded,
-              size: 96,
-              color: theme.colorScheme.primary,
+  List<Widget> _bodyFor(BuildContext context, VaccinationsListState state) {
+    return switch (state) {
+      VaccinationsListLoading() || VaccinationsListInitial() => [
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: AppSpacing.xxl),
+            child: Center(child: CircularProgressIndicator()),
+          ),
+        ],
+      VaccinationsListError(failure: final f) => [
+          AppCard(
+            child: Text(
+              f.message ?? t.auth.errors.unknown,
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
-            const SizedBox(height: AppSpacing.md),
-            Text(
-              t.vaccinations.empty.title,
-              style: theme.textTheme.headlineMedium,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              t.vaccinations.empty.subtitle,
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
+          ),
+        ],
+      VaccinationsListLoaded(:final grouped) =>
+        grouped.values.every((l) => l.isEmpty)
+            ? [_EmptyState(onAdd: () => _goToCreate(context))]
+            : _sections(grouped, species),
+    };
   }
-}
 
-class _Sections extends StatelessWidget {
-  const _Sections({
-    required this.grouped,
-    required this.householdId,
-    required this.petId,
-    required this.species,
-  });
-
-  final Map<VaccinationStatus, List<Vaccination>> grouped;
-  final String householdId;
-  final String petId;
-  final Species species;
-
-  @override
-  Widget build(BuildContext context) {
-    final order = [
+  List<Widget> _sections(
+    Map<VaccinationStatus, List<Vaccination>> grouped,
+    Species species,
+  ) {
+    const order = [
       VaccinationStatus.overdue,
       VaccinationStatus.dueSoon,
       VaccinationStatus.upToDate,
       VaccinationStatus.noNextDose,
     ];
-    final theme = Theme.of(context);
-    final sections = <Widget>[];
+    final widgets = <Widget>[];
     for (final status in order) {
       final items = grouped[status] ?? const <Vaccination>[];
       if (items.isEmpty) continue;
-      sections
-        ..add(Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.md,
-            AppSpacing.md,
-            AppSpacing.md,
-            AppSpacing.xs,
-          ),
-          child: Row(
-            children: [
-              Icon(
-                VaccinationStatusMeta.iconFor(status),
-                color: VaccinationStatusMeta.colorFor(status, theme.colorScheme),
-                size: 20,
-              ),
-              const SizedBox(width: AppSpacing.xs),
-              Text(
-                VaccinationStatusMeta.label(status),
-                style: theme.textTheme.titleMedium,
-              ),
-            ],
-          ),
-        ))
-        ..addAll(items.map((v) => _VaccinationTile(
-              vaccination: v,
-              status: status,
-              species: species,
-            )));
+      widgets
+        ..add(SectionHeader(title: VaccinationStatusMeta.label(status)))
+        ..add(const SizedBox(height: AppSpacing.sm));
+      for (final v in items) {
+        widgets
+          ..add(_VaccinationCard(
+            vaccination: v,
+            status: status,
+            species: species,
+          ))
+          ..add(const SizedBox(height: AppSpacing.sm));
+      }
+      widgets.add(const SizedBox(height: AppSpacing.sm));
     }
-    return ListView(
-      padding: const EdgeInsets.only(bottom: AppSpacing.xxl),
-      children: sections,
+    return widgets;
+  }
+}
+
+class _PageHeader extends StatelessWidget {
+  const _PageHeader({this.onAdd});
+
+  final VoidCallback? onAdd;
+
+  @override
+  Widget build(BuildContext context) {
+    final addCallback = onAdd;
+    return Row(
+      children: [
+        CircleIconButton(
+          icon: PhosphorIconsBold.arrowLeft,
+          onTap: () => Navigator.of(context).pop(),
+        ),
+        const Spacer(),
+        if (addCallback != null)
+          CircleIconButton(
+            icon: PhosphorIconsBold.plus,
+            onTap: addCallback,
+            tooltip: t.vaccinations.addVaccine,
+          ),
+      ],
     );
   }
 }
 
-class _VaccinationTile extends StatelessWidget {
-  const _VaccinationTile({
+class _Title extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          t.vaccinations.tabTitle,
+          style: theme.textTheme.headlineLarge?.copyWith(
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Text(
+          t.vaccinations.tabSubtitle,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: context.palette.onSurfaceMuted,
+            height: 1.4,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _EmptyState extends StatelessWidget {
+  const _EmptyState({required this.onAdd});
+
+  final VoidCallback onAdd;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpacing.xl),
+      child: Column(
+        children: [
+          Container(
+            width: 96,
+            height: 96,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primaryContainer,
+              borderRadius: AppRadii.brXL,
+            ),
+            child: Icon(
+              PhosphorIconsBold.syringe,
+              size: 48,
+              color: theme.colorScheme.primary,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          Text(
+            t.vaccinations.empty.title,
+            style: theme.textTheme.headlineSmall,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            t.vaccinations.empty.subtitle,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: context.palette.onSurfaceMuted,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          FeatureListCard(
+            icon: PhosphorIconsRegular.plus,
+            title: t.vaccinations.addVaccine,
+            onTap: onAdd,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _VaccinationCard extends StatelessWidget {
+  const _VaccinationCard({
     required this.vaccination,
     required this.status,
     required this.species,
@@ -209,16 +278,9 @@ class _VaccinationTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final dateFmt = DateFormat.yMMMd();
-    final color = VaccinationStatusMeta.colorFor(status, theme.colorScheme);
-    final subtitle = _subtitle(dateFmt);
+    final tone = VaccinationStatusMeta.toneFor(status);
 
-    return ListTile(
-      leading: Icon(VaccinationStatusMeta.iconFor(status), color: color),
-      title: Text(vaccination.name),
-      subtitle: Text(
-        subtitle,
-        style: TextStyle(color: context.palette.onSurfaceMuted),
-      ),
+    return AppCard(
       onTap: () => context.push(
         '${AppRoutes.petDetailBase}/${vaccination.petId}/vaccinations/${vaccination.id}/edit',
         extra: VaccinationFormArgs(
@@ -227,6 +289,52 @@ class _VaccinationTile extends StatelessWidget {
           species: species,
           existing: vaccination,
         ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primaryContainer,
+              borderRadius: AppRadii.brMd,
+            ),
+            child: Icon(
+              PhosphorIconsBold.syringe,
+              size: 22,
+              color: theme.colorScheme.primary,
+            ),
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  vaccination.name,
+                  style: theme.textTheme.titleMedium,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  _subtitle(dateFmt),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: context.palette.onSurfaceMuted,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: AppSpacing.xs),
+          StatusBadge(
+            label: VaccinationStatusMeta.label(status).toUpperCase(),
+            tone: tone,
+          ),
+        ],
       ),
     );
   }
