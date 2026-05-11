@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:my_pet/gen/assets.gen.dart';
 
-/// Friendly cat mascot — renders the bundled 3D illustration at
-/// `lib/app/assets/illustrations/cat_fullbody.png` centered inside a square slot.
+/// Friendly cat mascot — renders the bundled 3D illustration
+/// (`Assets.lib.app.assets.illustrations.catFullbody`) centered inside a
+/// square slot.
 ///
 /// `BoxFit.contain` keeps the artwork's proportions so the cat stays
 /// itself at any size, and the same widget covers every surface where the
@@ -27,8 +29,7 @@ class PetMascot extends StatelessWidget {
     final dpr = MediaQuery.devicePixelRatioOf(context);
     final cacheDim = (size * dpr).round();
     return ExcludeSemantics(
-      child: Image.asset(
-        'lib/app/assets/illustrations/cat_fullbody.png',
+      child: Assets.lib.app.assets.images.illustrations.catFullbody.image(
         width: size,
         height: size,
         fit: BoxFit.contain,

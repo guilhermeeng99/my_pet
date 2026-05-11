@@ -33,7 +33,7 @@ lib/
 ├── app/          # App shell: DI, routing, theme, shared widgets
 ├── core/         # Shared: errors, extensions, utils, network, value objects
 ├── features/     # Feature modules (each with data/domain/presentation)
-└── gen/          # Generated code (i18n via slang, etc.)
+└── gen/          # Generated code (i18n via slang, asset accessors via flutter_gen)
 ```
 
 Each feature follows:
@@ -87,6 +87,7 @@ Each feature follows:
 | **Error handling**   | dartz `Either<Failure, T>` pattern                                |
 | **Linting**          | very_good_analysis (strict)                                       |
 | **i18n**             | slang (generated in `lib/gen/`) — English primary; pt-BR later    |
+| **Assets**           | flutter_gen — type-safe accessors in `lib/gen/assets.gen.dart`; raw image files under `lib/app/assets/illustrations/` (alongside i18n). Never reference assets via inline `Image.asset('path')` strings. |
 | **Theme**            | Light-only Material 3, Ahead-inspired tokens (see `docs/specs/design.md`) |
 | **Date/Time**        | `intl` + native `DateTime` (UTC stored, local rendered)           |
 
@@ -110,7 +111,7 @@ dart run slang                          # Generate i18n
 After every code change:
 
 1. Run `dart run slang` if any i18n JSON was modified
-2. Run `dart run build_runner build` if Hive `@HiveType` classes or `@JsonSerializable` changed
+2. Run `dart run build_runner build` if Hive `@HiveType` classes / `@JsonSerializable` changed **or** assets were added/removed under `assets/` (flutter_gen)
 3. Run `flutter analyze` — **zero** errors, warnings and info-level issues
 4. Run `flutter test` — all tests must pass
 5. Never add `// ignore` without clear justification

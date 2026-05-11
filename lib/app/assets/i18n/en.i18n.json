@@ -538,7 +538,7 @@
         "cancel": "Cancel",
         "deleting": "Erasing…",
         "partnerBlockTitle": "Remove your partner first",
-        "partnerBlockBody": "We can't erase the account while it's shared with someone else. Removing partners isn't available yet — sign out for now.",
+        "partnerBlockBody": "We can't erase the account while it's shared with someone else. Tap Remove on your partner above and try again.",
         "requiresRecentLogin": "For security, sign out and sign back in, then try again.",
         "error": "We couldn't finish. Try again in a moment."
       }

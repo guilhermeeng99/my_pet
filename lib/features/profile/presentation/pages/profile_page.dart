@@ -7,6 +7,7 @@ import 'package:my_pet/app/i18n/locale_preference_service.dart';
 import 'package:my_pet/app/theme/app_palette.dart';
 import 'package:my_pet/app/theme/app_radii.dart';
 import 'package:my_pet/app/theme/app_spacing.dart';
+import 'package:my_pet/app/widgets/app_bottom_nav.dart';
 import 'package:my_pet/app/widgets/app_card.dart';
 import 'package:my_pet/app/widgets/app_field.dart';
 import 'package:my_pet/app/widgets/screen_scaffold.dart';
@@ -94,14 +95,15 @@ class _ProfileView extends StatelessWidget {
         ],
         child: ListView(
           // The floating bottom-nav pill overlaps this scrollable (see
-          // `AppShell.extendBody`). Adding `viewPadding.bottom` keeps
-          // the Danger Zone fully reachable above the pill while content
-          // above continues to scroll naturally behind it.
+          // `AppShell.extendBody`). `AppBottomNav.reservedSpace` returns
+          // pill height + system safe-area, keeping the Danger Zone fully
+          // reachable above the pill while content above continues to
+          // scroll naturally behind it.
           padding: EdgeInsets.fromLTRB(
             0,
             AppSpacing.md,
             0,
-            AppSpacing.md + MediaQuery.viewPaddingOf(context).bottom,
+            AppBottomNav.reservedSpace(context) + AppSpacing.md,
           ),
           children: [
             _HouseholdSection(user: user),
@@ -160,16 +162,16 @@ class _ProfileView extends StatelessWidget {
     }
   }
 
-  /// Surfaces leave failures inline as a snackbar. Success is handled
-  /// implicitly: the user doc's `householdId` clears → the profile stream
-  /// fires → `AuthBloc` transitions to `AuthNeedsHousehold` → the router
-  /// redirects to /household/setup. No manual nav from here.
+  /// Surfaces leave/remove failures inline as a snackbar. Success is
+  /// handled implicitly: the affected user doc's `householdId` clears →
+  /// the profile stream fires → `AuthBloc` (the leaver) or the household
+  /// stream (the owner who just removed someone) updates and the UI
+  /// re-renders. No manual nav from here.
   void _onMemberManagementState(
     BuildContext context,
     MemberManagementState state,
   ) {
-    if (state is MemberManagementError &&
-        state.action == MemberManagementAction.leave) {
+    if (state is MemberManagementError) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(t.household.errors.generic)),
       );
@@ -248,6 +250,9 @@ class _HouseholdLoadedBody extends StatelessWidget {
     final paired = state.hasPartner;
     final iAmOwner =
         state.members.any((m) => m.uid == user.uid && m.isOwner);
+    final partner = paired
+        ? state.members.firstWhere((m) => m.uid != user.uid)
+        : null;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -259,11 +264,15 @@ class _HouseholdLoadedBody extends StatelessWidget {
           const SizedBox(height: AppSpacing.sm),
           const _GenerateInviteButton(),
         ],
-        // Both sides see Leave when paired: owners auto-transfer admin to
-        // the partner in the datasource, so the action is symmetric.
+        // Asymmetric member action: owner sees "Remove <partner>" (kicks
+        // the partner out, owner stays), partner sees "Leave household"
+        // (drops self, household lives on with the owner).
         if (paired) ...[
           const SizedBox(height: AppSpacing.sm),
-          _LeaveHouseholdButton(user: user),
+          if (iAmOwner && partner != null)
+            _RemovePartnerButton(user: user, partner: partner)
+          else
+            _LeaveHouseholdButton(user: user),
         ],
       ],
     );
@@ -558,6 +567,83 @@ class _LeaveHouseholdButton extends StatelessWidget {
     await context.read<MemberManagementCubit>().leave(
           householdId: user.householdId!,
           actor: user,
+        );
+  }
+}
+
+/// Owner-only counterpart to `_LeaveHouseholdButton`. Confirms, then
+/// detaches the partner from the household (their `users/{uid}.householdId`
+/// is cleared, household membership shrinks back to the owner alone).
+/// The owner stays put — no router redirect needed.
+class _RemovePartnerButton extends StatelessWidget {
+  const _RemovePartnerButton({required this.user, required this.partner});
+
+  final AuthUser user;
+  final HouseholdMember partner;
+
+  @override
+  Widget build(BuildContext context) {
+    final danger = context.palette.danger;
+    return BlocBuilder<MemberManagementCubit, MemberManagementState>(
+      builder: (context, state) {
+        final busy = state is MemberManagementBusy;
+        return Center(
+          child: TextButton(
+            style: TextButton.styleFrom(foregroundColor: danger),
+            onPressed: busy ? null : () => _confirmAndRemove(context),
+            child: busy
+                ? SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(danger),
+                    ),
+                  )
+                : Text(_label),
+          ),
+        );
+      },
+    );
+  }
+
+  String get _partnerName =>
+      (partner.displayName?.isNotEmpty ?? false) ? partner.displayName! : partner.email;
+
+  String get _label => '${t.household.members.remove} $_partnerName';
+
+  Future<void> _confirmAndRemove(BuildContext context) async {
+    final theme = Theme.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: const RoundedRectangleBorder(borderRadius: AppRadii.brXL),
+        title: Text(t.household.members.removeConfirmTitle),
+        content: Text(
+          t.household.members.removeConfirmBody(name: _partnerName),
+          style: theme.textTheme.bodyMedium,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(t.common.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: TextButton.styleFrom(
+              foregroundColor: context.palette.danger,
+            ),
+            child: Text(t.household.members.remove),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+    if (user.householdId == null) return;
+    await context.read<MemberManagementCubit>().remove(
+          householdId: user.householdId!,
+          actor: user,
+          target: partner,
         );
   }
 }

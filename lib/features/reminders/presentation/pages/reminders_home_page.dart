@@ -6,6 +6,7 @@ import 'package:my_pet/app/router/app_router.dart';
 import 'package:my_pet/app/theme/app_palette.dart';
 import 'package:my_pet/app/theme/app_radii.dart';
 import 'package:my_pet/app/theme/app_spacing.dart';
+import 'package:my_pet/app/widgets/app_bottom_nav.dart';
 import 'package:my_pet/app/widgets/app_card.dart';
 import 'package:my_pet/app/widgets/app_primary_button.dart';
 import 'package:my_pet/app/widgets/feature_list_card.dart';
@@ -74,8 +75,7 @@ class _RemindersView extends StatelessWidget {
             RemindersListEmpty() => ListView(
                 padding: EdgeInsets.only(
                   top: AppSpacing.sm,
-                  bottom: AppSpacing.xxl +
-                      MediaQuery.viewPaddingOf(context).bottom,
+                  bottom: AppBottomNav.reservedSpace(context) + AppSpacing.md,
                 ),
                 children: [
                   _QuickAddReminderCard(
@@ -87,8 +87,7 @@ class _RemindersView extends StatelessWidget {
             RemindersListError() => ListView(
                 padding: EdgeInsets.only(
                   top: AppSpacing.sm,
-                  bottom: AppSpacing.xxl +
-                      MediaQuery.viewPaddingOf(context).bottom,
+                  bottom: AppBottomNav.reservedSpace(context) + AppSpacing.md,
                 ),
                 children: [
                   FeatureListCard(
@@ -182,8 +181,7 @@ class _LoadedList extends StatelessWidget {
     return ListView(
       padding: EdgeInsets.only(
         top: AppSpacing.sm,
-        bottom:
-            AppSpacing.xxl + MediaQuery.viewPaddingOf(context).bottom,
+        bottom: AppBottomNav.reservedSpace(context) + AppSpacing.md,
       ),
       children: [
         _SummaryStrip(state: state),

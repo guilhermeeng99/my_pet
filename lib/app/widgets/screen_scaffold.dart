@@ -62,10 +62,10 @@ class ScreenScaffold extends StatelessWidget {
         top: title == null && leading == null && actions == null,
         // The AppShell renders the bottom nav as a floating pill with
         // `extendBody: true`, so content runs underneath the pill. Skip
-        // the bottom safe area here and let scrollables consume the
-        // remaining inset via `MediaQuery.viewPaddingOf(context).bottom`
-        // — that's what lets the last list item rest just above the pill
-        // instead of being hidden by it.
+        // the bottom safe area here and let scrollables reserve the
+        // pill space via `AppBottomNav.reservedSpace(context)` — that's
+        // what lets the last list item rest just above the pill instead
+        // of being hidden by it.
         bottom: false,
         child: Padding(
           padding: padding,

@@ -538,7 +538,7 @@
         "cancel": "Cancelar",
         "deleting": "Apagando…",
         "partnerBlockTitle": "Remova o(a) parceiro(a) primeiro",
-        "partnerBlockBody": "Não dá pra apagar a conta enquanto ela é compartilhada com outra pessoa. Remover parceiro(a) ainda não está disponível — por enquanto, é só sair.",
+        "partnerBlockBody": "Não dá pra apagar a conta enquanto ela é compartilhada com outra pessoa. Toque em Remover no parceiro(a) acima e tente de novo.",
         "requiresRecentLogin": "Por segurança, saia e entre novamente, depois tente outra vez.",
         "error": "Não conseguimos concluir. Tente de novo em instantes."
       }

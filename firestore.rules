@@ -16,7 +16,17 @@ service cloud.firestore {
       // power the household-members screen (TEMP DEV: tightened later to
       // members-of-same-household once we re-introduce the strict ruleset).
       allow read: if isSignedIn();
-      allow write: if isSelf(userId);
+      allow create, delete: if isSelf(userId);
+      // Self can update freely. Anyone else can update only the
+      // `householdId` field — the owner-removes-partner flow flips the
+      // partner's `householdId` to null. Owner-must-be-actor is enforced
+      // in the datasource (HouseholdFirestoreDatasource.removeMember
+      // throws NotOwnerException) before the batched write fires; the
+      // rule just has to permit the cross-user write itself.
+      allow update: if isSelf(userId) || (
+        isSignedIn()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['householdId'])
+      );
       match /fcmTokens/{tokenId} {
         allow read, write: if isSelf(userId);
       }

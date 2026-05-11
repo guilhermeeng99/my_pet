@@ -4,6 +4,7 @@ import 'package:my_pet/app/di/injection_container.dart';
 import 'package:my_pet/app/theme/app_palette.dart';
 import 'package:my_pet/app/theme/app_radii.dart';
 import 'package:my_pet/app/theme/app_spacing.dart';
+import 'package:my_pet/app/widgets/app_bottom_nav.dart';
 import 'package:my_pet/app/widgets/app_card.dart';
 import 'package:my_pet/app/widgets/screen_scaffold.dart';
 import 'package:my_pet/app/widgets/section_header.dart';
@@ -78,7 +79,7 @@ class _Body extends StatelessWidget {
         0,
         AppSpacing.md,
         0,
-        AppSpacing.md + MediaQuery.viewPaddingOf(context).bottom,
+        AppBottomNav.reservedSpace(context) + AppSpacing.md,
       ),
       children: [
         SectionHeader(title: t.stats.sections.household),

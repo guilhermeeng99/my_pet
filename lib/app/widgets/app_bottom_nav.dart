@@ -19,6 +19,20 @@ class AppBottomNav extends StatelessWidget {
     super.key,
   });
 
+  /// Height of the colored pill itself (does not include the gap below it
+  /// nor the system safe-area inset).
+  static const double pillHeight = 72;
+
+  /// Gap between the pill and the screen's bottom safe area.
+  static const double pillBottomInset = AppSpacing.sm;
+
+  /// Total vertical space the floating nav reserves on screen. Scrollable
+  /// children inside `AppShell` add this to their bottom padding so the
+  /// last item can scroll clear of the pill instead of being permanently
+  /// obscured by it.
+  static double reservedSpace(BuildContext context) =>
+      pillHeight + pillBottomInset + MediaQuery.viewPaddingOf(context).bottom;
+
   final int currentIndex;
   final List<NavItem> items;
   final ValueChanged<int> onTap;
@@ -32,10 +46,10 @@ class AppBottomNav extends StatelessWidget {
         AppSpacing.md,
         0,
         AppSpacing.md,
-        AppSpacing.sm,
+        pillBottomInset,
       ),
       child: Container(
-        height: 72,
+        height: pillHeight,
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
           borderRadius: AppRadii.brXL,

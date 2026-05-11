@@ -56,7 +56,10 @@ class GreetingCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: AppSpacing.xs),
-          const PetMascot(size: 140),
+          Transform.scale(
+            scale: 1.2,
+            child: const PetMascot(size: 140),
+          ),
         ],
       ),
     );

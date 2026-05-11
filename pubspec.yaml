@@ -76,6 +76,8 @@ dev_dependencies:
 
   # Linting
   very_good_analysis: ^10.2.0
+  flutter_launcher_icons: ^0.14.4
+
 
 flutter:
   uses-material-design: true
@@ -84,6 +86,18 @@ flutter:
     # Bundled artwork lives under lib/app/assets/ alongside the other
     # design-system inputs (icons/, i18n/). The PetMascot widget
     # consumes everything in this folder.
-    - lib/app/assets/illustrations/
+    - lib/app/assets/images/illustrations/
 
 # slang configuration lives in slang.yaml at the repo root.
+flutter_launcher_icons:
+  image_path: lib/app/assets/images/logo.png
+  android: true
+  ios: true
+  remove_alpha_ios: true
+  web:
+    generate: true
+    image_path: lib/app/assets/images/logo.png
+    background_color: "#7199F2"
+    theme_color: "#7199F2"
+  adaptive_icon_background: "#7199F2"
+  adaptive_icon_foreground: lib/app/assets/images/logo.png

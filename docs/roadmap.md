@@ -129,16 +129,16 @@ Tracker of what is done, in progress and planned. Use the checkboxes to mark pro
 - [x] Generate invite code (6 chars, 24h TTL) — top-level `inviteCodes/{code}`
 - [x] Accept invite (atomic batched write, drops empty old household)
 - [x] Danger zone — delete-all-data cascade (Firestore + Firebase Auth, idempotent, sole-member only)
-- [x] Leave household (symmetric — both owner and partner; owner side
-      auto-transfers admin to the partner in the same batched write so
-      the household lives on with the remaining member)
+- [x] Leave household (partner-side action: drops the actor from
+      `memberIds`, clears `users/{uid}.householdId`; household data
+      stays with the owner)
+- [x] Remove member (owner-side action: owner detaches the partner
+      from `memberIds`, clears partner's `users/{uid}.householdId`,
+      owner stays put). Asymmetric on purpose — owner sees "Remove
+      <partner>", partner sees "Leave household".
 - [x] Tests for repository member-management ops
-- [~] ~~Remove member (admin only)~~ — superseded by symmetric leave; the
-      2-member ceiling collapses the decision (only "the other person"
-      can ever be removed, and they can leave themselves). Repository
-      method survives for future flows.
-- [~] ~~Transfer admin~~ — folded into the owner-leave path; no manual
-      UI. Repository method survives for future flows.
+- [~] ~~Transfer admin~~ — no manual UI; repository method survives
+      for future flows (e.g. pet-sitter mode).
 - [~] ~~Minimal audit log~~ — UI removed (`HouseholdAuditPage` deleted)
       because the only useful actions left on a 2-member household are
       "invite" and "leave", both already obvious from the Profile state.

@@ -49,8 +49,9 @@ class AppShell extends StatelessWidget {
       // pill — the bar covers content directly under it but the gaps
       // around its rounded corners stay see-through, and lists can
       // scroll their last item all the way above the pill. Pages add
-      // `MediaQuery.viewPaddingOf(context).bottom` to scrollable padding
-      // so the bottom item isn't permanently obscured.
+      // `AppBottomNav.reservedSpace(context)` (pill height + system
+      // safe-area) to scrollable padding so the bottom item isn't
+      // permanently obscured.
       extendBody: true,
       body: navigationShell,
       bottomNavigationBar: AppBottomNav(
