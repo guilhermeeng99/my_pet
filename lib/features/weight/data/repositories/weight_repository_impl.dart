@@ -1,5 +1,8 @@
+import 'dart:developer' as developer;
+
 import 'package:dartz/dartz.dart';
 import 'package:my_pet/core/errors/failures.dart';
+import 'package:my_pet/core/errors/firebase_failure_mapper.dart';
 import 'package:my_pet/features/pets/data/datasources/pet_firestore_datasource.dart';
 import 'package:my_pet/features/weight/data/datasources/weight_firestore_datasource.dart';
 import 'package:my_pet/features/weight/data/models/weight_entry_model.dart';
@@ -37,7 +40,7 @@ class WeightRepositoryImpl implements WeightRepository {
       await _cascadeLatestWeight(created);
       return Right(created);
     } on Exception catch (e, st) {
-      return Left(ServerFailure(message: e.toString(), cause: st));
+      return Left(mapFirebaseException(e, st));
     }
   }
 
@@ -51,7 +54,7 @@ class WeightRepositoryImpl implements WeightRepository {
       await _cascadeLatestWeight(updated);
       return Right(updated);
     } on Exception catch (e, st) {
-      return Left(ServerFailure(message: e.toString(), cause: st));
+      return Left(mapFirebaseException(e, st));
     }
   }
 
@@ -66,7 +69,7 @@ class WeightRepositoryImpl implements WeightRepository {
       await _recomputeAfterDelete(householdId, petId);
       return const Right(unit);
     } on Exception catch (e, st) {
-      return Left(ServerFailure(message: e.toString(), cause: st));
+      return Left(mapFirebaseException(e, st));
     }
   }
 
@@ -87,8 +90,15 @@ class WeightRepositoryImpl implements WeightRepository {
         entry.petId,
         latest.weightKg,
       );
-    } on Exception {
+    } on Exception catch (e, st) {
       // Non-fatal: the entry was saved; the cascade is a denorm helper.
+      // Log so persistent denorm drift is diagnosable.
+      developer.log(
+        'Failed to cascade currentWeightKg for pet ${entry.petId}',
+        name: 'weight',
+        error: e,
+        stackTrace: st,
+      );
     }
   }
 
@@ -105,8 +115,14 @@ class WeightRepositoryImpl implements WeightRepository {
         : list.reduce((a, b) => a.date.isAfter(b.date) ? a : b);
     try {
       await _pets.setCurrentWeight(householdId, petId, next?.weightKg);
-    } on Exception {
-      // Non-fatal — see above.
+    } on Exception catch (e, st) {
+      // Non-fatal — see _cascadeLatestWeight.
+      developer.log(
+        'Failed to recompute currentWeightKg after delete for pet $petId',
+        name: 'weight',
+        error: e,
+        stackTrace: st,
+      );
     }
   }
 

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:my_pet/core/constants/app_constants.dart';
 import 'package:my_pet/features/gallery/data/models/pet_photo_model.dart';
 
 abstract class GalleryFirestoreDatasource {
@@ -30,6 +31,7 @@ class GalleryFirestoreDatasourceImpl implements GalleryFirestoreDatasource {
   Stream<List<PetPhotoModel>> watchByPet(String hid, String petId) {
     return _coll(hid, petId)
         .orderBy('takenAt', descending: true)
+        .limit(AppConstants.historyPageLimit)
         .snapshots()
         .map((snap) => snap.docs
             .map((d) => PetPhotoModel.fromFirestore(d.id, d.data()))

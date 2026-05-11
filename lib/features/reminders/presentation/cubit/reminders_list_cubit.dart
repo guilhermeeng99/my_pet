@@ -1,7 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_pet/core/constants/app_constants.dart';
 import 'package:my_pet/core/errors/failures.dart';
+import 'package:my_pet/core/utils/date_time_utils.dart';
 import 'package:my_pet/features/reminders/domain/entities/reminder.dart';
 import 'package:my_pet/features/reminders/domain/repositories/reminder_repository.dart';
 import 'package:my_pet/features/reminders/presentation/cubit/reminders_list_state.dart';
@@ -43,10 +45,12 @@ class RemindersListCubit extends Cubit<RemindersListState> {
   }
 
   RemindersListLoaded _group(List<Reminder> all) {
-    final now = DateTime.now().toUtc();
-    final startOfToday = DateTime.utc(now.year, now.month, now.day);
-    final endOfToday = startOfToday.add(const Duration(days: 1));
-    final endOfWeek = startOfToday.add(const Duration(days: 7));
+    final startOfToday = DateTimeUtils.startOfTodayUtc();
+    final endOfToday = DateTimeUtils.addDays(startOfToday, 1);
+    final endOfWeek = DateTimeUtils.addDays(
+      startOfToday,
+      AppConstants.upcomingWindowDays,
+    );
 
     final overdue = <Reminder>[];
     final today = <Reminder>[];

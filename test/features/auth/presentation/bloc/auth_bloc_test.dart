@@ -14,6 +14,7 @@ import '../../../../harness/mocks.dart';
 void main() {
   late MockAuthRepository repository;
   late MockHouseholdRepository households;
+  late MockSessionScope sessionScope;
 
   setUpAll(() {
     // Mocktail requires fallbacks to exist before any() is referenced.
@@ -23,6 +24,7 @@ void main() {
   setUp(() {
     repository = MockAuthRepository();
     households = MockHouseholdRepository();
+    sessionScope = MockSessionScope();
 
     // Default stream so the bloc's startup subscription doesn't blow up.
     when(repository.watchAuthState)
@@ -31,11 +33,15 @@ void main() {
     // Default household auto-create — individual tests override when needed.
     when(() => households.createForUser(any()))
         .thenAnswer((_) async => Right(HouseholdFactory.build()));
+
+    // Sign-out path always tears down session-scoped singletons.
+    when(sessionScope.reset).thenAnswer((_) async {});
   });
 
   AuthBloc buildBloc() => AuthBloc(
         repository: repository,
         householdRepository: households,
+        sessionScope: sessionScope,
       );
 
   group('AuthBloc', () {
@@ -144,13 +150,33 @@ void main() {
     );
 
     blocTest<AuthBloc, AuthState>(
-      'sign-out emits Unauthenticated',
+      'sign-out emits Unauthenticated and resets the session scope',
       build: () {
         when(repository.signOut).thenAnswer((_) async => const Right(unit));
         return buildBloc();
       },
       act: (bloc) => bloc.add(const SignOutRequested()),
       expect: () => [const AuthUnauthenticated()],
+      verify: (_) {
+        // Session-scoped singletons (PetsListCubit's stream, etc.) must be
+        // torn down before the next sign-in to avoid stale data leaks.
+        verify(sessionScope.reset).called(1);
+      },
+    );
+
+    blocTest<AuthBloc, AuthState>(
+      'sign-out failure surfaces error and does NOT reset session',
+      build: () {
+        when(repository.signOut).thenAnswer(
+          (_) async => const Left(AuthUnknownFailure(message: 'boom')),
+        );
+        return buildBloc();
+      },
+      act: (bloc) => bloc.add(const SignOutRequested()),
+      expect: () => [const AuthErrorState(AuthUnknownFailure(message: 'boom'))],
+      verify: (_) {
+        verifyNever(sessionScope.reset);
+      },
     );
 
     blocTest<AuthBloc, AuthState>(

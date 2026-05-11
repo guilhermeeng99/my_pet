@@ -175,7 +175,7 @@ Test infrastructure lives in `test/harness/`:
 ## Code Conventions
 
 * Entities use `Equatable` and provide `copyWith`
-* Failures are sealed classes (`ServerFailure`, `AuthFailure`, `PermissionFailure`, `NotFoundFailure`, etc.)
+* Failures are sealed classes (`ServerFailure`, `AuthFailure`, `PermissionFailure`, `NotFoundFailure`, etc.); repositories translate caught exceptions through `mapFirebaseException(e, st)` (`core/errors/firebase_failure_mapper.dart`) so the UI can distinguish network / permission / not-found / validation errors instead of seeing a generic `ServerFailure`
 * Use cases are single-method classes with `call()` operator
 * Models extend entities and handle serialization
 * All repository methods return `Future<Either<Failure, T>>`
@@ -207,6 +207,7 @@ Test infrastructure lives in `test/harness/`:
 
 * Global blocs are singletons (`registerLazySingleton`)
 * Form cubits are created per use (`registerFactory`)
+* List cubits whose stream is reused across navigation (e.g. `PetsListCubit`) may be `registerLazySingleton` for the optimization, but MUST be reset on sign-out via `SessionScope.reset()` (`lib/app/session/session_scope.dart`) so the next sign-in starts with a fresh subscription.
 
 ---
 

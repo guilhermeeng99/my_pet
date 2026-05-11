@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 
 import 'package:my_pet/core/errors/failures.dart';
+import 'package:my_pet/core/errors/firebase_failure_mapper.dart';
 import 'package:my_pet/features/pets/data/datasources/pet_firestore_datasource.dart';
 import 'package:my_pet/features/pets/data/models/pet_model.dart';
 import 'package:my_pet/features/pets/domain/entities/pet.dart';
@@ -32,7 +33,7 @@ class PetRepositoryImpl implements PetRepository {
       final created = await _datasource.create(PetModel.fromEntity(pet));
       return Right(created);
     } on Exception catch (e, st) {
-      return Left(ServerFailure(message: e.toString(), cause: st));
+      return Left(mapFirebaseException(e, st));
     }
   }
 
@@ -44,7 +45,7 @@ class PetRepositoryImpl implements PetRepository {
       final updated = await _datasource.update(PetModel.fromEntity(pet));
       return Right(updated);
     } on Exception catch (e, st) {
-      return Left(ServerFailure(message: e.toString(), cause: st));
+      return Left(mapFirebaseException(e, st));
     }
   }
 
@@ -54,7 +55,7 @@ class PetRepositoryImpl implements PetRepository {
       await _datasource.archive(householdId, petId);
       return const Right(unit);
     } on Exception catch (e, st) {
-      return Left(ServerFailure(message: e.toString(), cause: st));
+      return Left(mapFirebaseException(e, st));
     }
   }
 
@@ -64,7 +65,7 @@ class PetRepositoryImpl implements PetRepository {
       await _datasource.unarchive(householdId, petId);
       return const Right(unit);
     } on Exception catch (e, st) {
-      return Left(ServerFailure(message: e.toString(), cause: st));
+      return Left(mapFirebaseException(e, st));
     }
   }
 

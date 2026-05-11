@@ -2,11 +2,21 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:my_pet/app/theme/app_colors.dart';
+import 'package:my_pet/app/theme/app_radii.dart';
 import 'package:my_pet/app/theme/app_spacing.dart';
 import 'package:my_pet/features/gallery/domain/entities/pet_photo.dart';
 import 'package:my_pet/features/gallery/presentation/cubit/gallery_cubit.dart';
 import 'package:my_pet/gen/strings.g.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
+
+// Immersive viewer keeps a fixed black scrim + white foreground regardless
+// of theme — the photo itself is the content and the chrome must recede.
+const Color _scrimColor = Colors.black;
+const double _scrimOnIcon = 0.45;
+const double _scrimOnPanel = 0.55;
+const Color _foregroundColor = Colors.white;
+const double _captionFadedAlpha = 0.7;
 
 /// Full-screen photo viewer with swipe navigation, pinch-zoom via
 /// [InteractiveViewer], and per-photo actions (caption, set profile,
@@ -51,11 +61,11 @@ class _PhotoViewerPageState extends State<PhotoViewerPage> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) Navigator.of(context).pop();
       });
-      return const Scaffold(backgroundColor: Colors.black);
+      return const Scaffold(backgroundColor: _scrimColor);
     }
     final current = _localPhotos[_index];
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: _scrimColor,
       body: Stack(
         children: [
           PageView.builder(
@@ -79,7 +89,7 @@ class _PhotoViewerPageState extends State<PhotoViewerPage> {
           ),
           // Top bar — back + counter.
           Positioned(
-            top: MediaQuery.of(context).padding.top + 8,
+            top: MediaQuery.of(context).padding.top + AppSpacing.xs,
             left: AppSpacing.md,
             right: AppSpacing.md,
             child: Row(
@@ -192,14 +202,14 @@ class _IconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.black.withValues(alpha: 0.45),
+      color: _scrimColor.withValues(alpha: _scrimOnIcon),
       shape: const CircleBorder(),
       child: InkWell(
         customBorder: const CircleBorder(),
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: Icon(icon, color: Colors.white, size: 20),
+          padding: const EdgeInsets.all(AppSpacing.xs),
+          child: Icon(icon, color: _foregroundColor, size: 20),
         ),
       ),
     );
@@ -212,16 +222,20 @@ class _Pill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final labelStyle = Theme.of(context)
+        .textTheme
+        .labelLarge
+        ?.copyWith(color: _foregroundColor);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xxs,
+      ),
       decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.45),
-        borderRadius: BorderRadius.circular(999),
+        color: _scrimColor.withValues(alpha: _scrimOnIcon),
+        borderRadius: AppRadii.brPill,
       ),
-      child: Text(
-        text,
-        style: const TextStyle(color: Colors.white, fontSize: 13),
-      ),
+      child: Text(text, style: labelStyle),
     );
   }
 }
@@ -243,11 +257,12 @@ class _BottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final fmt = DateFormat.yMMMd();
     final date = (photo.takenAt ?? photo.createdAt).toLocal();
+    final textTheme = Theme.of(context).textTheme;
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.55),
-        borderRadius: BorderRadius.circular(20),
+        color: _scrimColor.withValues(alpha: _scrimOnPanel),
+        borderRadius: AppRadii.brXL,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -256,14 +271,13 @@ class _BottomBar extends StatelessWidget {
           if (photo.caption != null && photo.caption!.isNotEmpty)
             Text(
               photo.caption!,
-              style: const TextStyle(color: Colors.white, fontSize: 14),
+              style: textTheme.bodyMedium?.copyWith(color: _foregroundColor),
             ),
-          const SizedBox(height: 4),
+          const SizedBox(height: AppSpacing.xxs),
           Text(
             fmt.format(date),
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.7),
-              fontSize: 12,
+            style: textTheme.bodySmall?.copyWith(
+              color: _foregroundColor.withValues(alpha: _captionFadedAlpha),
             ),
           ),
           const SizedBox(height: AppSpacing.sm),
@@ -309,20 +323,27 @@ class _Action extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = destructive ? Colors.redAccent.shade100 : Colors.white;
+    final color = destructive ? AppColors.dangerDark : _foregroundColor;
+    final labelStyle = Theme.of(context)
+        .textTheme
+        .labelSmall
+        ?.copyWith(color: color);
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: AppRadii.brSm,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.xxs,
+          vertical: AppSpacing.xxs,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, color: color, size: 20),
-            const SizedBox(height: 4),
+            const SizedBox(height: AppSpacing.xxs),
             Text(
               label,
-              style: TextStyle(color: color, fontSize: 11),
+              style: labelStyle,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),

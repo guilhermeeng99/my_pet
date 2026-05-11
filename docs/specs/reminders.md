@@ -94,6 +94,10 @@ ReminderFormError(failure)
 - Recurrence edited after several instances were generated → editing changes only the next instance onwards
 - Marking a very late daily-recurring reminder as done does not create 30 backlogged instances — it skips to the next future occurrence
 - Push fails (Phase 3) → fall back to local notification
+- Monthly recurrence with `dueAt.day > 28` clamps to the last day of any
+  shorter target month (e.g. Jan 31 → Feb 28 in non-leap year, Jan 31 → Feb 29
+  in leap year). The clamped day stays the new anchor; subsequent steps do
+  NOT rebound to the original 31. Yearly on Feb 29 follows the same rule.
 
 ## Screens
 

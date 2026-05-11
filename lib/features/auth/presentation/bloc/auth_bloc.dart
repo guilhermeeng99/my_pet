@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:my_pet/app/session/session_scope.dart';
 import 'package:my_pet/core/errors/failures.dart';
 import 'package:my_pet/features/auth/domain/entities/auth_user.dart';
 import 'package:my_pet/features/auth/domain/repositories/auth_repository.dart';
@@ -18,8 +19,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc({
     required AuthRepository repository,
     required HouseholdRepository householdRepository,
+    required SessionScope sessionScope,
   })  : _repository = repository,
         _households = householdRepository,
+        _sessionScope = sessionScope,
         super(const AuthInitial()) {
     on<AuthStarted>(_onStarted);
     on<GoogleSignInRequested>(_onGoogleSignInRequested);
@@ -32,6 +35,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   final AuthRepository _repository;
   final HouseholdRepository _households;
+  final SessionScope _sessionScope;
   StreamSubscription<AuthUser?>? _subscription;
 
   Future<void> _onStarted(AuthStarted event, Emitter<AuthState> emit) async {
@@ -66,9 +70,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
   ) async {
     final result = await _repository.signOut();
-    result.fold(
-      (failure) => emit(AuthErrorState(failure)),
-      (_) => emit(const AuthUnauthenticated()),
+    await result.fold(
+      (failure) async => emit(AuthErrorState(failure)),
+      (_) async {
+        // Tear down session-scoped singletons (active streams, cached
+        // cubits) before signaling Unauthenticated so the next sign-in
+        // never inherits the previous session's state.
+        await _sessionScope.reset();
+        emit(const AuthUnauthenticated());
+      },
     );
   }
 

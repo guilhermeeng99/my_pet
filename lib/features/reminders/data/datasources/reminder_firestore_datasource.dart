@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:my_pet/core/constants/app_constants.dart';
 import 'package:my_pet/features/reminders/data/models/reminder_model.dart';
 
 abstract class ReminderFirestoreDatasource {
@@ -26,6 +27,7 @@ class ReminderFirestoreDatasourceImpl implements ReminderFirestoreDatasource {
     return _coll(householdId)
         .where('done', isEqualTo: false)
         .orderBy('dueAt')
+        .limit(AppConstants.activeRemindersLimit)
         .snapshots()
         .map(_mapDocs);
   }
@@ -39,6 +41,7 @@ class ReminderFirestoreDatasourceImpl implements ReminderFirestoreDatasource {
         .where('done', isEqualTo: false)
         .where('petId', isEqualTo: petId)
         .orderBy('dueAt')
+        .limit(AppConstants.activeRemindersLimit)
         .snapshots()
         .map(_mapDocs);
   }

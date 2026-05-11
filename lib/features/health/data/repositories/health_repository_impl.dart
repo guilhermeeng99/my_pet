@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:my_pet/core/errors/failures.dart';
+import 'package:my_pet/core/errors/firebase_failure_mapper.dart';
 import 'package:my_pet/features/health/data/datasources/health_firestore_datasource.dart';
 import 'package:my_pet/features/health/data/models/health_event_model.dart';
 import 'package:my_pet/features/health/domain/entities/health_event.dart';
@@ -33,7 +34,7 @@ class HealthRepositoryImpl implements HealthRepository {
           await _datasource.create(HealthEventModel.fromEntity(event));
       return Right(created);
     } on Exception catch (e, st) {
-      return Left(ServerFailure(message: e.toString(), cause: st));
+      return Left(mapFirebaseException(e, st));
     }
   }
 
@@ -46,7 +47,7 @@ class HealthRepositoryImpl implements HealthRepository {
           await _datasource.update(HealthEventModel.fromEntity(event));
       return Right(updated);
     } on Exception catch (e, st) {
-      return Left(ServerFailure(message: e.toString(), cause: st));
+      return Left(mapFirebaseException(e, st));
     }
   }
 
@@ -60,7 +61,7 @@ class HealthRepositoryImpl implements HealthRepository {
       await _datasource.delete(householdId, petId, eventId);
       return const Right(unit);
     } on Exception catch (e, st) {
-      return Left(ServerFailure(message: e.toString(), cause: st));
+      return Left(mapFirebaseException(e, st));
     }
   }
 

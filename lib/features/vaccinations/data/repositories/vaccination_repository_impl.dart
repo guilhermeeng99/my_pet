@@ -1,6 +1,10 @@
+import 'dart:developer' as developer;
+
 import 'package:dartz/dartz.dart';
 
+import 'package:my_pet/core/constants/app_constants.dart';
 import 'package:my_pet/core/errors/failures.dart';
+import 'package:my_pet/core/errors/firebase_failure_mapper.dart';
 import 'package:my_pet/features/notifications/domain/notification_service.dart';
 import 'package:my_pet/features/vaccinations/data/datasources/vaccination_firestore_datasource.dart';
 import 'package:my_pet/features/vaccinations/data/models/vaccination_model.dart';
@@ -31,7 +35,7 @@ class VaccinationRepositoryImpl implements VaccinationRepository {
       await _scheduleReminders(created);
       return Right(created);
     } on Exception catch (e, st) {
-      return Left(ServerFailure(message: e.toString(), cause: st));
+      return Left(mapFirebaseException(e, st));
     }
   }
 
@@ -45,7 +49,7 @@ class VaccinationRepositoryImpl implements VaccinationRepository {
       await _scheduleReminders(updated);
       return Right(updated);
     } on Exception catch (e, st) {
-      return Left(ServerFailure(message: e.toString(), cause: st));
+      return Left(mapFirebaseException(e, st));
     }
   }
 
@@ -60,7 +64,7 @@ class VaccinationRepositoryImpl implements VaccinationRepository {
       await _notifications.cancelGroup(_groupKey(vaccinationId));
       return const Right(unit);
     } on Exception catch (e, st) {
-      return Left(ServerFailure(message: e.toString(), cause: st));
+      return Left(mapFirebaseException(e, st));
     }
   }
 
@@ -79,11 +83,23 @@ class VaccinationRepositoryImpl implements VaccinationRepository {
         groupKey: groupKey,
         title: '${v.name} reminder',
         body: 'Next dose due',
-        firings: [due.subtract(const Duration(days: 7)), due],
+        firings: [
+          due.subtract(
+            const Duration(days: AppConstants.vaccinationReminderLeadDays),
+          ),
+          due,
+        ],
       );
-    } on Exception {
-      // Notifications are non-critical; swallow so the Firestore write
-      // remains the source of truth even if scheduling fails.
+    } on Exception catch (e, st) {
+      // Notifications are non-critical; we never fail the Firestore write
+      // when scheduling breaks, but we DO log so the silent breakage is
+      // diagnosable in production logs/Crashlytics.
+      developer.log(
+        'Failed to schedule vaccination reminders for ${v.id}',
+        name: 'notifications',
+        error: e,
+        stackTrace: st,
+      );
     }
   }
 

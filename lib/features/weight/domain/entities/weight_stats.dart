@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:my_pet/core/constants/app_constants.dart';
 import 'package:my_pet/features/weight/domain/entities/weight_entry.dart';
 
 /// Pre-computed aggregates for the weight chart + alerts. Built by
@@ -21,13 +22,17 @@ class WeightStats extends Equatable {
   final double? max;
   final double? avg;
 
-  /// Spec rule 3: > 10% change within 30 days triggers a yellow alert.
+  /// Spec rule 3: > [AppConstants.weightWarningPercent]% change within
+  /// [AppConstants.weightShortTermWindowDays] days triggers a yellow alert.
   bool get hasWarning =>
-      change30dPercent != null && change30dPercent!.abs() >= 10;
+      change30dPercent != null &&
+      change30dPercent!.abs() >= AppConstants.weightWarningPercent;
 
-  /// Spec rule 4: > 20% change within 30 days triggers a red alert.
+  /// Spec rule 4: > [AppConstants.weightDangerPercent]% change within
+  /// [AppConstants.weightShortTermWindowDays] days triggers a red alert.
   bool get hasDanger =>
-      change30dPercent != null && change30dPercent!.abs() >= 20;
+      change30dPercent != null &&
+      change30dPercent!.abs() >= AppConstants.weightDangerPercent;
 
   @override
   List<Object?> get props =>
@@ -53,8 +58,14 @@ class WeightStatsCalculator {
     }
     return WeightStats(
       latest: latest,
-      change30dPercent: _percentChange(sorted, days: 30),
-      change90dPercent: _percentChange(sorted, days: 90),
+      change30dPercent: _percentChange(
+        sorted,
+        days: AppConstants.weightShortTermWindowDays,
+      ),
+      change90dPercent: _percentChange(
+        sorted,
+        days: AppConstants.weightLongTermWindowDays,
+      ),
       min: min,
       max: max,
       avg: sum / weights.length,

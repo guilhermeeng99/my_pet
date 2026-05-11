@@ -4,9 +4,12 @@
 
 import 'package:mocktail/mocktail.dart';
 
+import 'package:my_pet/app/session/session_scope.dart';
 import 'package:my_pet/features/auth/data/datasources/firebase_auth_datasource.dart';
 import 'package:my_pet/features/auth/data/datasources/user_profile_datasource.dart';
 import 'package:my_pet/features/auth/domain/repositories/auth_repository.dart';
+import 'package:my_pet/features/documents/domain/repositories/document_repository.dart';
+import 'package:my_pet/features/gallery/domain/repositories/gallery_repository.dart';
 import 'package:my_pet/features/health/data/datasources/health_firestore_datasource.dart';
 import 'package:my_pet/features/health/domain/repositories/health_repository.dart';
 import 'package:my_pet/features/household/data/datasources/household_firestore_datasource.dart';
@@ -58,3 +61,9 @@ class MockWeightFirestoreDatasource extends Mock
 class MockWeightRepository extends Mock implements WeightRepository {}
 
 class MockNotificationService extends Mock implements NotificationService {}
+
+class MockSessionScope extends Mock implements SessionScope {}
+
+class MockGalleryRepository extends Mock implements GalleryRepository {}
+
+class MockDocumentRepository extends Mock implements DocumentRepository {}

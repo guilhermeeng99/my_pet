@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'package:my_pet/core/constants/app_constants.dart';
 import 'package:my_pet/features/vaccinations/data/models/vaccination_model.dart';
 
 abstract class VaccinationFirestoreDatasource {
@@ -28,6 +29,7 @@ class VaccinationFirestoreDatasourceImpl
   Stream<List<VaccinationModel>> watchByPet(String householdId, String petId) {
     return _coll(householdId, petId)
         .orderBy('appliedDate', descending: true)
+        .limit(AppConstants.historyPageLimit)
         .snapshots()
         .map((snap) => snap.docs
             .map((d) => VaccinationModel.fromFirestore(d.id, d.data()))

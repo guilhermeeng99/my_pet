@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:my_pet/core/constants/app_constants.dart';
 import 'package:my_pet/features/documents/data/models/pet_document_model.dart';
 
 abstract class DocumentFirestoreDatasource {
@@ -25,6 +26,7 @@ class DocumentFirestoreDatasourceImpl implements DocumentFirestoreDatasource {
   Stream<List<PetDocumentModel>> watchByHousehold(String hid) {
     return _coll(hid)
         .orderBy('createdAt', descending: true)
+        .limit(AppConstants.historyPageLimit)
         .snapshots()
         .map((snap) => snap.docs
             .map((d) => PetDocumentModel.fromFirestore(d.id, d.data()))
@@ -36,6 +38,7 @@ class DocumentFirestoreDatasourceImpl implements DocumentFirestoreDatasource {
     return _coll(hid)
         .where('petId', isEqualTo: petId)
         .orderBy('createdAt', descending: true)
+        .limit(AppConstants.historyPageLimit)
         .snapshots()
         .map((snap) => snap.docs
             .map((d) => PetDocumentModel.fromFirestore(d.id, d.data()))

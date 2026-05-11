@@ -5,6 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:my_pet/app/i18n/locale_preference_service.dart';
 import 'package:my_pet/app/onboarding/onboarding_preference_service.dart';
+import 'package:my_pet/app/session/session_scope.dart';
 import 'package:my_pet/core/services/document_storage_service.dart';
 import 'package:my_pet/core/services/firebase_document_storage_service.dart';
 import 'package:my_pet/core/services/firebase_photo_storage_service.dart';
@@ -105,9 +106,16 @@ Future<void> configureDependencies() async {
     ..registerLazySingleton<HouseholdRepository>(
       () => HouseholdRepositoryImpl(datasource: sl()),
     )
+    // SessionScope is consumed by AuthBloc to tear down session-scoped
+    // singletons (e.g. PetsListCubit's stream) when the user signs out.
+    ..registerLazySingleton<SessionScope>(() => SessionScope(sl))
     // AuthBloc depends on HouseholdRepository for first-sign-in auto-create.
     ..registerLazySingleton<AuthBloc>(
-      () => AuthBloc(repository: sl(), householdRepository: sl()),
+      () => AuthBloc(
+        repository: sl(),
+        householdRepository: sl(),
+        sessionScope: sl(),
+      ),
     )
     // ── Pets feature ────────────────────────────────────────────────
     ..registerLazySingleton<PetFirestoreDatasource>(

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer' as developer;
 import 'dart:io';
 
 import 'package:dartz/dartz.dart';
@@ -31,7 +32,15 @@ class AuthRepositoryImpl implements AuthRepository {
       try {
         final profile = await _profiles.read(fbUser.uid);
         return profile ?? _entityFromFirebase(fbUser);
-      } on Exception {
+      } on Exception catch (e, st) {
+        // Auth state must keep flowing even if Firestore hiccups, but log
+        // so a persistent profile-read break (e.g. rules drift) is visible.
+        developer.log(
+          'Profile enrichment failed for ${fbUser.uid}; falling back to Firebase entity',
+          name: 'auth',
+          error: e,
+          stackTrace: st,
+        );
         return _entityFromFirebase(fbUser);
       }
     });

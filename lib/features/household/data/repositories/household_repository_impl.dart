@@ -1,6 +1,8 @@
-import 'package:dartz/dartz.dart';
+import 'dart:developer' as developer;
 
+import 'package:dartz/dartz.dart';
 import 'package:my_pet/core/errors/failures.dart';
+import 'package:my_pet/core/errors/firebase_failure_mapper.dart';
 import 'package:my_pet/features/auth/domain/entities/auth_user.dart';
 import 'package:my_pet/features/household/data/datasources/household_firestore_datasource.dart';
 import 'package:my_pet/features/household/domain/entities/audit_event.dart';
@@ -33,7 +35,7 @@ class HouseholdRepositoryImpl implements HouseholdRepository {
       );
       return Right(household);
     } on Exception catch (e, st) {
-      return Left(ServerFailure(message: e.toString(), cause: st));
+      return Left(mapFirebaseException(e, st));
     }
   }
 
@@ -51,7 +53,7 @@ class HouseholdRepositoryImpl implements HouseholdRepository {
     } on HouseholdDatasourceException catch (e) {
       return Left(_mapException(e));
     } on Exception catch (e, st) {
-      return Left(ServerFailure(message: e.toString(), cause: st));
+      return Left(mapFirebaseException(e, st));
     }
   }
 
@@ -69,7 +71,7 @@ class HouseholdRepositoryImpl implements HouseholdRepository {
     } on HouseholdDatasourceException catch (e) {
       return Left(_mapException(e));
     } on Exception catch (e, st) {
-      return Left(ServerFailure(message: e.toString(), cause: st));
+      return Left(mapFirebaseException(e, st));
     }
   }
 
@@ -94,7 +96,7 @@ class HouseholdRepositoryImpl implements HouseholdRepository {
       ];
       return Right(members);
     } on Exception catch (e, st) {
-      return Left(ServerFailure(message: e.toString(), cause: st));
+      return Left(mapFirebaseException(e, st));
     }
   }
 
@@ -112,7 +114,7 @@ class HouseholdRepositoryImpl implements HouseholdRepository {
     } on HouseholdDatasourceException catch (e) {
       return Left(_mapException(e));
     } on Exception catch (e, st) {
-      return Left(ServerFailure(message: e.toString(), cause: st));
+      return Left(mapFirebaseException(e, st));
     }
   }
 
@@ -140,7 +142,7 @@ class HouseholdRepositoryImpl implements HouseholdRepository {
     } on HouseholdDatasourceException catch (e) {
       return Left(_mapException(e));
     } on Exception catch (e, st) {
-      return Left(ServerFailure(message: e.toString(), cause: st));
+      return Left(mapFirebaseException(e, st));
     }
   }
 
@@ -168,7 +170,7 @@ class HouseholdRepositoryImpl implements HouseholdRepository {
     } on HouseholdDatasourceException catch (e) {
       return Left(_mapException(e));
     } on Exception catch (e, st) {
-      return Left(ServerFailure(message: e.toString(), cause: st));
+      return Left(mapFirebaseException(e, st));
     }
   }
 
@@ -196,7 +198,7 @@ class HouseholdRepositoryImpl implements HouseholdRepository {
     } on HouseholdDatasourceException catch (e) {
       return Left(_mapException(e));
     } on Exception catch (e, st) {
-      return Left(ServerFailure(message: e.toString(), cause: st));
+      return Left(mapFirebaseException(e, st));
     }
   }
 
@@ -247,8 +249,16 @@ class HouseholdRepositoryImpl implements HouseholdRepository {
         targetUserId: targetUserId,
         targetName: targetName,
       );
-    } on Exception {
-      // Audit is supplementary, not a precondition for the action.
+    } on Exception catch (e, st) {
+      // Audit is supplementary, not a precondition for the action — but
+      // we log so a chronic write failure (e.g. rules change) doesn't
+      // disappear silently from the trail.
+      developer.log(
+        'Failed to append audit ${action.name} for household $householdId',
+        name: 'household.audit',
+        error: e,
+        stackTrace: st,
+      );
     }
   }
 

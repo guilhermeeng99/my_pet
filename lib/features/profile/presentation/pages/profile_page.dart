@@ -455,7 +455,7 @@ class _LanguageToggleState extends State<_LanguageToggle> {
         color: context.palette.surfaceMuted,
         borderRadius: AppRadii.brPill,
       ),
-      padding: const EdgeInsets.all(3),
+      padding: const EdgeInsets.all(AppSpacing.xxs),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

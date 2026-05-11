@@ -80,6 +80,7 @@ Tracker of what is done, in progress and planned. Use the checkboxes to mark pro
 - [x] Restyle Splash, Welcome, Login, Pets Home, Pet Detail, Pet Form, Vaccinations List, Vaccination Form
 - [x] Stub pages for Reminders / Stats / Profile tabs
 - [x] Reserve `assets/illustrations/mascot.svg` slot — commissioned illustration deferred (programmatic mascot in place)
+- [x] Photo viewer page reworked to consume design tokens (no hardcoded colors / radii / font sizes)
 - [ ] Manual QA across light / dark mode + 200 % font scale
 
 ---
@@ -165,6 +166,40 @@ Tracker of what is done, in progress and planned. Use the checkboxes to mark pro
 ### 🆘 Emergency
 - [x] Pet ID card (microchip, allergies, contact email; copy-summary to clipboard)
 - [ ] "Lost pet" mode — printable poster PDF (needs `pdf` package; deferred)
+
+---
+
+## Code-quality pass (2026-05) ✅
+
+> Outcome of the post-Phase-4 audit. Implementation pass on a punch list of
+> architecture / robustness items found during code review.
+
+- [x] **Recurrence month-end clamp (BLOCKER)**: `Recurrence.monthly`/`yearly`
+      now clamp to last day of target month instead of overflowing
+      (`recurrence.dart`). Edge cases covered by `recurrence_test.dart`.
+- [x] **Specific failure mapping**: `core/errors/firebase_failure_mapper.dart`
+      translates `FirebaseException` codes (`unavailable`,
+      `permission-denied`, `not-found`, …) into the typed `Failure`
+      hierarchy. Wired into all repositories.
+- [x] **Logging on swallowed errors**: vaccinations & reminders schedule
+      failures, weight cascade failures, household audit-write failures
+      and auth profile-enrichment failures now log via `dart:developer`.
+- [x] **`SessionScope`**: `lib/app/session/session_scope.dart` resets
+      session-scoped singletons (currently `PetsListCubit`) when
+      `AuthBloc` succeeds in signing out.
+- [x] **DateTimeUtils + AppConstants**: magic numbers (max members, invite
+      TTL, audit cap, due-soon window, weight thresholds, lead days,
+      history page limit) centralised in `core/constants/app_constants.dart`;
+      shared date helpers in `core/utils/date_time_utils.dart`.
+- [x] **Pagination**: `vaccinations`, `health_events`, `weights`,
+      `gallery`, `documents`, and active `reminders` queries now apply
+      `.limit(historyPageLimit)` (200) so unbounded growth doesn't bite.
+- [x] **Cubit smoke tests**: 14 cubits previously without `bloc_test`
+      coverage now have it (pet form, vaccinations list/form, weight
+      history/form, health timeline/form, gallery, documents list,
+      insights, household, invite, join household, account deletion,
+      member management). Suite at 129 tests, all green.
+- [x] Roadmap, spec for reminders edge cases, and CLAUDE.md kept in sync.
 
 ---
 

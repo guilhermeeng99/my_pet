@@ -1,8 +1,12 @@
+import 'package:my_pet/core/constants/app_constants.dart';
+
 /// Derived from `nextDueDate` per [`specs/vaccinations.md`](../../../../../specs/vaccinations.md).
 enum VaccinationStatus { upToDate, dueSoon, overdue, noNextDose }
 
 class VaccinationStatusCalculator {
-  const VaccinationStatusCalculator({this.dueSoonWindowDays = 30});
+  const VaccinationStatusCalculator({
+    this.dueSoonWindowDays = AppConstants.vaccinationDueSoonWindowDays,
+  });
 
   final int dueSoonWindowDays;
 

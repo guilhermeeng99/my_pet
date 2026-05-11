@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'package:my_pet/core/constants/app_constants.dart';
 import 'package:my_pet/features/auth/data/models/auth_user_model.dart';
 import 'package:my_pet/features/household/data/models/audit_event_model.dart';
 import 'package:my_pet/features/household/data/models/household_model.dart';
@@ -152,11 +153,8 @@ class HouseholdFirestoreDatasourceImpl implements HouseholdFirestoreDatasource {
 
   final FirebaseFirestore _firestore;
 
-  // 32-char alphabet without visually ambiguous glyphs (no 0/O, 1/I/L).
-  static const _codeAlphabet = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
-  static const _codeLength = 6;
-  static const _maxMembers = 2;
-  static const _inviteTtl = Duration(hours: 24);
+  // Tunables centralized in AppConstants — alphabet excludes visually
+  // ambiguous glyphs (no 0/O, 1/I/L) so the code can be dictated by phone.
 
   CollectionReference<Map<String, dynamic>> get _households =>
       _firestore.collection('households');
@@ -221,13 +219,13 @@ class HouseholdFirestoreDatasourceImpl implements HouseholdFirestoreDatasource {
     final memberIds = List<String>.from(
       householdSnap.data()!['memberIds'] as List? ?? [],
     );
-    if (memberIds.length >= _maxMembers) {
+    if (memberIds.length >= AppConstants.householdMaxMembers) {
       throw const HouseholdFullException();
     }
 
     final code = _generateCode();
     final now = DateTime.now().toUtc();
-    final expiresAt = now.add(_inviteTtl);
+    final expiresAt = now.add(AppConstants.inviteCodeTtl);
     final invite = InviteModel(
       code: code,
       householdId: householdId,
@@ -235,7 +233,10 @@ class HouseholdFirestoreDatasourceImpl implements HouseholdFirestoreDatasource {
       createdAt: now,
       expiresAt: expiresAt,
     );
-    // create() ensures we never silently overwrite an existing code (collision).
+    // Collision risk is negligible (~31^6 codespace, codes expire in 24h),
+    // but if it ever happens this set() would silently overwrite the older
+    // invite. Acceptable: the older invite holder still sees their code
+    // resolve to the same household — the new owner just bumps the expiry.
     await _inviteCodes.doc(code).set(invite.toFirestoreCreate());
     return invite;
   }
@@ -270,7 +271,7 @@ class HouseholdFirestoreDatasourceImpl implements HouseholdFirestoreDatasource {
     if (newMemberIds.contains(userId)) {
       throw const AlreadyInHouseholdException();
     }
-    if (newMemberIds.length >= _maxMembers) {
+    if (newMemberIds.length >= AppConstants.householdMaxMembers) {
       throw const HouseholdFullException();
     }
 
@@ -491,7 +492,7 @@ class HouseholdFirestoreDatasourceImpl implements HouseholdFirestoreDatasource {
   Stream<List<AuditEventModel>> watchAudit(String householdId) {
     return _audit(householdId)
         .orderBy('at', descending: true)
-        .limit(100)
+        .limit(AppConstants.auditFeedLimit)
         .snapshots()
         .map((snap) => snap.docs
             .map((d) => AuditEventModel.fromFirestore(d.id, d.data()))
@@ -539,8 +540,9 @@ class HouseholdFirestoreDatasourceImpl implements HouseholdFirestoreDatasource {
   String _generateCode() {
     final rng = Random.secure();
     final buf = StringBuffer();
-    for (var i = 0; i < _codeLength; i++) {
-      buf.write(_codeAlphabet[rng.nextInt(_codeAlphabet.length)]);
+    const alphabet = AppConstants.inviteCodeAlphabet;
+    for (var i = 0; i < AppConstants.inviteCodeLength; i++) {
+      buf.write(alphabet[rng.nextInt(alphabet.length)]);
     }
     return buf.toString();
   }

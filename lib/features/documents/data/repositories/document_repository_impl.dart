@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dartz/dartz.dart';
 import 'package:my_pet/core/errors/failures.dart';
+import 'package:my_pet/core/errors/firebase_failure_mapper.dart';
 import 'package:my_pet/core/services/document_storage_service.dart';
 import 'package:my_pet/features/documents/data/datasources/document_firestore_datasource.dart';
 import 'package:my_pet/features/documents/data/models/pet_document_model.dart';
@@ -102,7 +103,7 @@ class DocumentRepositoryImpl implements DocumentRepository {
       );
       return Right(saved);
     } on Exception catch (e, st) {
-      return Left(ServerFailure(message: e.toString(), cause: st));
+      return Left(mapFirebaseException(e, st));
     }
   }
 
@@ -116,7 +117,7 @@ class DocumentRepositoryImpl implements DocumentRepository {
       await _storage.delete(householdId: householdId, documentId: documentId);
       return const Right(unit);
     } on Exception catch (e, st) {
-      return Left(ServerFailure(message: e.toString(), cause: st));
+      return Left(mapFirebaseException(e, st));
     }
   }
 }

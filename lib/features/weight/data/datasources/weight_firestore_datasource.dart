@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:my_pet/core/constants/app_constants.dart';
 import 'package:my_pet/features/weight/data/models/weight_entry_model.dart';
 
 abstract class WeightFirestoreDatasource {
@@ -35,6 +36,7 @@ class WeightFirestoreDatasourceImpl implements WeightFirestoreDatasource {
   ) {
     return _coll(householdId, petId)
         .orderBy('date', descending: true)
+        .limit(AppConstants.historyPageLimit)
         .snapshots()
         .map((snap) => snap.docs
             .map((d) => WeightEntryModel.fromFirestore(d.id, d.data()))

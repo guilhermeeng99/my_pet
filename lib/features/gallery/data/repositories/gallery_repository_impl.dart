@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dartz/dartz.dart';
 import 'package:my_pet/core/errors/failures.dart';
+import 'package:my_pet/core/errors/firebase_failure_mapper.dart';
 import 'package:my_pet/core/services/photo_storage_service.dart';
 import 'package:my_pet/features/gallery/data/datasources/gallery_firestore_datasource.dart';
 import 'package:my_pet/features/gallery/data/models/pet_photo_model.dart';
@@ -81,7 +82,7 @@ class GalleryRepositoryImpl implements GalleryRepository {
         },
       );
     } on Exception catch (e, st) {
-      return Left(ServerFailure(message: e.toString(), cause: st));
+      return Left(mapFirebaseException(e, st));
     }
   }
 
@@ -113,7 +114,7 @@ class GalleryRepositoryImpl implements GalleryRepository {
       await _datasource.update(patch);
       return Right(patch);
     } on Exception catch (e, st) {
-      return Left(ServerFailure(message: e.toString(), cause: st));
+      return Left(mapFirebaseException(e, st));
     }
   }
 
@@ -133,7 +134,7 @@ class GalleryRepositoryImpl implements GalleryRepository {
       );
       return const Right(unit);
     } on Exception catch (e, st) {
-      return Left(ServerFailure(message: e.toString(), cause: st));
+      return Left(mapFirebaseException(e, st));
     }
   }
 
@@ -148,7 +149,7 @@ class GalleryRepositoryImpl implements GalleryRepository {
       await _pets.setProfilePhotoUrl(householdId, petId, url);
       return const Right(unit);
     } on Exception catch (e, st) {
-      return Left(ServerFailure(message: e.toString(), cause: st));
+      return Left(mapFirebaseException(e, st));
     }
   }
 }

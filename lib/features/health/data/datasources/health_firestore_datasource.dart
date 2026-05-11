@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:my_pet/core/constants/app_constants.dart';
 import 'package:my_pet/features/health/data/models/health_event_model.dart';
 import 'package:my_pet/features/health/domain/entities/health_event_type.dart';
 
@@ -35,6 +36,7 @@ class HealthFirestoreDatasourceImpl implements HealthFirestoreDatasource {
   Stream<List<HealthEventModel>> watchByPet(String hid, String petId) {
     return _coll(hid, petId)
         .orderBy('date', descending: true)
+        .limit(AppConstants.historyPageLimit)
         .snapshots()
         .map(_mapDocs);
   }
@@ -48,6 +50,7 @@ class HealthFirestoreDatasourceImpl implements HealthFirestoreDatasource {
     return _coll(hid, petId)
         .where('type', isEqualTo: type.name)
         .orderBy('date', descending: true)
+        .limit(AppConstants.historyPageLimit)
         .snapshots()
         .map(_mapDocs);
   }

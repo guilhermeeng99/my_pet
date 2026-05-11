@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:my_pet/core/constants/app_constants.dart';
+import 'package:my_pet/core/utils/date_time_utils.dart';
 import 'package:my_pet/features/pets/domain/entities/pet.dart';
 import 'package:my_pet/features/pets/domain/entities/species.dart';
 import 'package:my_pet/features/pets/domain/repositories/pet_repository.dart';
@@ -62,7 +64,10 @@ class InsightsCubit extends Cubit<InsightsState> {
   void _emitSnapshot() {
     if (!_seenPets || !_seenReminders) return;
     final now = DateTime.now().toUtc();
-    final weekFromNow = now.add(const Duration(days: 7));
+    final weekFromNow = DateTimeUtils.daysFromNow(
+      AppConstants.upcomingWindowDays,
+      now: now,
+    );
     final bySpecies = <Species, int>{};
     for (final p in _latestPets) {
       bySpecies[p.species] = (bySpecies[p.species] ?? 0) + 1;
