@@ -159,16 +159,22 @@ class _FormViewState extends State<_FormView> {
                         AppSpacing.md,
                       ),
                       children: [
-                        CircleIconButton(
-                          icon: PhosphorIconsBold.arrowLeft,
-                          onTap: () => Navigator.of(context).pop(),
-                        ),
-                        const SizedBox(height: AppSpacing.md),
-                        Text(
-                          _isEdit
-                              ? t.health.form.editTitle
-                              : t.health.form.createTitle,
-                          style: theme.textTheme.headlineLarge,
+                        Row(
+                          children: [
+                            CircleIconButton(
+                              icon: PhosphorIconsBold.arrowLeft,
+                              onTap: () => Navigator.of(context).pop(),
+                            ),
+                            const SizedBox(width: AppSpacing.md),
+                            Expanded(
+                              child: Text(
+                                _isEdit
+                                    ? t.health.form.editTitle
+                                    : t.health.form.createTitle,
+                                style: theme.textTheme.headlineLarge,
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: AppSpacing.lg),
                         _SectionLabel(t.health.form.type),

@@ -80,8 +80,8 @@ class _View extends StatelessWidget {
                   // over as the primary CTA.
                   onAdd: isEmpty ? null : () => _goToCreate(context),
                 ),
-                const SizedBox(height: AppSpacing.md),
-                _Title(),
+                const SizedBox(height: AppSpacing.xs),
+                _Subtitle(),
                 const SizedBox(height: AppSpacing.lg),
                 ..._bodyFor(context, state),
               ],
@@ -167,6 +167,7 @@ class _PageHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final addCallback = onAdd;
     return Row(
       children: [
@@ -174,7 +175,15 @@ class _PageHeader extends StatelessWidget {
           icon: PhosphorIconsBold.arrowLeft,
           onTap: () => Navigator.of(context).pop(),
         ),
-        const Spacer(),
+        const SizedBox(width: AppSpacing.md),
+        Expanded(
+          child: Text(
+            t.vaccinations.tabTitle,
+            style: theme.textTheme.headlineLarge?.copyWith(
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ),
         if (addCallback != null)
           CircleIconButton(
             icon: PhosphorIconsBold.plus,
@@ -186,28 +195,16 @@ class _PageHeader extends StatelessWidget {
   }
 }
 
-class _Title extends StatelessWidget {
+class _Subtitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          t.vaccinations.tabTitle,
-          style: theme.textTheme.headlineLarge?.copyWith(
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-        const SizedBox(height: AppSpacing.xs),
-        Text(
-          t.vaccinations.tabSubtitle,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: context.palette.onSurfaceMuted,
-            height: 1.4,
-          ),
-        ),
-      ],
+    return Text(
+      t.vaccinations.tabSubtitle,
+      style: theme.textTheme.bodyMedium?.copyWith(
+        color: context.palette.onSurfaceMuted,
+        height: 1.4,
+      ),
     );
   }
 }

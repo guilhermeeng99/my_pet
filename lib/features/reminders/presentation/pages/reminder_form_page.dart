@@ -115,16 +115,22 @@ class _ReminderFormViewState extends State<_ReminderFormView> {
                         AppSpacing.md,
                       ),
                       children: [
-                        CircleIconButton(
-                          icon: PhosphorIconsBold.arrowLeft,
-                          onTap: () => Navigator.of(context).pop(),
-                        ),
-                        const SizedBox(height: AppSpacing.md),
-                        Text(
-                          _isEdit
-                              ? t.reminders.form.editTitle
-                              : t.reminders.form.createTitle,
-                          style: theme.textTheme.headlineLarge,
+                        Row(
+                          children: [
+                            CircleIconButton(
+                              icon: PhosphorIconsBold.arrowLeft,
+                              onTap: () => Navigator.of(context).pop(),
+                            ),
+                            const SizedBox(width: AppSpacing.md),
+                            Expanded(
+                              child: Text(
+                                _isEdit
+                                    ? t.reminders.form.editTitle
+                                    : t.reminders.form.createTitle,
+                                style: theme.textTheme.headlineLarge,
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: AppSpacing.xs),
                         Text(

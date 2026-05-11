@@ -8,6 +8,12 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 /// with a shared bottom nav. The shell preserves a separate navigator stack
 /// per branch so deep navigation (e.g. /home → pet detail → vaccinations)
 /// doesn't reset when the user switches tabs.
+///
+/// The bottom nav is always visible while the shell is on top. Sub-screens
+/// (pet detail, reminder form, manage family, etc.) declare
+/// `parentNavigatorKey: rootNavigatorKey` in the router so they push
+/// above the shell on the root navigator — the shell, and its bottom nav,
+/// disappear automatically while they are active.
 class AppShell extends StatelessWidget {
   const AppShell({required this.navigationShell, super.key});
 

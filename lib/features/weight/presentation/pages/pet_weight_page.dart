@@ -8,6 +8,7 @@ import 'package:my_pet/app/theme/app_spacing.dart';
 import 'package:my_pet/app/widgets/app_card.dart';
 import 'package:my_pet/app/widgets/app_primary_button.dart';
 import 'package:my_pet/app/widgets/circle_icon_button.dart';
+import 'package:my_pet/app/widgets/feature_list_card.dart';
 import 'package:my_pet/app/widgets/section_header.dart';
 import 'package:my_pet/app/widgets/status_badge.dart';
 import 'package:my_pet/features/auth/presentation/bloc/auth_bloc.dart';
@@ -76,7 +77,6 @@ class _WeightView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -85,20 +85,15 @@ class _WeightView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: AppSpacing.sm),
-              Row(
-                children: [
-                  CircleIconButton(
-                    icon: PhosphorIconsBold.arrowLeft,
-                    onTap: () => Navigator.of(context).pop(),
-                  ),
-                  const SizedBox(width: AppSpacing.md),
-                  Expanded(
-                    child: Text(
-                      t.weight.tabTitle,
-                      style: theme.textTheme.headlineLarge,
-                    ),
-                  ),
-                ],
+              BlocBuilder<WeightHistoryCubit, WeightHistoryState>(
+                buildWhen: (a, b) => (a is WeightHistoryLoaded) !=
+                    (b is WeightHistoryLoaded),
+                builder: (context, state) {
+                  final showAdd = state is WeightHistoryLoaded;
+                  return _Header(
+                    onAdd: showAdd ? () => _openForm(context) : null,
+                  );
+                },
               ),
               const SizedBox(height: AppSpacing.sm),
               Expanded(
@@ -121,11 +116,6 @@ class _WeightView extends StatelessWidget {
             ],
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _openForm(context),
-        icon: const Icon(PhosphorIconsBold.plus),
-        label: Text(t.weight.addWeight),
       ),
     );
   }
@@ -152,6 +142,39 @@ class _WeightView extends StatelessWidget {
   }
 }
 
+class _Header extends StatelessWidget {
+  const _Header({this.onAdd});
+
+  final VoidCallback? onAdd;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final addCallback = onAdd;
+    return Row(
+      children: [
+        CircleIconButton(
+          icon: PhosphorIconsBold.arrowLeft,
+          onTap: () => Navigator.of(context).pop(),
+        ),
+        const SizedBox(width: AppSpacing.md),
+        Expanded(
+          child: Text(
+            t.weight.tabTitle,
+            style: theme.textTheme.headlineLarge,
+          ),
+        ),
+        if (addCallback != null)
+          CircleIconButton(
+            icon: PhosphorIconsBold.plus,
+            onTap: addCallback,
+            tooltip: t.weight.addWeight,
+          ),
+      ],
+    );
+  }
+}
+
 class _Empty extends StatelessWidget {
   const _Empty({required this.onAdd});
   final VoidCallback onAdd;
@@ -163,18 +186,28 @@ class _Empty extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.only(top: AppSpacing.xl),
       children: [
-        Icon(
-          PhosphorIconsBold.scales,
-          size: 64,
-          color: theme.colorScheme.primary,
+        Center(
+          child: Container(
+            width: 96,
+            height: 96,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primaryContainer,
+              borderRadius: AppRadii.brXL,
+            ),
+            child: Icon(
+              PhosphorIconsBold.scales,
+              size: 48,
+              color: theme.colorScheme.primary,
+            ),
+          ),
         ),
-        const SizedBox(height: AppSpacing.md),
+        const SizedBox(height: AppSpacing.lg),
         Text(
           t.weight.empty.title,
           textAlign: TextAlign.center,
           style: theme.textTheme.headlineSmall,
         ),
-        const SizedBox(height: AppSpacing.xs),
+        const SizedBox(height: AppSpacing.sm),
         Text(
           t.weight.empty.subtitle,
           textAlign: TextAlign.center,
@@ -182,10 +215,10 @@ class _Empty extends StatelessWidget {
               ?.copyWith(color: palette.onSurfaceMuted),
         ),
         const SizedBox(height: AppSpacing.lg),
-        AppPrimaryButton(
-          label: t.weight.addWeight,
-          icon: PhosphorIconsBold.plus,
-          onPressed: onAdd,
+        FeatureListCard(
+          icon: PhosphorIconsRegular.plus,
+          title: t.weight.addWeight,
+          onTap: onAdd,
         ),
       ],
     );

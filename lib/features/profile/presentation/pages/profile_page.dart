@@ -2,12 +2,15 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_pet/app/di/injection_container.dart';
 import 'package:my_pet/app/i18n/locale_preference_service.dart';
+import 'package:my_pet/app/router/app_router.dart';
 import 'package:my_pet/app/theme/app_palette.dart';
 import 'package:my_pet/app/theme/app_radii.dart';
 import 'package:my_pet/app/theme/app_spacing.dart';
 import 'package:my_pet/app/widgets/app_card.dart';
+import 'package:my_pet/app/widgets/app_field.dart';
 import 'package:my_pet/app/widgets/screen_scaffold.dart';
 import 'package:my_pet/app/widgets/section_header.dart';
 import 'package:my_pet/core/constants/app_constants.dart';
@@ -18,7 +21,6 @@ import 'package:my_pet/features/household/domain/entities/household_member.dart'
 import 'package:my_pet/features/household/presentation/cubit/account_deletion_cubit.dart';
 import 'package:my_pet/features/household/presentation/cubit/household_cubit.dart';
 import 'package:my_pet/features/household/presentation/cubit/invite_cubit.dart';
-import 'package:my_pet/features/household/presentation/pages/household_members_page.dart';
 import 'package:my_pet/features/household/presentation/widgets/invite_code_dialog.dart';
 import 'package:my_pet/gen/strings.g.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -612,11 +614,7 @@ class _ManageFamilyCard extends StatelessWidget {
     final theme = Theme.of(context);
     final palette = context.palette;
     return AppCard(
-      onTap: () => Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (_) => const HouseholdMembersPage(),
-        ),
-      ),
+      onTap: () => context.push(AppRoutes.householdMembers),
       child: Row(
         children: [
           Container(
@@ -778,7 +776,7 @@ class _DangerZoneSection extends StatelessWidget {
       return;
     }
 
-    final confirmed = await _showConfirmDialog(context);
+    final confirmed = await _showConfirmDialog(context, email: user.email);
     if (!confirmed || !context.mounted) return;
     await context.read<AccountDeletionCubit>().run(
           householdId: user.householdId!,
@@ -807,33 +805,165 @@ class _DangerZoneSection extends StatelessWidget {
     );
   }
 
-  Future<bool> _showConfirmDialog(BuildContext context) async {
-    final theme = Theme.of(context);
-    final danger = context.palette.danger;
+  Future<bool> _showConfirmDialog(
+    BuildContext context, {
+    required String email,
+  }) async {
     final result = await showDialog<bool>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        shape: const RoundedRectangleBorder(borderRadius: AppRadii.brXL),
-        title: Text(t.profile.dangerZone.deleteAll.confirmTitle),
-        content: Text(
-          t.profile.dangerZone.deleteAll.confirmBody(
-            appName: AppConstants.appName,
-          ),
-          style: theme.textTheme.bodyMedium,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(t.profile.dangerZone.deleteAll.cancel),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: danger),
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text(t.profile.dangerZone.deleteAll.confirmCta),
-          ),
-        ],
-      ),
+      barrierDismissible: false,
+      builder: (ctx) => _DeleteAllConfirmDialog(email: email),
     );
     return result ?? false;
+  }
+}
+
+/// Two-step destructive confirmation. The "Delete forever" button stays
+/// disabled until the user types their full account email — the only way
+/// to wipe the household, every pet record and the auth user in one shot.
+/// The email is the strongest typing-target available (already shown in
+/// the profile card, unambiguous, and never blank for an authenticated
+/// session).
+class _DeleteAllConfirmDialog extends StatefulWidget {
+  const _DeleteAllConfirmDialog({required this.email});
+
+  final String email;
+
+  @override
+  State<_DeleteAllConfirmDialog> createState() =>
+      _DeleteAllConfirmDialogState();
+}
+
+class _DeleteAllConfirmDialogState extends State<_DeleteAllConfirmDialog> {
+  final TextEditingController _ctrl = TextEditingController();
+  bool _showMismatch = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl.addListener(() => setState(() {}));
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  bool get _matches =>
+      _ctrl.text.trim().toLowerCase() == widget.email.trim().toLowerCase();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final palette = context.palette;
+    final danger = palette.danger;
+    return Dialog(
+      backgroundColor: theme.colorScheme.surface,
+      shape: const RoundedRectangleBorder(borderRadius: AppRadii.brXL),
+      insetPadding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.lg,
+        vertical: AppSpacing.xl,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Center(
+              child: Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: danger.withValues(alpha: 0.12),
+                  borderRadius: AppRadii.brLg,
+                ),
+                child: Icon(
+                  PhosphorIconsBold.warningOctagon,
+                  color: danger,
+                  size: 28,
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              t.profile.dangerZone.deleteAll.confirmTitle,
+              style: theme.textTheme.headlineSmall,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              t.profile.dangerZone.deleteAll.confirmBody(
+                appName: AppConstants.appName,
+              ),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: palette.onSurfaceMuted,
+                height: 1.4,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            AppField(
+              icon: PhosphorIconsBold.envelope,
+              label: t.profile.dangerZone.deleteAll.confirmTypeEmailLabel,
+              child: TextField(
+                controller: _ctrl,
+                autocorrect: false,
+                enableSuggestions: false,
+                keyboardType: TextInputType.emailAddress,
+                style: theme.textTheme.bodyLarge,
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  isCollapsed: true,
+                  hintText: t.profile.dangerZone.deleteAll
+                      .confirmTypeEmailHint(email: widget.email),
+                  hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                    color: palette.onSurfaceMuted,
+                  ),
+                ),
+                onSubmitted: (_) {
+                  if (_matches) Navigator.of(context).pop(true);
+                },
+              ),
+            ),
+            if (_showMismatch && !_matches) ...[
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                t.profile.dangerZone.deleteAll.confirmTypeEmailMismatch,
+                style: theme.textTheme.bodySmall?.copyWith(color: danger),
+              ),
+            ],
+            const SizedBox(height: AppSpacing.lg),
+            FilledButton(
+              style: FilledButton.styleFrom(
+                backgroundColor: danger,
+                disabledBackgroundColor: danger.withValues(alpha: 0.4),
+                foregroundColor: theme.colorScheme.onPrimary,
+                minimumSize: const Size.fromHeight(56),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: AppRadii.brPill,
+                ),
+              ),
+              onPressed: _matches
+                  ? () => Navigator.of(context).pop(true)
+                  : () => setState(() => _showMismatch = true),
+              child: Text(
+                t.profile.dangerZone.deleteAll.confirmCta,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: theme.colorScheme.onPrimary,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.xs),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text(t.profile.dangerZone.deleteAll.cancel),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

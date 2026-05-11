@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:my_pet/app/di/injection_container.dart';
+import 'package:my_pet/app/router/app_router.dart';
 import 'package:my_pet/app/theme/app_palette.dart';
 import 'package:my_pet/app/theme/app_radii.dart';
 import 'package:my_pet/app/theme/app_spacing.dart';
@@ -17,7 +19,6 @@ import 'package:my_pet/features/household/domain/entities/household_member.dart'
 import 'package:my_pet/features/household/presentation/cubit/household_cubit.dart';
 import 'package:my_pet/features/household/presentation/cubit/invite_cubit.dart';
 import 'package:my_pet/features/household/presentation/cubit/member_management_cubit.dart';
-import 'package:my_pet/features/household/presentation/pages/household_audit_page.dart';
 import 'package:my_pet/features/household/presentation/widgets/invite_code_dialog.dart';
 import 'package:my_pet/gen/strings.g.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -215,11 +216,9 @@ class _Body extends StatelessWidget {
             FeatureListCard(
               icon: PhosphorIconsRegular.clockClockwise,
               title: t.household.members.audit,
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) =>
-                      HouseholdAuditPage(householdId: state.household.id),
-                ),
+              onTap: () => context.push(
+                AppRoutes.householdAudit,
+                extra: state.household.id,
               ),
             ),
           ],

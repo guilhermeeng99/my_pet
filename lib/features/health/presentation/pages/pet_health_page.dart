@@ -6,8 +6,8 @@ import 'package:my_pet/app/theme/app_palette.dart';
 import 'package:my_pet/app/theme/app_radii.dart';
 import 'package:my_pet/app/theme/app_spacing.dart';
 import 'package:my_pet/app/widgets/app_card.dart';
-import 'package:my_pet/app/widgets/app_primary_button.dart';
 import 'package:my_pet/app/widgets/circle_icon_button.dart';
+import 'package:my_pet/app/widgets/feature_list_card.dart';
 import 'package:my_pet/features/health/domain/entities/health_event.dart';
 import 'package:my_pet/features/health/domain/entities/health_event_type.dart';
 import 'package:my_pet/features/health/presentation/cubit/health_timeline_cubit.dart';
@@ -69,7 +69,6 @@ class _HealthView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -78,20 +77,15 @@ class _HealthView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: AppSpacing.sm),
-              Row(
-                children: [
-                  CircleIconButton(
-                    icon: PhosphorIconsBold.arrowLeft,
-                    onTap: () => Navigator.of(context).pop(),
-                  ),
-                  const SizedBox(width: AppSpacing.md),
-                  Expanded(
-                    child: Text(
-                      t.health.tabTitle,
-                      style: theme.textTheme.headlineLarge,
-                    ),
-                  ),
-                ],
+              BlocBuilder<HealthTimelineCubit, HealthTimelineState>(
+                buildWhen: (a, b) =>
+                    (a is HealthTimelineLoaded) != (b is HealthTimelineLoaded),
+                builder: (context, state) {
+                  final showAdd = state is HealthTimelineLoaded;
+                  return _Header(
+                    onAdd: showAdd ? () => _openForm(context) : null,
+                  );
+                },
               ),
               const SizedBox(height: AppSpacing.sm),
               const _TypeFilter(),
@@ -117,11 +111,6 @@ class _HealthView extends StatelessWidget {
             ],
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _openForm(context),
-        icon: const Icon(PhosphorIconsBold.plus),
-        label: Text(t.health.addEvent),
       ),
     );
   }
@@ -243,6 +232,39 @@ class _FilterChip extends StatelessWidget {
   }
 }
 
+class _Header extends StatelessWidget {
+  const _Header({this.onAdd});
+
+  final VoidCallback? onAdd;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final addCallback = onAdd;
+    return Row(
+      children: [
+        CircleIconButton(
+          icon: PhosphorIconsBold.arrowLeft,
+          onTap: () => Navigator.of(context).pop(),
+        ),
+        const SizedBox(width: AppSpacing.md),
+        Expanded(
+          child: Text(
+            t.health.tabTitle,
+            style: theme.textTheme.headlineLarge,
+          ),
+        ),
+        if (addCallback != null)
+          CircleIconButton(
+            icon: PhosphorIconsBold.plus,
+            onTap: addCallback,
+            tooltip: t.health.addEvent,
+          ),
+      ],
+    );
+  }
+}
+
 class _Empty extends StatelessWidget {
   const _Empty({required this.onAdd, required this.filter});
   final VoidCallback onAdd;
@@ -255,12 +277,22 @@ class _Empty extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.only(top: AppSpacing.xl),
       children: [
-        Icon(
-          PhosphorIconsBold.heart,
-          size: 64,
-          color: theme.colorScheme.primary,
+        Center(
+          child: Container(
+            width: 96,
+            height: 96,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primaryContainer,
+              borderRadius: AppRadii.brXL,
+            ),
+            child: Icon(
+              PhosphorIconsBold.heart,
+              size: 48,
+              color: theme.colorScheme.primary,
+            ),
+          ),
         ),
-        const SizedBox(height: AppSpacing.md),
+        const SizedBox(height: AppSpacing.lg),
         Text(
           filter == null
               ? t.health.empty.title
@@ -268,7 +300,7 @@ class _Empty extends StatelessWidget {
           textAlign: TextAlign.center,
           style: theme.textTheme.headlineSmall,
         ),
-        const SizedBox(height: AppSpacing.xs),
+        const SizedBox(height: AppSpacing.sm),
         Text(
           t.health.empty.subtitle,
           textAlign: TextAlign.center,
@@ -276,10 +308,10 @@ class _Empty extends StatelessWidget {
               ?.copyWith(color: palette.onSurfaceMuted),
         ),
         const SizedBox(height: AppSpacing.lg),
-        AppPrimaryButton(
-          label: t.health.addEvent,
-          icon: PhosphorIconsBold.plus,
-          onPressed: onAdd,
+        FeatureListCard(
+          icon: PhosphorIconsRegular.plus,
+          title: t.health.addEvent,
+          onTap: onAdd,
         ),
       ],
     );

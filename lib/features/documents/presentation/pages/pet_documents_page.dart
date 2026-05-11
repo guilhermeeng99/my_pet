@@ -13,6 +13,7 @@ import 'package:my_pet/app/theme/app_spacing.dart';
 import 'package:my_pet/app/widgets/app_card.dart';
 import 'package:my_pet/app/widgets/app_primary_button.dart';
 import 'package:my_pet/app/widgets/circle_icon_button.dart';
+import 'package:my_pet/app/widgets/feature_list_card.dart';
 import 'package:my_pet/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:my_pet/features/documents/domain/entities/document_category.dart';
 import 'package:my_pet/features/documents/domain/entities/pet_document.dart';
@@ -62,7 +63,6 @@ class _DocumentsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -71,20 +71,15 @@ class _DocumentsView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: AppSpacing.sm),
-              Row(
-                children: [
-                  CircleIconButton(
-                    icon: PhosphorIconsBold.arrowLeft,
-                    onTap: () => Navigator.of(context).pop(),
-                  ),
-                  const SizedBox(width: AppSpacing.md),
-                  Expanded(
-                    child: Text(
-                      t.documents.tabTitle,
-                      style: theme.textTheme.headlineLarge,
-                    ),
-                  ),
-                ],
+              BlocBuilder<DocumentsListCubit, DocumentsListState>(
+                buildWhen: (a, b) =>
+                    (a is DocumentsListLoaded) != (b is DocumentsListLoaded),
+                builder: (context, state) {
+                  final showAdd = state is DocumentsListLoaded;
+                  return _Header(
+                    onAdd: showAdd ? () => _openSheet(context) : null,
+                  );
+                },
               ),
               const SizedBox(height: AppSpacing.sm),
               Expanded(
@@ -110,11 +105,6 @@ class _DocumentsView extends StatelessWidget {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _openSheet(context),
-        icon: const Icon(PhosphorIconsBold.plus),
-        label: Text(t.documents.addDocument),
-      ),
     );
   }
 
@@ -131,6 +121,39 @@ class _DocumentsView extends StatelessWidget {
   }
 }
 
+class _Header extends StatelessWidget {
+  const _Header({this.onAdd});
+
+  final VoidCallback? onAdd;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final addCallback = onAdd;
+    return Row(
+      children: [
+        CircleIconButton(
+          icon: PhosphorIconsBold.arrowLeft,
+          onTap: () => Navigator.of(context).pop(),
+        ),
+        const SizedBox(width: AppSpacing.md),
+        Expanded(
+          child: Text(
+            t.documents.tabTitle,
+            style: theme.textTheme.headlineLarge,
+          ),
+        ),
+        if (addCallback != null)
+          CircleIconButton(
+            icon: PhosphorIconsBold.plus,
+            onTap: addCallback,
+            tooltip: t.documents.addDocument,
+          ),
+      ],
+    );
+  }
+}
+
 class _Empty extends StatelessWidget {
   const _Empty({required this.onAdd});
   final VoidCallback onAdd;
@@ -142,18 +165,28 @@ class _Empty extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.only(top: AppSpacing.xl),
       children: [
-        Icon(
-          PhosphorIconsBold.folderOpen,
-          size: 64,
-          color: theme.colorScheme.primary,
+        Center(
+          child: Container(
+            width: 96,
+            height: 96,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primaryContainer,
+              borderRadius: AppRadii.brXL,
+            ),
+            child: Icon(
+              PhosphorIconsBold.folderOpen,
+              size: 48,
+              color: theme.colorScheme.primary,
+            ),
+          ),
         ),
-        const SizedBox(height: AppSpacing.md),
+        const SizedBox(height: AppSpacing.lg),
         Text(
           t.documents.empty.title,
           textAlign: TextAlign.center,
           style: theme.textTheme.headlineSmall,
         ),
-        const SizedBox(height: AppSpacing.xs),
+        const SizedBox(height: AppSpacing.sm),
         Text(
           t.documents.empty.subtitle,
           textAlign: TextAlign.center,
@@ -161,10 +194,10 @@ class _Empty extends StatelessWidget {
               ?.copyWith(color: palette.onSurfaceMuted),
         ),
         const SizedBox(height: AppSpacing.lg),
-        AppPrimaryButton(
-          label: t.documents.addDocument,
-          icon: PhosphorIconsBold.plus,
-          onPressed: onAdd,
+        FeatureListCard(
+          icon: PhosphorIconsRegular.plus,
+          title: t.documents.addDocument,
+          onTap: onAdd,
         ),
       ],
     );

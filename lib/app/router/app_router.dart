@@ -11,6 +11,8 @@ import 'package:my_pet/features/auth/presentation/pages/login_page.dart';
 import 'package:my_pet/features/documents/presentation/pages/pet_documents_page.dart';
 import 'package:my_pet/features/gallery/presentation/pages/pet_gallery_page.dart';
 import 'package:my_pet/features/health/presentation/pages/pet_health_page.dart';
+import 'package:my_pet/features/household/presentation/pages/household_audit_page.dart';
+import 'package:my_pet/features/household/presentation/pages/household_members_page.dart';
 import 'package:my_pet/features/household/presentation/pages/household_setup_page.dart';
 import 'package:my_pet/features/household/presentation/pages/join_household_page.dart';
 import 'package:my_pet/features/onboarding/presentation/notification_permission_page.dart';
@@ -51,13 +53,25 @@ abstract final class AppRoutes {
   static const String reminderEditPattern = '/reminders/:reminderId/edit';
   static String reminderEditFor(String reminderId) =>
       '/reminders/$reminderId/edit';
+  static const String householdMembers = '/profile/family';
+  static const String householdAudit = '/profile/family/audit';
 }
+
+/// Root navigator key. Sub-routes that should hide the bottom-nav shell
+/// (pet detail, reminder form, manage family, etc.) declare
+/// `parentNavigatorKey: _rootNavigatorKey` so go_router pushes them onto
+/// the root navigator — above the [StatefulShellRoute] — instead of into
+/// the active branch's nested navigator.
+final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
+  debugLabel: 'rootNavigator',
+);
 
 /// Builds the app router. Redirects on every auth state change so the user
 /// is always on the right page for their session. Authenticated tabs live
 /// behind a [StatefulShellRoute] so each tab keeps its own back-stack.
 GoRouter buildAppRouter(AuthBloc authBloc) {
   return GoRouter(
+    navigatorKey: _rootNavigatorKey,
     initialLocation: AppRoutes.splash,
     refreshListenable: _BlocChangeNotifier(authBloc.stream),
     redirect: (context, state) {
@@ -68,7 +82,8 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
           loc == AppRoutes.stats ||
           loc == AppRoutes.profile ||
           loc.startsWith('${AppRoutes.home}/') ||
-          loc.startsWith('${AppRoutes.reminders}/');
+          loc.startsWith('${AppRoutes.reminders}/') ||
+          loc.startsWith('${AppRoutes.profile}/');
 
       switch (auth) {
         case AuthInitial() || AuthLoading():
@@ -148,20 +163,24 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
                 routes: [
                   GoRoute(
                     path: 'new',
+                    parentNavigatorKey: _rootNavigatorKey,
                     builder: (context, state) => const PetFormPage(),
                   ),
                   GoRoute(
                     path: 'pet/:petId',
+                    parentNavigatorKey: _rootNavigatorKey,
                     builder: (context, state) =>
                         PetDetailPage(petId: state.pathParameters['petId']!),
                     routes: [
                       GoRoute(
                         path: 'edit',
+                        parentNavigatorKey: _rootNavigatorKey,
                         builder: (context, state) =>
                             PetFormPage(existing: state.extra as Pet?),
                       ),
                       GoRoute(
                         path: 'weights',
+                        parentNavigatorKey: _rootNavigatorKey,
                         builder: (context, state) {
                           final args = state.extra! as PetWeightArgs;
                           return PetWeightPage(
@@ -173,6 +192,7 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
                       ),
                       GoRoute(
                         path: 'health',
+                        parentNavigatorKey: _rootNavigatorKey,
                         builder: (context, state) {
                           final args = state.extra! as PetHealthArgs;
                           return PetHealthPage(
@@ -184,6 +204,7 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
                       ),
                       GoRoute(
                         path: 'gallery',
+                        parentNavigatorKey: _rootNavigatorKey,
                         builder: (context, state) {
                           final args = state.extra! as PetGalleryArgs;
                           return PetGalleryPage(
@@ -195,6 +216,7 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
                       ),
                       GoRoute(
                         path: 'documents',
+                        parentNavigatorKey: _rootNavigatorKey,
                         builder: (context, state) {
                           final args = state.extra! as PetDocumentsArgs;
                           return PetDocumentsPage(
@@ -206,6 +228,7 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
                       ),
                       GoRoute(
                         path: 'vaccinations',
+                        parentNavigatorKey: _rootNavigatorKey,
                         builder: (context, state) {
                           final args = state.extra! as VaccinationFormArgs;
                           return PetVaccinationsPage(
@@ -217,6 +240,7 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
                         routes: [
                           GoRoute(
                             path: 'new',
+                            parentNavigatorKey: _rootNavigatorKey,
                             builder: (context, state) {
                               final args =
                                   state.extra! as VaccinationFormArgs;
@@ -229,6 +253,7 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
                           ),
                           GoRoute(
                             path: ':vaccinationId/edit',
+                            parentNavigatorKey: _rootNavigatorKey,
                             builder: (context, state) {
                               final args =
                                   state.extra! as VaccinationFormArgs;
@@ -256,10 +281,12 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
                 routes: [
                   GoRoute(
                     path: 'new',
+                    parentNavigatorKey: _rootNavigatorKey,
                     builder: (context, state) => const ReminderFormPage(),
                   ),
                   GoRoute(
                     path: ':reminderId/edit',
+                    parentNavigatorKey: _rootNavigatorKey,
                     builder: (context, state) => ReminderFormPage(
                       existing: state.extra as Reminder?,
                     ),
@@ -281,6 +308,22 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
               GoRoute(
                 path: AppRoutes.profile,
                 builder: (context, state) => const ProfilePage(),
+                routes: [
+                  GoRoute(
+                    path: 'family',
+                    parentNavigatorKey: _rootNavigatorKey,
+                    builder: (context, state) => const HouseholdMembersPage(),
+                    routes: [
+                      GoRoute(
+                        path: 'audit',
+                        parentNavigatorKey: _rootNavigatorKey,
+                        builder: (context, state) => HouseholdAuditPage(
+                          householdId: state.extra! as String,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ],
           ),

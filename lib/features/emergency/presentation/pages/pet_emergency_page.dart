@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:my_pet/app/theme/app_palette.dart';
 import 'package:my_pet/app/theme/app_radii.dart';
 import 'package:my_pet/app/theme/app_spacing.dart';
@@ -11,6 +12,7 @@ import 'package:my_pet/app/widgets/pet_mascot.dart';
 import 'package:my_pet/features/auth/domain/entities/auth_user.dart';
 import 'package:my_pet/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:my_pet/features/pets/domain/entities/pet.dart';
+import 'package:my_pet/features/pets/presentation/widgets/pet_age_label.dart';
 import 'package:my_pet/features/pets/presentation/widgets/species_meta.dart';
 import 'package:my_pet/gen/strings.g.dart';
 import 'package:phosphor_flutter/phosphor_flutter.dart';
@@ -124,6 +126,14 @@ class _EmergencyView extends StatelessWidget {
     if (pet.breed?.isNotEmpty ?? false) {
       buf.writeln('${t.pets.form.breed}: ${pet.breed}');
     }
+    if (pet.birthDate != null) {
+      buf
+        ..writeln(
+          '${t.pets.form.birthDate}: '
+          '${DateFormat.yMMMd().format(pet.birthDate!)}',
+        )
+        ..writeln('${t.pets.detail.ageLabel}: ${petAgeLabel(pet)}');
+    }
     if (pet.color?.isNotEmpty ?? false) {
       buf.writeln('${t.pets.form.color}: ${pet.color}');
     }
@@ -207,9 +217,17 @@ class _DetailsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final birthDate = pet.birthDate;
     return AppCard(
       child: Column(
         children: [
+          if (birthDate != null)
+            _Row(
+              label: t.pets.form.birthDate,
+              value: DateFormat.yMMMd().format(birthDate),
+            ),
+          if (birthDate != null)
+            _Row(label: t.pets.detail.ageLabel, value: petAgeLabel(pet)),
           if (pet.color?.isNotEmpty ?? false)
             _Row(label: t.pets.form.color, value: pet.color!),
           if (pet.microchipId?.isNotEmpty ?? false)

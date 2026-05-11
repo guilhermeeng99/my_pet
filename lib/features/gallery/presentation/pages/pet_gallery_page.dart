@@ -8,8 +8,8 @@ import 'package:my_pet/app/di/injection_container.dart';
 import 'package:my_pet/app/theme/app_palette.dart';
 import 'package:my_pet/app/theme/app_radii.dart';
 import 'package:my_pet/app/theme/app_spacing.dart';
-import 'package:my_pet/app/widgets/app_primary_button.dart';
 import 'package:my_pet/app/widgets/circle_icon_button.dart';
+import 'package:my_pet/app/widgets/feature_list_card.dart';
 import 'package:my_pet/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:my_pet/features/gallery/domain/entities/pet_photo.dart';
 import 'package:my_pet/features/gallery/presentation/cubit/gallery_cubit.dart';
@@ -59,7 +59,6 @@ class _GalleryView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -68,20 +67,15 @@ class _GalleryView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const SizedBox(height: AppSpacing.sm),
-              Row(
-                children: [
-                  CircleIconButton(
-                    icon: PhosphorIconsBold.arrowLeft,
-                    onTap: () => Navigator.of(context).pop(),
-                  ),
-                  const SizedBox(width: AppSpacing.md),
-                  Expanded(
-                    child: Text(
-                      t.gallery.tabTitle,
-                      style: theme.textTheme.headlineLarge,
-                    ),
-                  ),
-                ],
+              BlocBuilder<GalleryCubit, GalleryState>(
+                buildWhen: (a, b) =>
+                    (a is GalleryLoaded) != (b is GalleryLoaded),
+                builder: (context, state) {
+                  final showAdd = state is GalleryLoaded;
+                  return _Header(
+                    onAdd: showAdd ? () => _pickAndUpload(context) : null,
+                  );
+                },
               ),
               const SizedBox(height: AppSpacing.sm),
               Expanded(
@@ -104,11 +98,6 @@ class _GalleryView extends StatelessWidget {
             ],
           ),
         ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _pickAndUpload(context),
-        icon: const Icon(PhosphorIconsBold.plus),
-        label: Text(t.gallery.addPhoto),
       ),
     );
   }
@@ -141,6 +130,39 @@ class _GalleryView extends StatelessWidget {
   }
 }
 
+class _Header extends StatelessWidget {
+  const _Header({this.onAdd});
+
+  final VoidCallback? onAdd;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final addCallback = onAdd;
+    return Row(
+      children: [
+        CircleIconButton(
+          icon: PhosphorIconsBold.arrowLeft,
+          onTap: () => Navigator.of(context).pop(),
+        ),
+        const SizedBox(width: AppSpacing.md),
+        Expanded(
+          child: Text(
+            t.gallery.tabTitle,
+            style: theme.textTheme.headlineLarge,
+          ),
+        ),
+        if (addCallback != null)
+          CircleIconButton(
+            icon: PhosphorIconsBold.plus,
+            onTap: addCallback,
+            tooltip: t.gallery.addPhoto,
+          ),
+      ],
+    );
+  }
+}
+
 class _Empty extends StatelessWidget {
   const _Empty({required this.onAdd});
   final VoidCallback onAdd;
@@ -152,18 +174,28 @@ class _Empty extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.only(top: AppSpacing.xl),
       children: [
-        Icon(
-          PhosphorIconsBold.imagesSquare,
-          size: 64,
-          color: theme.colorScheme.primary,
+        Center(
+          child: Container(
+            width: 96,
+            height: 96,
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primaryContainer,
+              borderRadius: AppRadii.brXL,
+            ),
+            child: Icon(
+              PhosphorIconsBold.imagesSquare,
+              size: 48,
+              color: theme.colorScheme.primary,
+            ),
+          ),
         ),
-        const SizedBox(height: AppSpacing.md),
+        const SizedBox(height: AppSpacing.lg),
         Text(
           t.gallery.empty.title,
           textAlign: TextAlign.center,
           style: theme.textTheme.headlineSmall,
         ),
-        const SizedBox(height: AppSpacing.xs),
+        const SizedBox(height: AppSpacing.sm),
         Text(
           t.gallery.empty.subtitle,
           textAlign: TextAlign.center,
@@ -171,10 +203,10 @@ class _Empty extends StatelessWidget {
               ?.copyWith(color: palette.onSurfaceMuted),
         ),
         const SizedBox(height: AppSpacing.lg),
-        AppPrimaryButton(
-          label: t.gallery.addPhoto,
-          icon: PhosphorIconsBold.plus,
-          onPressed: onAdd,
+        FeatureListCard(
+          icon: PhosphorIconsRegular.plus,
+          title: t.gallery.addPhoto,
+          onTap: onAdd,
         ),
       ],
     );

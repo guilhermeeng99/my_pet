@@ -411,7 +411,17 @@ class _FormHeader extends StatelessWidget {
               icon: PhosphorIconsBold.arrowLeft,
               onTap: () => Navigator.of(context).pop(),
             ),
-            const Spacer(),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: Text(
+                isEdit
+                    ? t.vaccinations.form.editTitle
+                    : t.vaccinations.form.createTitle,
+                style: theme.textTheme.headlineLarge?.copyWith(
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
             if (delete != null)
               CircleIconButton(
                 icon: PhosphorIconsBold.trash,
@@ -420,15 +430,6 @@ class _FormHeader extends StatelessWidget {
                 foregroundColor: theme.colorScheme.error,
               ),
           ],
-        ),
-        const SizedBox(height: AppSpacing.md),
-        Text(
-          isEdit
-              ? t.vaccinations.form.editTitle
-              : t.vaccinations.form.createTitle,
-          style: theme.textTheme.headlineLarge?.copyWith(
-            fontWeight: FontWeight.w800,
-          ),
         ),
         const SizedBox(height: AppSpacing.xs),
         Text(
