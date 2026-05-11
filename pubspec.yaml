@@ -70,6 +70,10 @@ dev_dependencies:
   # Codegen
   build_runner: ^2.4.13
   hive_ce_generator: ^1.11.1
+  # FlutterGen: type-safe accessors for assets — generated into
+  # lib/gen/assets.gen.dart by `dart run build_runner build` (CI runs
+  # the same command before analyze/test).
+  flutter_gen_runner: ^5.7.0
   # NOTE: slang is generated via `dart run slang` (see slang.yaml).
   # We deliberately do not use slang_build_runner — it conflicts with the
   # standalone CLI and trips on the synthetic lib/$lib$ input.
@@ -89,6 +93,19 @@ flutter:
     - lib/app/assets/images/illustrations/
 
 # slang configuration lives in slang.yaml at the repo root.
+
+# FlutterGen — type-safe asset accessors generated into lib/gen/assets.gen.dart.
+# Run `dart run build_runner build --delete-conflicting-outputs` after adding
+# or removing assets under lib/app/assets/.
+flutter_gen:
+  output: lib/gen/
+  line_length: 80
+  assets:
+    enabled: true
+    outputs:
+      class_name: Assets
+      package_parameter_enabled: false
+
 flutter_launcher_icons:
   image_path: lib/app/assets/images/logo.png
   android: true
