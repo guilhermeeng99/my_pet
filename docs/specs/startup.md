@@ -107,7 +107,7 @@ if (!startupDone) {
 ## Edge cases
 
 1. **Firebase already has a session on cold start** — Firebase Auth restores the user from disk, the profile stream emits the cached Firestore doc, `AuthBloc` transitions to `AuthAuthenticated`, `_waitForAuth()` returns immediately, splash is gone in one frame.
-2. **No session, never signed in** — `AuthBloc` emits `AuthUnauthenticated`, `StartupCubit` emits `StartupUnauthenticated`, redirect routes to `/welcome`.
+2. **No session, never signed in** — `AuthBloc` emits `AuthUnauthenticated`, `StartupCubit` emits `StartupUnauthenticated`, redirect routes to `/login` (the consolidated sign-in screen; the old `/welcome` intermediate was removed).
 3. **`initialize()` called twice** — second call is a no-op (early return when state is not `Initial`).
 4. **Auth state flips during startup** — `_waitForAuth()` completes on the first non-`AuthInitial`/`AuthLoading` emission and unsubscribes; later flips are handled by `AuthBloc`-driven router redirects.
 5. **Profile stream errors during startup** — `AuthRepositoryImpl._watchProfileWithFallback` yields the raw Firebase entity, `AuthBloc` emits `AuthNeedsHousehold` (no `householdId`), startup resolves to `Authenticated`.

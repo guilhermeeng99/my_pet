@@ -19,8 +19,6 @@
     "unknown": "Unknown"
   },
   "onboarding": {
-    "welcomeTitle": "Welcome! Let's care for your pets together.",
-    "welcomeSubtitle": "Track vaccinations, vet visits, weight and every memory, shared with your whole family.",
     "notifications": {
       "title": "Never miss a dose",
       "subtitle": "Enable notifications so we can remind you 7 days before each vaccine and again on the day. You can change this anytime in Settings.",
@@ -29,8 +27,8 @@
     }
   },
   "auth": {
-    "signInTitle": "Welcome",
-    "signInSubtitle": "Sign in to start caring for your pets",
+    "signInTitle": "Welcome! Let's care for your pets together.",
+    "signInSubtitle": "Track vaccinations, vet visits, weight and every memory, shared with your whole family.",
     "signInWithGoogle": "Continue with Google",
     "signOut": "Sign out",
     "errors": {

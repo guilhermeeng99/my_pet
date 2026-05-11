@@ -19,8 +19,6 @@
     "unknown": "Desconhecido"
   },
   "onboarding": {
-    "welcomeTitle": "Boas-vindas! Vamos cuidar dos seus pets juntos.",
-    "welcomeSubtitle": "Acompanhe vacinas, idas ao vet, peso e cada memória, compartilhado com a família toda.",
     "notifications": {
       "title": "Nunca perca uma dose",
       "subtitle": "Ative as notificações para lembrarmos você 7 dias antes de cada vacina e novamente no dia. Você pode mudar isso a qualquer momento nos ajustes.",
@@ -29,8 +27,8 @@
     }
   },
   "auth": {
-    "signInTitle": "Boas-vindas",
-    "signInSubtitle": "Entre para começar a cuidar dos seus pets",
+    "signInTitle": "Boas-vindas! Vamos cuidar dos seus pets juntos.",
+    "signInSubtitle": "Acompanhe vacinas, idas ao vet, peso e cada memória, compartilhado com a família toda.",
     "signInWithGoogle": "Continuar com o Google",
     "signOut": "Sair",
     "errors": {

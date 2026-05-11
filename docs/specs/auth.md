@@ -78,7 +78,7 @@ AuthError(failure)
 
 ## Screens
 
-- `LoginPage` — "Sign in with Google" button, logo, privacy link
+- `LoginPage` — sole entry point for unauthenticated users. Mascot + value-prop headline ("Boas-vindas! Vamos cuidar dos seus pets juntos.") + supportive subtitle + "Continuar com o Google" pill button. The headline copy used to live on a separate `WelcomePage`; that intermediate screen was removed because it added a tap without conveying anything beyond what this page already shows.
 - `StartupPage` — shown on cold start while `StartupCubit` waits for `AuthBloc` to emit its first non-Initial state. See [`startup.md`](startup.md).
 
 ## Permissions

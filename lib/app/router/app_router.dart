@@ -14,7 +14,6 @@ import 'package:my_pet/features/health/presentation/pages/pet_health_page.dart';
 import 'package:my_pet/features/household/presentation/pages/household_setup_page.dart';
 import 'package:my_pet/features/household/presentation/pages/join_household_page.dart';
 import 'package:my_pet/features/onboarding/presentation/notification_permission_page.dart';
-import 'package:my_pet/features/onboarding/presentation/welcome_page.dart';
 import 'package:my_pet/features/pets/domain/entities/pet.dart';
 import 'package:my_pet/features/pets/presentation/pages/pet_detail_page.dart';
 import 'package:my_pet/features/pets/presentation/pages/pet_form_page.dart';
@@ -35,7 +34,6 @@ import 'package:my_pet/features/weight/presentation/pages/pet_weight_page.dart';
 /// an entry here.
 abstract final class AppRoutes {
   static const String splash = '/';
-  static const String welcome = '/welcome';
   static const String login = '/login';
   static const String home = '/home';
   static const String reminders = '/reminders';
@@ -69,7 +67,7 @@ final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
 ///
 /// The redirect gates on [StartupCubit] first — until startup emits a
 /// terminal state, every path resolves back to `/` (the splash) so the
-/// router never flips to welcome mid-resolution. See `docs/specs/startup.md`.
+/// router never flips to login mid-resolution. See `docs/specs/startup.md`.
 GoRouter buildAppRouter({
   required AuthBloc authBloc,
   required StartupCubit startupCubit,
@@ -87,7 +85,7 @@ GoRouter buildAppRouter({
       final loc = state.matchedLocation;
 
       // Stay on the splash until startup finishes its first auth resolution.
-      // Without this gate the redirect would flip through `welcome` (because
+      // Without this gate the redirect would flip through `/login` (because
       // `AuthInitial` falls through to the default below) before settling.
       final startupDone = startup is StartupAuthenticated ||
           startup is StartupUnauthenticated;
@@ -110,8 +108,8 @@ GoRouter buildAppRouter({
           // login button can show a spinner without a navigation flicker.
           return null;
         case AuthUnauthenticated() || AuthErrorState():
-          if (loc == AppRoutes.login || loc == AppRoutes.welcome) return null;
-          return AppRoutes.welcome;
+          if (loc == AppRoutes.login) return null;
+          return AppRoutes.login;
         case AuthNeedsHousehold() || AuthCreatingHousehold():
           // User has no householdId yet — anchor on setup (or /join when they
           // chose that branch). Anywhere else would crash on empty
@@ -131,7 +129,6 @@ GoRouter buildAppRouter({
             return AppRoutes.home;
           }
           if (loc == AppRoutes.login ||
-              loc == AppRoutes.welcome ||
               loc == AppRoutes.splash ||
               loc == AppRoutes.householdSetup) {
             return AppRoutes.home;
@@ -139,7 +136,6 @@ GoRouter buildAppRouter({
           if (!isShellRoute &&
               loc != AppRoutes.notificationsPermission &&
               loc != AppRoutes.splash &&
-              loc != AppRoutes.welcome &&
               loc != AppRoutes.login &&
               loc != AppRoutes.join) {
             return AppRoutes.home;
@@ -151,10 +147,6 @@ GoRouter buildAppRouter({
       GoRoute(
         path: AppRoutes.splash,
         builder: (context, state) => const StartupPage(),
-      ),
-      GoRoute(
-        path: AppRoutes.welcome,
-        builder: (context, state) => const WelcomePage(),
       ),
       GoRoute(
         path: AppRoutes.login,

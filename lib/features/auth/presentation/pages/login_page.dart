@@ -39,7 +39,7 @@ class LoginPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   const Spacer(flex: 2),
-                  const Center(child: PetMascot()),
+                  const Center(child: PetMascot(size: 200)),
                   const SizedBox(height: AppSpacing.xl),
                   Text(
                     t.auth.signInTitle,
