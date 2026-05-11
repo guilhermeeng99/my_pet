@@ -21,15 +21,4 @@ void main() {
     expect(find.byType(WelcomePage), findsOneWidget);
     expect(find.text('Continue'), findsOneWidget);
   });
-
-  testWidgets('Welcome page renders with dark theme', (tester) async {
-    await tester.pumpWidget(
-      MaterialApp(
-        theme: AppTheme.dark(),
-        home: const WelcomePage(),
-      ),
-    );
-
-    expect(find.byType(WelcomePage), findsOneWidget);
-  });
 }

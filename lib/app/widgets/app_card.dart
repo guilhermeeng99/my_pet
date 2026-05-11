@@ -24,11 +24,10 @@ class AppCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final shadows = AppShadows.elevation1(theme.brightness);
     final decoration = BoxDecoration(
       color: color ?? theme.colorScheme.surface,
       borderRadius: AppRadii.brLg,
-      boxShadow: shadows,
+      boxShadow: AppShadows.elevation1,
     );
 
     if (onTap == null) {

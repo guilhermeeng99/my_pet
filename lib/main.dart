@@ -34,7 +34,6 @@ class _MyPetAppState extends State<MyPetApp> {
         title: AppConstants.appName,
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light(),
-        darkTheme: AppTheme.dark(),
         // Slang owns the active locale; mirror it on Material so
         // intl-aware widgets (date pickers, etc.) follow the same language.
         locale: TranslationProvider.of(context).flutterLocale,

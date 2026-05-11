@@ -87,7 +87,7 @@ Each feature follows:
 | **Error handling**   | dartz `Either<Failure, T>` pattern                                |
 | **Linting**          | very_good_analysis (strict)                                       |
 | **i18n**             | slang (generated in `lib/gen/`) — English primary; pt-BR later    |
-| **Theme**            | Light + Dark Material 3, Ahead-inspired tokens (see `docs/specs/design.md`) |
+| **Theme**            | Light-only Material 3, Ahead-inspired tokens (see `docs/specs/design.md`) |
 | **Date/Time**        | `intl` + native `DateTime` (UTC stored, local rendered)           |
 
 ---

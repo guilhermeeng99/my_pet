@@ -9,36 +9,22 @@ import 'package:my_pet/app/theme/app_typography.dart';
 /// Builds [ThemeData] for the app. See specs/design.md for the full design
 /// system. Widgets must read tokens via Theme.of(context) — no hardcoded
 /// literals.
+///
+/// The app is light-only by design.
 abstract final class AppTheme {
-  static ThemeData light() => _build(
-        brightness: Brightness.light,
-        scheme: AppColors.lightScheme,
-        scaffold: AppColors.background,
-        palette: AppPalette.light,
-      );
-
-  static ThemeData dark() => _build(
-        brightness: Brightness.dark,
-        scheme: AppColors.darkScheme,
-        scaffold: AppColors.backgroundDark,
-        palette: AppPalette.dark,
-      );
-
-  static ThemeData _build({
-    required Brightness brightness,
-    required ColorScheme scheme,
-    required Color scaffold,
-    required AppPalette palette,
-  }) {
-    final textTheme = AppTypography.textTheme(brightness: brightness);
+  static ThemeData light() {
+    const scheme = AppColors.lightScheme;
+    const scaffold = AppColors.background;
+    const palette = AppPalette.light;
+    final textTheme = AppTypography.textTheme();
 
     return ThemeData(
       useMaterial3: true,
-      brightness: brightness,
+      brightness: Brightness.light,
       colorScheme: scheme,
       scaffoldBackgroundColor: scaffold,
       textTheme: textTheme,
-      extensions: [palette],
+      extensions: const [palette],
       appBarTheme: AppBarTheme(
         backgroundColor: scaffold,
         surfaceTintColor: Colors.transparent,

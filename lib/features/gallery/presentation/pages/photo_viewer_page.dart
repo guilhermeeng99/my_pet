@@ -323,7 +323,7 @@ class _Action extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = destructive ? AppColors.dangerDark : _foregroundColor;
+    final color = destructive ? AppColors.danger : _foregroundColor;
     final labelStyle = Theme.of(context)
         .textTheme
         .labelSmall

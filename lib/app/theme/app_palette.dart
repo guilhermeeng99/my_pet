@@ -56,22 +56,6 @@ class AppPalette extends ThemeExtension<AppPalette> {
     accentOther: AppColors.accentOther,
   );
 
-  static const AppPalette dark = AppPalette(
-    surfaceMuted: AppColors.surfaceMutedDark,
-    outline: AppColors.outlineDark,
-    onSurfaceMuted: AppColors.onSurfaceMutedDark,
-    onSurfaceFaint: AppColors.onSurfaceFaintDark,
-    success: AppColors.successDark,
-    warning: AppColors.warningDark,
-    danger: AppColors.dangerDark,
-    info: AppColors.infoDark,
-    accentCat: AppColors.accentCat,
-    accentDog: AppColors.accentDog,
-    accentBird: AppColors.accentBird,
-    accentRabbit: AppColors.accentRabbit,
-    accentOther: AppColors.accentOther,
-  );
-
   @override
   AppPalette copyWith({
     Color? surfaceMuted,

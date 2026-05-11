@@ -39,7 +39,7 @@ class AppBottomNav extends StatelessWidget {
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
           borderRadius: AppRadii.brXL,
-          boxShadow: AppShadows.elevation2(theme.brightness),
+          boxShadow: AppShadows.elevation2,
         ),
         clipBehavior: Clip.antiAlias,
         child: Row(

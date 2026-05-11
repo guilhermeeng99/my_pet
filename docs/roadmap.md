@@ -81,7 +81,7 @@ Tracker of what is done, in progress and planned. Use the checkboxes to mark pro
 - [x] Stub pages for Reminders / Stats / Profile tabs
 - [x] Reserve `assets/illustrations/mascot.svg` slot — commissioned illustration deferred (programmatic mascot in place)
 - [x] Photo viewer page reworked to consume design tokens (no hardcoded colors / radii / font sizes)
-- [ ] Manual QA across light / dark mode + 200 % font scale
+- [ ] Manual QA at 200 % font scale (app is light-only — dark mode removed)
 
 ---
 
@@ -200,6 +200,31 @@ Tracker of what is done, in progress and planned. Use the checkboxes to mark pro
       insights, household, invite, join household, account deletion,
       member management). Suite at 129 tests, all green.
 - [x] Roadmap, spec for reminders edge cases, and CLAUDE.md kept in sync.
+
+---
+
+## Release & distribution (2026-05) ✅
+
+> Automated Android delivery to internal testers. Pushes to `main` ship a
+> signed APK to Firebase App Distribution without manual steps.
+
+- [x] **Firebase App Distribution wired into CI**: `distribute-android` job in
+      `.github/workflows/ci.yml` runs after `analyze-and-test` on `main`,
+      uploads via `firebase appdistribution:distribute` to the `internal`
+      tester group.
+- [x] **Dedicated release keystore** (`my_pet-release.jks`, RSA 2048,
+      validity 10000 days). Stored offline + in password manager; never
+      committed. Configured in `android/app/build.gradle.kts` via env vars,
+      with fallback to debug keystore so local `flutter run --release`
+      keeps working.
+- [x] **Auto-versioning**: `versionName` read from `pubspec.yaml`,
+      `versionCode` = `github.run_number` (monotonic, no collisions on
+      re-runs).
+- [x] **Sensitive files restored from GitHub Secrets** at CI time:
+      `firebase_options.dart`, `google-services.json`, service account
+      JSON, keystore. Repo stays public-safe.
+- [x] **SHA-1 + SHA-256 of the release keystore** registered on Firebase
+      so Google Sign-In works in distributed builds.
 
 ---
 

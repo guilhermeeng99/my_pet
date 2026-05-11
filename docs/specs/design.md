@@ -12,7 +12,7 @@ The system is implemented in `lib/app/theme/`. Widgets must consume these tokens
 
 1. **Calm > flashy.** Generous whitespace is part of the design, not waste.
 2. **One bold thing per screen.** A single large headline or a single primary CTA — never both fighting for attention.
-3. **Cards over boxes.** Content sits on white/dark cards with soft shadows on a tinted background; never on raw screen edges.
+3. **Cards over boxes.** Content sits on white cards with soft shadows on a tinted background; never on raw screen edges.
 4. **Pills everywhere.** Buttons, tags, status indicators, and time pickers all use pill or strongly-rounded shapes.
 5. **Mascot moments.** Illustrations and emoji are first-class citizens of empty states, onboarding, and success screens — keep them consistent in style.
 6. **Color carries meaning.** Accent colors (success, warning, danger, info) are never decorative; they always communicate state.
@@ -21,39 +21,39 @@ The system is implemented in `lib/app/theme/`. Widgets must consume these tokens
 
 ## Color Tokens
 
-All values defined in `lib/app/theme/app_colors.dart` as a const class. Do not reference hex literals from widgets.
+All values defined in `lib/app/theme/app_colors.dart` as a const class. Do not reference hex literals from widgets. The app is **light-only**; there is no dark variant.
 
 ### Brand
 
-| Token              | Light       | Dark        | Use                                                  |
-| ------------------ | ----------- | ----------- | ---------------------------------------------------- |
-| `primary`          | `#2563EB`   | `#5B8DEF`   | Primary CTAs, headers, key accents                   |
-| `primaryPressed`   | `#1D4ED8`   | `#2563EB`   | Pressed/hover state                                  |
-| `primaryContainer` | `#E6EFFF`   | `#13234A`   | Tinted backgrounds, selected chips, badges           |
-| `onPrimary`        | `#FFFFFF`   | `#FFFFFF`   | Text/icons on `primary`                              |
-| `onPrimaryContainer` | `#0B2A6B` | `#CFE0FF`   | Text/icons on `primaryContainer`                     |
+| Token                | Hex         | Use                                                  |
+| -------------------- | ----------- | ---------------------------------------------------- |
+| `primary`            | `#2563EB`   | Primary CTAs, headers, key accents                   |
+| `primaryPressed`     | `#1D4ED8`   | Pressed/hover state                                  |
+| `primaryContainer`   | `#E6EFFF`   | Tinted backgrounds, selected chips, badges           |
+| `onPrimary`          | `#FFFFFF`   | Text/icons on `primary`                              |
+| `onPrimaryContainer` | `#0B2A6B`   | Text/icons on `primaryContainer`                     |
 
 ### Neutral surfaces
 
-| Token              | Light       | Dark        | Use                                                  |
-| ------------------ | ----------- | ----------- | ---------------------------------------------------- |
-| `background`       | `#F2F7FF`   | `#0B1220`   | Scaffold background (soft sky wash)                  |
-| `surface`          | `#FFFFFF`   | `#131C30`   | Cards, sheets, dialogs                               |
-| `surfaceMuted`     | `#EAF2FF`   | `#1B2540`   | Inset cards, list zebra, disabled fields             |
-| `outline`          | `#DDE6F4`   | `#2D3957`   | Borders, dividers                                    |
-| `onBackground`     | `#0E1830`   | `#EDF2FF`   | Primary text on background                           |
-| `onSurface`        | `#0E1830`   | `#EDF2FF`   | Primary text on surface                              |
-| `onSurfaceMuted`   | `#5C6985`   | `#A5B0C9`   | Secondary text                                       |
-| `onSurfaceFaint`   | `#8E99B3`   | `#7480A0`   | Tertiary text, placeholders                          |
+| Token              | Hex         | Use                                                  |
+| ------------------ | ----------- | ---------------------------------------------------- |
+| `background`       | `#F2F7FF`   | Scaffold background (soft sky wash)                  |
+| `surface`          | `#FFFFFF`   | Cards, sheets, dialogs                               |
+| `surfaceMuted`     | `#EAF2FF`   | Inset cards, list zebra, disabled fields             |
+| `outline`          | `#DDE6F4`   | Borders, dividers                                    |
+| `onBackground`     | `#0E1830`   | Primary text on background                           |
+| `onSurface`        | `#0E1830`   | Primary text on surface                              |
+| `onSurfaceMuted`   | `#5C6985`   | Secondary text                                       |
+| `onSurfaceFaint`   | `#8E99B3`   | Tertiary text, placeholders                          |
 
 ### Semantic
 
-| Token       | Light       | Dark        | Meaning                                              |
-| ----------- | ----------- | ----------- | ---------------------------------------------------- |
-| `success`   | `#3FBF7F`   | `#5FD89A`   | "Up to date", "saved", confirmations                 |
-| `warning`   | `#F5B544`   | `#FFC966`   | "Due soon", soft alerts                              |
-| `danger`    | `#F25A4F`   | `#FF7A6E`   | "Overdue", destructive actions, errors               |
-| `info`      | `#3FA9F5`   | `#5FBEFF`   | Neutral informational badges                         |
+| Token       | Hex         | Meaning                                              |
+| ----------- | ----------- | ---------------------------------------------------- |
+| `success`   | `#3FBF7F`   | "Up to date", "saved", confirmations                 |
+| `warning`   | `#F5B544`   | "Due soon", soft alerts                              |
+| `danger`    | `#F25A4F`   | "Overdue", destructive actions, errors               |
+| `info`      | `#3FA9F5`   | Neutral informational badges                         |
 
 ### Pet category accents
 
@@ -138,8 +138,6 @@ static const elevation3 = [BoxShadow(color: Color(0x1A0B1B3A), blurRadius: 24, o
 | `elevation1` | Resting cards                                        |
 | `elevation2` | Floating cards, active list rows                     |
 | `elevation3` | FABs, bottom sheets, modals                          |
-
-In dark mode, opacities are tripled and color-shifted toward `#000000`.
 
 ---
 
@@ -276,9 +274,9 @@ Authenticated tabs (Home / Reminders / Stats / Profile) live behind a `StatefulS
 
 ---
 
-## Dark mode
+## Theme mode
 
-All tokens are pre-defined for dark in the tables above. The dark surface is **deep navy** (`#0B1220`) — not pure black — to keep the brand cohesive with the daylight blue palette. Cards lift to `#131C30`. Shadows become more pronounced (3× alpha) to keep depth visible against the darker background.
+The app ships **light-only**. `MaterialApp.darkTheme` is not configured and `AppTheme` only exposes `light()`. The OS dark-mode preference is ignored. If a dark variant is ever revisited, treat it as a new spec — not a token addition.
 
 ---
 
@@ -300,15 +298,8 @@ class AppTheme {
   static ThemeData light() => ThemeData(
         useMaterial3: true,
         colorScheme: AppColors.lightScheme,
-        textTheme: AppTypography.textTheme(brightness: Brightness.light),
+        textTheme: AppTypography.textTheme(),
         // ...component themes derived from tokens
-      );
-
-  static ThemeData dark() => ThemeData(
-        useMaterial3: true,
-        colorScheme: AppColors.darkScheme,
-        textTheme: AppTypography.textTheme(brightness: Brightness.dark),
-        // ...
       );
 }
 ```
@@ -331,8 +322,8 @@ Or via `Theme.of(context).extension<AppPalette>()!`.
 
 ```
 lib/app/theme/
-├── app_theme.dart          # ThemeData light/dark factory
-├── app_colors.dart         # Color tokens (light + dark)
+├── app_theme.dart          # ThemeData light factory
+├── app_colors.dart         # Color tokens
 ├── app_typography.dart     # TextStyle tokens + textTheme builder
 ├── app_spacing.dart        # Const doubles for the 4pt grid
 ├── app_radii.dart          # BorderRadius tokens
@@ -345,7 +336,7 @@ lib/app/theme/
 ## What to verify on every UI change
 
 1. Uses tokens from `lib/app/theme/`? (no inline hex, no inline radius, no inline TextStyle)
-2. Tested in both light and dark themes?
+2. Rendered correctly in the light theme (the app is light-only)?
 3. Touch targets ≥ 44pt?
 4. Text readable at 200% scale?
 5. Consistent padding multiples of 4?
