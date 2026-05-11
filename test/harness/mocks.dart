@@ -2,12 +2,14 @@
 // implements X {}` line per boundary that needs to be stubbed in tests.
 // (CLAUDE.md / Harness Engineering)
 
+import 'package:bloc_test/bloc_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import 'package:my_pet/app/session/session_scope.dart';
 import 'package:my_pet/features/auth/data/datasources/firebase_auth_datasource.dart';
 import 'package:my_pet/features/auth/data/datasources/user_profile_datasource.dart';
 import 'package:my_pet/features/auth/domain/repositories/auth_repository.dart';
+import 'package:my_pet/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:my_pet/features/documents/domain/repositories/document_repository.dart';
 import 'package:my_pet/features/gallery/domain/repositories/gallery_repository.dart';
 import 'package:my_pet/features/health/data/datasources/health_firestore_datasource.dart';
@@ -30,6 +32,10 @@ class MockFirebaseAuthDatasource extends Mock
 class MockUserProfileDatasource extends Mock implements UserProfileDatasource {}
 
 class MockAuthRepository extends Mock implements AuthRepository {}
+
+/// `MockBloc` from `bloc_test` exposes `state`, `stream`, and
+/// `whenListen` for deterministic emission ordering in tests.
+class MockAuthBloc extends MockBloc<AuthEvent, AuthState> implements AuthBloc {}
 
 class MockHealthFirestoreDatasource extends Mock
     implements HealthFirestoreDatasource {}

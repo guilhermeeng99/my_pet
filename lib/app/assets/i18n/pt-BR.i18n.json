@@ -222,6 +222,13 @@
       "title": "Compartilhando com"
     },
     "you": "Você",
+    "status": {
+      "pairedTitle": "Compartilhando os pets",
+      "pairedSubtitle": "Vocês estão sincronizando o cuidado.",
+      "soloTitle": "Só você por enquanto",
+      "soloSubtitle": "Convide alguém pra compartilhar pets e lembretes."
+    },
+    "advanced": "Gerenciar família · histórico",
     "actions": {
       "generateInvite": "Gerar código de convite",
       "joinWithCode": "Tem um código? Entrar",

@@ -89,3 +89,10 @@ serviceAccountKey*.json
 **/*.config.dart
 **/*.gen.dart
 lib/gen/strings.g.dart
+
+# Sibling project parked here for reference — it's a separate git repo and
+# must not be tracked inside my_pet's tree.
+my-cycle/
+
+# Local-only workflow scratch files
+*.backup

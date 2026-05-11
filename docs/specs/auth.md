@@ -69,7 +69,7 @@ AuthError(failure)
 ## Screens
 
 - `LoginPage` — "Sign in with Google" button, logo, privacy link
-- `SplashPage` — decides where to go based on `AuthState`
+- `StartupPage` — shown on cold start while `StartupCubit` waits for `AuthBloc` to emit its first non-Initial state. See [`startup.md`](startup.md).
 
 ## Permissions
 

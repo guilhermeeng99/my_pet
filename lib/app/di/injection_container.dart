@@ -39,6 +39,7 @@ import 'package:my_pet/features/reminders/data/datasources/reminder_firestore_da
 import 'package:my_pet/features/reminders/data/repositories/reminder_repository_impl.dart';
 import 'package:my_pet/features/reminders/domain/repositories/reminder_repository.dart';
 import 'package:my_pet/features/reminders/presentation/cubit/reminder_form_cubit.dart';
+import 'package:my_pet/features/startup/presentation/cubit/startup_cubit.dart';
 import 'package:my_pet/features/vaccinations/data/datasources/vaccination_firestore_datasource.dart';
 import 'package:my_pet/features/vaccinations/data/repositories/vaccination_repository_impl.dart';
 import 'package:my_pet/features/vaccinations/domain/repositories/vaccination_repository.dart';
@@ -116,6 +117,12 @@ Future<void> configureDependencies() async {
         householdRepository: sl(),
         sessionScope: sl(),
       ),
+    )
+    // ── Startup feature (must come AFTER AuthBloc) ─────────────────
+    // Waits for AuthBloc to surface its first non-Initial state so the
+    // router can gate the splash → first-screen transition cleanly.
+    ..registerLazySingleton<StartupCubit>(
+      () => StartupCubit(authBloc: sl()),
     )
     // ── Pets feature ────────────────────────────────────────────────
     ..registerLazySingleton<PetFirestoreDatasource>(

@@ -82,12 +82,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
   }
 
-  void _onStreamUpdated(
+  Future<void> _onStreamUpdated(
     _AuthStreamUpdated event,
     Emitter<AuthState> emit,
-  ) {
+  ) async {
     final user = event.user;
     if (user == null) {
+      // Account deletion or external revocation also tears down the session
+      // (explicit sign-out already resets in _onSignOutRequested, but those
+      // paths bypass it). Reset before signalling Unauthenticated so the
+      // next sign-in gets a fresh PetsListCubit / household stream.
+      await _sessionScope.reset();
       emit(const AuthUnauthenticated());
       return;
     }

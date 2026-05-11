@@ -222,6 +222,13 @@
       "title": "Sharing with"
     },
     "you": "You",
+    "status": {
+      "pairedTitle": "Sharing pets together",
+      "pairedSubtitle": "You're both keeping their care in sync.",
+      "soloTitle": "Just you for now",
+      "soloSubtitle": "Invite your partner so you can share pets and reminders."
+    },
+    "advanced": "Manage family · audit log",
     "actions": {
       "generateInvite": "Generate invite code",
       "joinWithCode": "Have a code? Join",

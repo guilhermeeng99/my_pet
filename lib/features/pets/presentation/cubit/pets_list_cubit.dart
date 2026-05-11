@@ -21,10 +21,12 @@ class PetsListCubit extends Cubit<PetsListState> {
   StreamSubscription<List<Pet>>? _subscription;
 
   void start(String householdId) {
+    if (isClosed) return;
     emit(const PetsListLoading());
     unawaited(_subscription?.cancel());
     _subscription = _repository.watchActive(householdId).listen(
       (pets) {
+        if (isClosed) return;
         if (pets.isEmpty) {
           emit(const PetsListEmpty());
           return;
@@ -32,6 +34,7 @@ class PetsListCubit extends Cubit<PetsListState> {
         emit(PetsListLoaded(pets));
       },
       onError: (Object error, StackTrace _) {
+        if (isClosed) return;
         emit(PetsListError(ServerFailure(message: error.toString())));
       },
     );

@@ -25,7 +25,7 @@ class AccountDeletionCubit extends Cubit<AccountDeletionState> {
     required String householdId,
     required String userId,
   }) async {
-    emit(const AccountDeletionDeleting());
+    _safeEmit(const AccountDeletionDeleting());
 
     final wipe = await _households.wipeAndLeave(
       householdId: householdId,
@@ -33,18 +33,25 @@ class AccountDeletionCubit extends Cubit<AccountDeletionState> {
     );
     final wipeFailure = wipe.fold<Failure?>((f) => f, (_) => null);
     if (wipeFailure != null) {
-      emit(AccountDeletionFailed(wipeFailure));
+      _safeEmit(AccountDeletionFailed(wipeFailure));
       return;
     }
 
     final deleteAuth = await _auth.deleteCurrentAccount();
     final authFailure = deleteAuth.fold<Failure?>((f) => f, (_) => null);
     if (authFailure != null) {
-      emit(AccountDeletionFailed(authFailure));
+      _safeEmit(AccountDeletionFailed(authFailure));
       return;
     }
 
-    emit(const AccountDeletionDone());
+    // Auth user is now gone — `_auth.watchAuthState()` will fire null and
+    // AuthBloc will navigate away from this page (closing this cubit) before
+    // we can emit `Done`. Guard the final emit so it doesn't crash the app.
+    _safeEmit(const AccountDeletionDone());
+  }
+
+  void _safeEmit(AccountDeletionState state) {
+    if (!isClosed) emit(state);
   }
 
   void reset() => emit(const AccountDeletionIdle());

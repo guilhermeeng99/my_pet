@@ -203,6 +203,44 @@ Tracker of what is done, in progress and planned. Use the checkboxes to mark pro
 
 ---
 
+## Auth & startup robustness (2026-05) ✅
+
+> Eliminate the race between Firebase Auth and the Firestore profile that was
+> causing the household-setup page to flicker on sign-in, the join flow to
+> bounce back to setup after success, and cubits to crash with
+> "emit after close" when re-signing in after account deletion. Patterned on
+> the my-cycle app's [`StartupCubit`] + profile-stream design.
+
+- [x] **Profile-stream auth state**: `AuthRepositoryImpl.watchAuthState` now
+      uses `asyncExpand` to switch from Firebase Auth onto a Firestore
+      `users/{uid}` snapshots stream. Joining a household via the invite-code
+      flow now propagates the new `householdId` into the AuthBloc state
+      naturally — no manual refresh event needed.
+- [x] **Startup feature** ([`specs/startup.md`](specs/startup.md)): new
+      `StartupCubit` gates the router until `AuthBloc` emits its first
+      non-`Initial` state. Splash route now hosts `StartupPage` with a
+      determinate progress bar. Router redirect short-circuits to `/` until
+      startup resolves; `refreshListenable` listens to both `AuthBloc.stream`
+      and `StartupCubit.stream`.
+- [x] **Cubit lifecycle hardening**: `PetsListCubit` and
+      `AccountDeletionCubit` now guard every `emit` with `if (isClosed)
+      return;` so async completions that land after the page unmounts (e.g.
+      because the auth stream just flipped to null) no longer crash the app.
+- [x] **SessionScope on auth-stream null**: `AuthBloc._onStreamUpdated` now
+      calls `SessionScope.reset()` when the watcher emits `null` (account
+      deletion / external token revocation), not just on explicit
+      `SignOutRequested`. Previous-session singletons (`PetsListCubit`) are
+      always recreated for the next sign-in.
+- [x] **Firestore rules — missing field hardening**: `users/{userId}` create
+      rule now checks `!('householdId' in request.resource.data.keys())`
+      instead of `request.resource.data.householdId == null`. Dot-access on
+      an absent map key derails rule evaluation in Firestore Rules v2; the
+      `in keys()` form is safe.
+
+[`StartupCubit`]: ../my-cycle/lib/features/startup/
+
+---
+
 ## Release & distribution (2026-05) ✅
 
 > Automated Android delivery to internal testers. Pushes to `main` ship a

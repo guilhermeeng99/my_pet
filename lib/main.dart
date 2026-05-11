@@ -8,6 +8,7 @@ import 'package:my_pet/app/router/app_router.dart';
 import 'package:my_pet/app/theme/app_theme.dart';
 import 'package:my_pet/core/constants/app_constants.dart';
 import 'package:my_pet/features/auth/presentation/bloc/auth_bloc.dart';
+import 'package:my_pet/features/startup/presentation/cubit/startup_cubit.dart';
 import 'package:my_pet/gen/strings.g.dart';
 
 Future<void> main() async {
@@ -24,12 +25,19 @@ class MyPetApp extends StatefulWidget {
 
 class _MyPetAppState extends State<MyPetApp> {
   late final AuthBloc _authBloc = sl<AuthBloc>();
-  late final GoRouter _router = buildAppRouter(_authBloc);
+  late final StartupCubit _startupCubit = sl<StartupCubit>();
+  late final GoRouter _router = buildAppRouter(
+    authBloc: _authBloc,
+    startupCubit: _startupCubit,
+  );
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<AuthBloc>.value(
-      value: _authBloc,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<AuthBloc>.value(value: _authBloc),
+        BlocProvider<StartupCubit>.value(value: _startupCubit),
+      ],
       child: MaterialApp.router(
         title: AppConstants.appName,
         debugShowCheckedModeBanner: false,

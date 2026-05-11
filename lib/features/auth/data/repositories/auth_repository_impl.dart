@@ -24,26 +24,33 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Stream<AuthUser?> watchAuthState() {
-    return _auth.watchUser().asyncMap((fbUser) async {
-      if (fbUser == null) return null;
-      // Try to enrich with the persisted profile (mostly to learn the
-      // householdId). On read failure we still surface the raw Firebase
-      // user — auth state must keep flowing even if Firestore hiccups.
-      try {
-        final profile = await _profiles.read(fbUser.uid);
-        return profile ?? _entityFromFirebase(fbUser);
-      } on Exception catch (e, st) {
-        // Auth state must keep flowing even if Firestore hiccups, but log
-        // so a persistent profile-read break (e.g. rules drift) is visible.
-        developer.log(
-          'Profile enrichment failed for ${fbUser.uid}; falling back to Firebase entity',
-          name: 'auth',
-          error: e,
-          stackTrace: st,
-        );
-        return _entityFromFirebase(fbUser);
-      }
+    // Listen to both Firebase Auth (sign-in/out) AND the user's Firestore
+    // profile doc so household joins, role changes and remote profile edits
+    // propagate to the UI without manual refresh events. `asyncExpand` cancels
+    // the inner profile stream whenever the outer auth user changes.
+    return _auth.watchUser().asyncExpand<AuthUser?>((fbUser) {
+      if (fbUser == null) return Stream<AuthUser?>.value(null);
+      return _watchProfileWithFallback(fbUser);
     });
+  }
+
+  Stream<AuthUser?> _watchProfileWithFallback(fb.User fbUser) async* {
+    // Wait for the first profile snapshot before emitting — yielding the raw
+    // Firebase entity first would briefly route returning users (who have a
+    // householdId) through the AuthNeedsHousehold setup screen.
+    try {
+      await for (final profile in _profiles.watch(fbUser.uid)) {
+        yield profile ?? _entityFromFirebase(fbUser);
+      }
+    } on Object catch (e, st) {
+      developer.log(
+        'Profile stream failed for ${fbUser.uid}; falling back to Firebase entity',
+        name: 'auth',
+        error: e,
+        stackTrace: st,
+      );
+      yield _entityFromFirebase(fbUser);
+    }
   }
 
   @override

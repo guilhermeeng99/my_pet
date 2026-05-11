@@ -11,7 +11,7 @@ This repository is **public**. No secrets, no Firebase config files, no service 
 Before working on any task in this repo, the agent MUST orient itself using these sources:
 
 * **`docs/roadmap.md`** — current status of every feature (✅ done · 🟡 in progress · ⬜ planned · ❄️ idea). Auto-loaded with this file (see bottom).
-* **`docs/specs/<feature>.md`** — one spec per feature (`auth`, `design`, `documents`, `gallery`, `health`, `household`, `notifications`, `pets`, `reminders`, `sync`, `vaccinations`, `weight`). Read the relevant spec **before** modifying that feature's code or tests.
+* **`docs/specs/<feature>.md`** — one spec per feature (`auth`, `design`, `documents`, `gallery`, `health`, `household`, `notifications`, `pets`, `reminders`, `startup`, `sync`, `vaccinations`, `weight`). Read the relevant spec **before** modifying that feature's code or tests.
 * **This file (`CLAUDE.md`)** — project-wide conventions. Already auto-loaded.
 
 **Keep these in sync with the code.** Whenever implementation, requirements, or scope change:

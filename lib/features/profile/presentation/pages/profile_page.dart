@@ -12,7 +12,6 @@ import 'package:my_pet/app/theme/app_spacing.dart';
 import 'package:my_pet/app/widgets/app_card.dart';
 import 'package:my_pet/app/widgets/app_field.dart';
 import 'package:my_pet/app/widgets/screen_scaffold.dart';
-import 'package:my_pet/app/widgets/section_header.dart';
 import 'package:my_pet/core/constants/app_constants.dart';
 import 'package:my_pet/core/errors/failures.dart';
 import 'package:my_pet/features/auth/domain/entities/auth_user.dart';
@@ -21,6 +20,7 @@ import 'package:my_pet/features/household/domain/entities/household_member.dart'
 import 'package:my_pet/features/household/presentation/cubit/account_deletion_cubit.dart';
 import 'package:my_pet/features/household/presentation/cubit/household_cubit.dart';
 import 'package:my_pet/features/household/presentation/cubit/invite_cubit.dart';
+import 'package:my_pet/features/household/presentation/cubit/member_management_cubit.dart';
 import 'package:my_pet/features/household/presentation/widgets/invite_code_dialog.dart';
 import 'package:my_pet/gen/strings.g.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -54,6 +54,9 @@ class ProfilePage extends StatelessWidget {
               create: (_) => InviteCubit(repository: sl()),
             ),
             BlocProvider(
+              create: (_) => MemberManagementCubit(repository: sl()),
+            ),
+            BlocProvider(
               create: (_) =>
                   AccountDeletionCubit(households: sl(), auth: sl()),
             ),
@@ -84,6 +87,9 @@ class _ProfileView extends StatelessWidget {
       body: MultiBlocListener(
         listeners: [
           BlocListener<InviteCubit, InviteState>(listener: _onInviteState),
+          BlocListener<MemberManagementCubit, MemberManagementState>(
+            listener: _onMemberManagementState,
+          ),
           BlocListener<AccountDeletionCubit, AccountDeletionState>(
             listener: _onDeletionState,
           ),
@@ -91,11 +97,7 @@ class _ProfileView extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
           children: [
-            _IdentityCard(user: user),
-            const SizedBox(height: AppSpacing.md),
             _HouseholdSection(user: user),
-            const SizedBox(height: AppSpacing.md),
-            const _ManageFamilyCard(),
             const SizedBox(height: AppSpacing.lg),
             const _PreferencesSection(),
             const SizedBox(height: AppSpacing.lg),
@@ -150,64 +152,33 @@ class _ProfileView extends StatelessWidget {
       context.read<InviteCubit>().reset();
     }
   }
-}
 
-class _IdentityCard extends StatelessWidget {
-  const _IdentityCard({required this.user});
-
-  final AuthUser user;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return AppCard(
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 28,
-            backgroundColor: theme.colorScheme.primaryContainer,
-            backgroundImage:
-                user.photoUrl == null ? null : NetworkImage(user.photoUrl!),
-            child: user.photoUrl == null
-                ? Icon(
-                    PhosphorIconsBold.user,
-                    size: 24,
-                    color: theme.colorScheme.primary,
-                  )
-                : null,
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  user.displayName?.isNotEmpty ?? false
-                      ? user.displayName!
-                      : user.email,
-                  style: theme.textTheme.titleLarge,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  user.email,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: context.palette.onSurfaceMuted,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
+  /// Surfaces leave failures inline as a snackbar. Success is handled
+  /// implicitly: the user doc's `householdId` clears → the profile stream
+  /// fires → `AuthBloc` transitions to `AuthNeedsHousehold` → the router
+  /// redirects to /household/setup. No manual nav from here.
+  void _onMemberManagementState(
+    BuildContext context,
+    MemberManagementState state,
+  ) {
+    if (state is MemberManagementError &&
+        state.action == MemberManagementAction.leave) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(t.household.errors.generic)),
+      );
+      context.read<MemberManagementCubit>().reset();
+    }
   }
 }
 
+/// Combined Profile-tab household section. Matches the my-cycle pattern
+/// (`docs/specs/household.md` & sibling repo's Settings page): one rounded
+/// card listing both members stacked with a divider, a tinted "status"
+/// card below ("Sharing pets together" / "Just you for now"), and a single
+/// inline action (Generate invite for solo owner; Leave household for the
+/// partner). Owner-only flows (transfer admin, audit log) live behind a
+/// secondary "Manage family · audit log" text link to keep the surface
+/// uncluttered.
 class _HouseholdSection extends StatelessWidget {
   const _HouseholdSection({required this.user});
 
@@ -219,33 +190,33 @@ class _HouseholdSection extends StatelessWidget {
       builder: (context, state) {
         return switch (state) {
           HouseholdLoading() || HouseholdInitial() =>
-            const _HouseholdLoadingCard(),
-          HouseholdLoaded(:final hasPartner) when hasPartner =>
-            _PartnerCard(state: state, currentUid: user.uid),
-          HouseholdLoaded() => const SizedBox.shrink(),
-          HouseholdNotFound() || HouseholdError() => const _NoPartnerFallback(),
+            const _HouseholdSkeleton(),
+          HouseholdLoaded() => _HouseholdLoadedBody(state: state, user: user),
+          HouseholdNotFound() ||
+          HouseholdError() =>
+            const _HouseholdFallback(),
         };
       },
     );
   }
 }
 
-class _HouseholdLoadingCard extends StatelessWidget {
-  const _HouseholdLoadingCard();
+class _HouseholdSkeleton extends StatelessWidget {
+  const _HouseholdSkeleton();
 
   @override
   Widget build(BuildContext context) {
     return const AppCard(
       child: SizedBox(
-        height: 60,
+        height: 84,
         child: Center(child: CircularProgressIndicator()),
       ),
     );
   }
 }
 
-class _NoPartnerFallback extends StatelessWidget {
-  const _NoPartnerFallback();
+class _HouseholdFallback extends StatelessWidget {
+  const _HouseholdFallback();
 
   @override
   Widget build(BuildContext context) {
@@ -259,89 +230,125 @@ class _NoPartnerFallback extends StatelessWidget {
   }
 }
 
-class _PartnerCard extends StatelessWidget {
-  const _PartnerCard({required this.state, required this.currentUid});
+class _HouseholdLoadedBody extends StatelessWidget {
+  const _HouseholdLoadedBody({required this.state, required this.user});
 
   final HouseholdLoaded state;
-  final String currentUid;
+  final AuthUser user;
 
   @override
   Widget build(BuildContext context) {
+    final paired = state.hasPartner;
+    final iAmOwner =
+        state.members.any((m) => m.uid == user.uid && m.isOwner);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SectionHeader(title: t.household.withPartner.title),
-        const SizedBox(height: AppSpacing.xs),
-        for (final m in state.members)
-          Padding(
-            padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-            child: _MemberTile(member: m, isMe: m.uid == currentUid),
-          ),
+        _MembersCard(members: state.members, currentUid: user.uid),
+        const SizedBox(height: AppSpacing.md),
+        _StatusCard(paired: paired),
+        if (!paired && iAmOwner) ...[
+          const SizedBox(height: AppSpacing.sm),
+          const _GenerateInviteButton(),
+        ],
+        if (paired && !iAmOwner) ...[
+          const SizedBox(height: AppSpacing.sm),
+          _LeaveHouseholdButton(user: user),
+        ],
+        const SizedBox(height: AppSpacing.sm),
+        const _ManageFamilyLink(),
       ],
     );
   }
 }
 
-class _MemberTile extends StatelessWidget {
-  const _MemberTile({required this.member, required this.isMe});
+/// Single rounded card listing every household member as `avatar + name +
+/// email`, with a hairline divider between rows. No role badges and no
+/// "You" tag — the design intentionally treats the partnership as
+/// symmetric on this screen (owner-only flows live behind Manage family).
+class _MembersCard extends StatelessWidget {
+  const _MembersCard({required this.members, required this.currentUid});
+
+  final List<HouseholdMember> members;
+  final String currentUid;
+
+  @override
+  Widget build(BuildContext context) {
+    // Sort so the signed-in user always appears first. Stable order between
+    // rebuilds prevents avatars from jumping around when the partner
+    // profile snapshot lands a tick after the household doc.
+    final ordered = [...members]
+      ..sort((a, b) {
+        if (a.uid == currentUid) return -1;
+        if (b.uid == currentUid) return 1;
+        return 0;
+      });
+
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (var i = 0; i < ordered.length; i++) ...[
+            if (i > 0) ...[
+              const SizedBox(height: AppSpacing.md),
+              Divider(
+                height: 1,
+                thickness: 0.5,
+                color: context.palette.surfaceMuted,
+              ),
+              const SizedBox(height: AppSpacing.md),
+            ],
+            _PersonRow(member: ordered[i]),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _PersonRow extends StatelessWidget {
+  const _PersonRow({required this.member});
 
   final HouseholdMember member;
-  final bool isMe;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final palette = context.palette;
-    final roleLabel = member.isOwner
-        ? t.household.memberRoleOwner
-        : t.household.memberRolePartner;
     final name = (member.displayName?.isNotEmpty ?? false)
         ? member.displayName!
         : member.email;
-    return AppCard(
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 22,
-            backgroundColor: theme.colorScheme.primaryContainer,
-            backgroundImage: member.photoUrl == null
-                ? null
-                : NetworkImage(member.photoUrl!),
-            child: member.photoUrl == null
-                ? Icon(
-                    PhosphorIconsBold.user,
-                    size: 20,
-                    color: theme.colorScheme.primary,
-                  )
-                : null,
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        name,
-                        style: theme.textTheme.titleMedium,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    if (isMe) ...[
-                      const SizedBox(width: AppSpacing.xs),
-                      Text(
-                        '· ${t.household.you}',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: palette.onSurfaceMuted,
-                        ),
-                      ),
-                    ],
-                  ],
+    return Row(
+      children: [
+        CircleAvatar(
+          radius: 24,
+          backgroundColor: theme.colorScheme.primaryContainer,
+          backgroundImage:
+              member.photoUrl == null ? null : NetworkImage(member.photoUrl!),
+          child: member.photoUrl == null
+              ? Icon(
+                  PhosphorIconsBold.user,
+                  size: 22,
+                  color: theme.colorScheme.primary,
+                )
+              : null,
+        ),
+        const SizedBox(width: AppSpacing.md),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                name,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
                 ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (member.email.isNotEmpty) ...[
                 const SizedBox(height: 2),
                 Text(
                   member.email,
@@ -352,27 +359,212 @@ class _MemberTile extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
               ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Tinted card with a heart icon + title + short subtitle. Two flavors:
+/// paired (primary tint, "Sharing pets together") and solo (muted tint,
+/// "Just you for now"). Always at least one row so the layout doesn't
+/// jump when the partner profile loads.
+class _StatusCard extends StatelessWidget {
+  const _StatusCard({required this.paired});
+
+  final bool paired;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final palette = context.palette;
+    final accent = paired ? theme.colorScheme.primary : palette.onSurfaceMuted;
+    final bg = paired
+        ? theme.colorScheme.primary.withValues(alpha: 0.08)
+        : palette.surfaceMuted;
+    final title = paired
+        ? t.household.status.pairedTitle
+        : t.household.status.soloTitle;
+    final subtitle = paired
+        ? t.household.status.pairedSubtitle
+        : t.household.status.soloSubtitle;
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: AppRadii.brLg,
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: 0.14),
+              shape: BoxShape.circle,
+            ),
+            alignment: Alignment.center,
+            child: Icon(
+              paired ? PhosphorIconsBold.heart : PhosphorIconsRegular.userPlus,
+              size: 18,
+              color: accent,
             ),
           ),
-          const SizedBox(width: AppSpacing.sm),
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.sm,
-              vertical: 4,
-            ),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.primaryContainer,
-              borderRadius: AppRadii.brPill,
-            ),
-            child: Text(
-              roleLabel,
-              style: theme.textTheme.labelMedium?.copyWith(
-                color: theme.colorScheme.primary,
-                fontWeight: FontWeight.w600,
-              ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  title,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: palette.onSurfaceMuted,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _GenerateInviteButton extends StatelessWidget {
+  const _GenerateInviteButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<InviteCubit, InviteState>(
+      builder: (context, state) {
+        final busy = state is InviteGenerating;
+        return Center(
+          child: TextButton.icon(
+            icon: busy
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(PhosphorIconsBold.linkSimple, size: 18),
+            label: Text(t.household.actions.generateInvite),
+            onPressed: busy
+                ? null
+                : () {
+                    final auth = context.read<AuthBloc>().state;
+                    final user = switch (auth) {
+                      AuthAuthenticated(:final user) => user,
+                      _ => null,
+                    };
+                    if (user?.householdId == null) return;
+                    unawaited(
+                      context.read<InviteCubit>().generate(
+                            householdId: user!.householdId!,
+                            createdBy: user.uid,
+                          ),
+                    );
+                  },
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Text button below the status card, partner-only. Triggers a confirm
+/// dialog, then calls `MemberManagementCubit.leave`. Success isn't
+/// navigated locally — the user doc's `householdId` clears, the
+/// `AuthBloc` profile stream fires, and the router redirects to setup.
+class _LeaveHouseholdButton extends StatelessWidget {
+  const _LeaveHouseholdButton({required this.user});
+
+  final AuthUser user;
+
+  @override
+  Widget build(BuildContext context) {
+    final danger = context.palette.danger;
+    return BlocBuilder<MemberManagementCubit, MemberManagementState>(
+      builder: (context, state) {
+        final busy = state is MemberManagementBusy;
+        return Center(
+          child: TextButton(
+            style: TextButton.styleFrom(foregroundColor: danger),
+            onPressed: busy ? null : () => _confirmAndLeave(context),
+            child: busy
+                ? SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(danger),
+                    ),
+                  )
+                : Text(t.household.members.leave),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _confirmAndLeave(BuildContext context) async {
+    final theme = Theme.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: const RoundedRectangleBorder(borderRadius: AppRadii.brXL),
+        title: Text(t.household.members.leaveConfirmTitle),
+        content: Text(
+          t.household.members.leaveConfirmBody,
+          style: theme.textTheme.bodyMedium,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(t.common.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: TextButton.styleFrom(
+              foregroundColor: context.palette.danger,
+            ),
+            child: Text(t.household.members.leave),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+    if (user.householdId == null) return;
+    await context.read<MemberManagementCubit>().leave(
+          householdId: user.householdId!,
+          actor: user,
+        );
+  }
+}
+
+/// Discreet text link under the household card that opens the full
+/// member-management screen (transfer admin, audit log, partner-side
+/// remove). Kept low-emphasis so the primary surface stays uncluttered.
+class _ManageFamilyLink extends StatelessWidget {
+  const _ManageFamilyLink();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: TextButton.icon(
+        icon: const Icon(PhosphorIconsRegular.gearSix, size: 16),
+        label: Text(t.household.advanced),
+        onPressed: () => context.push(AppRoutes.householdMembers),
       ),
     );
   }
@@ -599,51 +791,6 @@ class _AboutSection extends StatelessWidget {
           value: sl<PackageInfo>().version,
         ),
       ],
-    );
-  }
-}
-
-/// Routes the user to the Family management screen (members + audit
-/// log). Surfaced as a stand-alone card under the household section so
-/// the action is discoverable for both owners and partners.
-class _ManageFamilyCard extends StatelessWidget {
-  const _ManageFamilyCard();
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final palette = context.palette;
-    return AppCard(
-      onTap: () => context.push(AppRoutes.householdMembers),
-      child: Row(
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: theme.colorScheme.primary.withValues(alpha: 0.12),
-              borderRadius: AppRadii.brMd,
-            ),
-            child: Icon(
-              PhosphorIconsRegular.usersThree,
-              size: 18,
-              color: theme.colorScheme.primary,
-            ),
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Text(
-              t.household.manageFamily,
-              style: theme.textTheme.titleMedium,
-            ),
-          ),
-          Icon(
-            PhosphorIconsRegular.caretRight,
-            size: 18,
-            color: palette.onSurfaceMuted,
-          ),
-        ],
-      ),
     );
   }
 }

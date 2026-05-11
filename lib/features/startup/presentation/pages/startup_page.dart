@@ -1,19 +1,40 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
 
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'package:my_pet/app/di/injection_container.dart';
 import 'package:my_pet/app/theme/app_palette.dart';
 import 'package:my_pet/app/theme/app_radii.dart';
 import 'package:my_pet/app/theme/app_spacing.dart';
 import 'package:my_pet/app/widgets/pet_mascot.dart';
 import 'package:my_pet/core/constants/app_constants.dart';
+import 'package:my_pet/features/startup/presentation/cubit/startup_cubit.dart';
 import 'package:my_pet/gen/strings.g.dart';
 
-/// First screen the user sees while the auth state resolves. Mirrors the
-/// Welcome layout (mascot in a tinted square + headline + tagline) so the
-/// hand-off into onboarding feels continuous rather than a hard cut. The
-/// router flips to Login or Home as soon as `AuthBloc` emits — no manual
-/// nav here.
-class SplashPage extends StatelessWidget {
-  const SplashPage({super.key});
+/// First screen the user sees on cold start. Owns the splash layout (mascot
+/// in a tinted square + app wordmark + tagline) and a determinate progress
+/// bar driven by [StartupCubit]. The router redirect keeps the user here
+/// until startup emits a terminal state; once that happens it forwards to
+/// welcome (no session) or home/setup (session present).
+class StartupPage extends StatefulWidget {
+  const StartupPage({super.key});
+
+  @override
+  State<StartupPage> createState() => _StartupPageState();
+}
+
+class _StartupPageState extends State<StartupPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Defer to the first frame so the splash paints before we await the auth
+    // stream — otherwise a cached Firebase session resolves synchronously and
+    // we'd skip the splash entirely (jarring on warm starts).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      unawaited(sl<StartupCubit>().initialize());
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,15 +80,20 @@ class SplashPage extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const Spacer(flex: 4),
-              Center(
-                child: SizedBox(
-                  width: 28,
-                  height: 28,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2.5,
-                    color: theme.colorScheme.primary,
-                  ),
-                ),
+              BlocBuilder<StartupCubit, StartupState>(
+                builder: (context, state) {
+                  final progress =
+                      state is StartupLoading ? state.progress : null;
+                  return ClipRRect(
+                    borderRadius: AppRadii.brSm,
+                    child: LinearProgressIndicator(
+                      value: progress,
+                      minHeight: 4,
+                      backgroundColor: theme.colorScheme.primaryContainer,
+                      color: theme.colorScheme.primary,
+                    ),
+                  );
+                },
               ),
               const SizedBox(height: AppSpacing.xl),
             ],

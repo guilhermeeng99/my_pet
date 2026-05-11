@@ -16,7 +16,6 @@ import 'package:my_pet/features/household/presentation/pages/household_members_p
 import 'package:my_pet/features/household/presentation/pages/household_setup_page.dart';
 import 'package:my_pet/features/household/presentation/pages/join_household_page.dart';
 import 'package:my_pet/features/onboarding/presentation/notification_permission_page.dart';
-import 'package:my_pet/features/onboarding/presentation/splash_page.dart';
 import 'package:my_pet/features/onboarding/presentation/welcome_page.dart';
 import 'package:my_pet/features/pets/domain/entities/pet.dart';
 import 'package:my_pet/features/pets/presentation/pages/pet_detail_page.dart';
@@ -26,6 +25,8 @@ import 'package:my_pet/features/profile/presentation/pages/profile_page.dart';
 import 'package:my_pet/features/reminders/domain/entities/reminder.dart';
 import 'package:my_pet/features/reminders/presentation/pages/reminder_form_page.dart';
 import 'package:my_pet/features/reminders/presentation/pages/reminders_home_page.dart';
+import 'package:my_pet/features/startup/presentation/cubit/startup_cubit.dart';
+import 'package:my_pet/features/startup/presentation/pages/startup_page.dart';
 import 'package:my_pet/features/stats/presentation/pages/insights_page.dart';
 import 'package:my_pet/features/vaccinations/presentation/pages/pet_vaccinations_page.dart';
 import 'package:my_pet/features/vaccinations/presentation/pages/vaccination_form_page.dart';
@@ -69,14 +70,35 @@ final GlobalKey<NavigatorState> _rootNavigatorKey = GlobalKey<NavigatorState>(
 /// Builds the app router. Redirects on every auth state change so the user
 /// is always on the right page for their session. Authenticated tabs live
 /// behind a [StatefulShellRoute] so each tab keeps its own back-stack.
-GoRouter buildAppRouter(AuthBloc authBloc) {
+///
+/// The redirect gates on [StartupCubit] first — until startup emits a
+/// terminal state, every path resolves back to `/` (the splash) so the
+/// router never flips to welcome mid-resolution. See `docs/specs/startup.md`.
+GoRouter buildAppRouter({
+  required AuthBloc authBloc,
+  required StartupCubit startupCubit,
+}) {
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: AppRoutes.splash,
-    refreshListenable: _BlocChangeNotifier(authBloc.stream),
+    refreshListenable: _BlocChangeNotifier([
+      authBloc.stream,
+      startupCubit.stream,
+    ]),
     redirect: (context, state) {
       final auth = authBloc.state;
+      final startup = startupCubit.state;
       final loc = state.matchedLocation;
+
+      // Stay on the splash until startup finishes its first auth resolution.
+      // Without this gate the redirect would flip through `welcome` (because
+      // `AuthInitial` falls through to the default below) before settling.
+      final startupDone = startup is StartupAuthenticated ||
+          startup is StartupUnauthenticated;
+      if (!startupDone) {
+        return loc == AppRoutes.splash ? null : AppRoutes.splash;
+      }
+
       final isShellRoute = loc == AppRoutes.home ||
           loc == AppRoutes.reminders ||
           loc == AppRoutes.stats ||
@@ -87,6 +109,9 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
 
       switch (auth) {
         case AuthInitial() || AuthLoading():
+          // After startup, AuthBloc should not return to Initial. Loading
+          // happens mid-Google-sign-in; let the current page stay so the
+          // login button can show a spinner without a navigation flicker.
           return null;
         case AuthUnauthenticated() || AuthErrorState():
           if (loc == AppRoutes.login || loc == AppRoutes.welcome) return null;
@@ -129,7 +154,7 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
     routes: [
       GoRoute(
         path: AppRoutes.splash,
-        builder: (context, state) => const SplashPage(),
+        builder: (context, state) => const StartupPage(),
       ),
       GoRoute(
         path: AppRoutes.welcome,
@@ -333,18 +358,24 @@ GoRouter buildAppRouter(AuthBloc authBloc) {
   );
 }
 
-/// Bridges a Bloc stream to go_router's `refreshListenable` (which expects
-/// a `Listenable`).
+/// Bridges one or more Bloc/Cubit streams to go_router's `refreshListenable`
+/// (which expects a `Listenable`). Any emission from any source notifies
+/// listeners, so the redirect re-evaluates on auth *or* startup changes.
 class _BlocChangeNotifier extends ChangeNotifier {
-  _BlocChangeNotifier(Stream<dynamic> stream) {
-    _sub = stream.listen((_) => notifyListeners());
+  _BlocChangeNotifier(List<Stream<dynamic>> streams) {
+    _subs = [
+      for (final stream in streams)
+        stream.listen((_) => notifyListeners()),
+    ];
   }
 
-  late final StreamSubscription<dynamic> _sub;
+  late final List<StreamSubscription<dynamic>> _subs;
 
   @override
   void dispose() {
-    unawaited(_sub.cancel());
+    for (final sub in _subs) {
+      unawaited(sub.cancel());
+    }
     super.dispose();
   }
 }
