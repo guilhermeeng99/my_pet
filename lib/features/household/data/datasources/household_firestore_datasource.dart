@@ -474,12 +474,25 @@ class HouseholdFirestoreDatasourceImpl implements HouseholdFirestoreDatasource {
         List<String>.from(data['memberIds'] as List? ?? const <String>[]);
 
     if (!memberIds.contains(userId)) throw const NotMemberException();
-    if (userId == ownerId) throw const CannotLeaveAsOwnerException();
+
+    // If the owner is leaving, auto-transfer ownership to the sole
+    // remaining member in the same batch — keeps the paired-state UX
+    // symmetric so either side can tap "leave". Solo owners (no
+    // partner) cannot leave; they must dissolve via the Danger Zone.
+    String? newOwnerId;
+    if (userId == ownerId) {
+      final others = memberIds.where((id) => id != userId).toList();
+      if (others.isEmpty) throw const CannotLeaveAsOwnerException();
+      newOwnerId = others.first;
+    }
+
+    final updates = <String, Object?>{
+      'memberIds': FieldValue.arrayRemove([userId]),
+    };
+    if (newOwnerId != null) updates['ownerId'] = newOwnerId;
 
     final batch = _firestore.batch()
-      ..update(_households.doc(householdId), {
-        'memberIds': FieldValue.arrayRemove([userId]),
-      })
+      ..update(_households.doc(householdId), updates)
       ..set(
         _users.doc(userId),
         {'householdId': null},

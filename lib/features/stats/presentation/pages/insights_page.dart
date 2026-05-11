@@ -74,7 +74,12 @@ class _Body extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+      padding: EdgeInsets.fromLTRB(
+        0,
+        AppSpacing.md,
+        0,
+        AppSpacing.md + MediaQuery.viewPaddingOf(context).bottom,
+      ),
       children: [
         SectionHeader(title: t.stats.sections.household),
         const SizedBox(height: AppSpacing.xs),

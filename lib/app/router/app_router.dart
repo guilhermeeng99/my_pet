@@ -11,8 +11,6 @@ import 'package:my_pet/features/auth/presentation/pages/login_page.dart';
 import 'package:my_pet/features/documents/presentation/pages/pet_documents_page.dart';
 import 'package:my_pet/features/gallery/presentation/pages/pet_gallery_page.dart';
 import 'package:my_pet/features/health/presentation/pages/pet_health_page.dart';
-import 'package:my_pet/features/household/presentation/pages/household_audit_page.dart';
-import 'package:my_pet/features/household/presentation/pages/household_members_page.dart';
 import 'package:my_pet/features/household/presentation/pages/household_setup_page.dart';
 import 'package:my_pet/features/household/presentation/pages/join_household_page.dart';
 import 'package:my_pet/features/onboarding/presentation/notification_permission_page.dart';
@@ -54,8 +52,6 @@ abstract final class AppRoutes {
   static const String reminderEditPattern = '/reminders/:reminderId/edit';
   static String reminderEditFor(String reminderId) =>
       '/reminders/$reminderId/edit';
-  static const String householdMembers = '/profile/family';
-  static const String householdAudit = '/profile/family/audit';
 }
 
 /// Root navigator key. Sub-routes that should hide the bottom-nav shell
@@ -333,22 +329,6 @@ GoRouter buildAppRouter({
               GoRoute(
                 path: AppRoutes.profile,
                 builder: (context, state) => const ProfilePage(),
-                routes: [
-                  GoRoute(
-                    path: 'family',
-                    parentNavigatorKey: _rootNavigatorKey,
-                    builder: (context, state) => const HouseholdMembersPage(),
-                    routes: [
-                      GoRoute(
-                        path: 'audit',
-                        parentNavigatorKey: _rootNavigatorKey,
-                        builder: (context, state) => HouseholdAuditPage(
-                          householdId: state.extra! as String,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
               ),
             ],
           ),

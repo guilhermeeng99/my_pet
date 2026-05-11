@@ -51,8 +51,8 @@ The doc ID **is** the 6-char code. Top-level (not under `households/{id}/`) beca
    - 5.3. Add UID to `memberIds`, mark invite as `usedBy = uid`, update `users/{uid}.householdId`.
    - 5.4. Atomic operation (batched write).
 6a. Generate invite is rejected with `HouseholdFullFailure` when `memberIds.length == 2`.
-6. Remove member: drops UID from `memberIds` and clears `users/{uid}.householdId`. Pets/data stay in the household.
-7. Transfer admin: swap `ownerId`, keep `memberIds`. Only the current owner can transfer.
+6. Leave household (symmetric for both members): drops the actor from `memberIds` and clears `users/{uid}.householdId`. If the actor is the owner and there is exactly one other member, ownership is auto-transferred to that member in the same batched write — so the household lives on with the remaining partner. Solo owners (no partner) cannot leave; they must use the Danger Zone to dissolve the household. Pets/data always stay with the surviving member.
+7. The Profile tab carries only one member-management action surface — **Leave household** — shown to both owner and partner when paired. Manual transfer-admin / remove-partner / audit-log views were removed because the 2-member ceiling collapses every "who should I remove?" decision into the symmetric leave action. `removeMember`/`transferOwnership` survive on the repository contract for future flows (e.g. pet-sitter mode) but have no UI today.
 8. Delete household: only when `memberIds == [ownerId]` (alone); otherwise ask to remove members first. Soft-delete preferred (keeps pets as history).
 9. Danger zone — **delete all data**: cascades from the settings tab. Requires `memberIds.length == 1`; otherwise surfaces `HouseholdNotEmptyFailure` with copy asking the user to remove the partner first. The cascade deletes pet subcollections (vaccinations / health_events / weights / photos), pets themselves, household-level reminders / documents, active top-level `inviteCodes` for the household, the household doc, the `users/{uid}` profile doc, and finally the Firebase Auth user. Firestore-first so a stale credential (`requires-recent-login`) doesn't strand data — the wipe is idempotent and the user can sign out, sign back in, and re-tap to finish.
 
@@ -103,8 +103,12 @@ InviteError(failure)
 
 ## Edge cases
 
-- Owner removes themselves while alone in the household → not allowed; suggest "delete household".
-- Owner removes themselves with other members present → require transferring admin first.
+- Owner taps Leave while alone (no partner) → `ValidationFailure` (from
+  `CannotLeaveAsOwnerException`); UI nudges them to the Danger Zone
+  delete-all-data flow.
+- Owner taps Leave with a partner present → auto-transfer ownership and
+  remove the owner in one batched write; no confirmation step beyond the
+  existing leave dialog.
 - Expired invite code → `InviteExpiredFailure`.
 - Already-used code → `InviteAlreadyUsedFailure`.
 - Code does not match any active invite → `InviteNotFoundFailure`.
@@ -116,8 +120,8 @@ InviteError(failure)
 ## Screens
 
 - `HouseholdSetupPage` — post-sign-in choice between "Create my family" and "Enter with a code"
-- `ProfilePage` (settings tab) — household identity card, partner list, invite button
-- `JoinHouseholdPage` — code input, "Join" button (reached from setup or — once member-management lands — from settings)
+- `ProfilePage` (settings tab) — household identity card with both members, status card, single contextual action (Generate invite when solo / Leave household when paired)
+- `JoinHouseholdPage` — code input, "Join" button (reached from setup)
 - `InviteCodeDialog` — shows the generated code with copy CTA
 
 ## Permissions (Firestore)

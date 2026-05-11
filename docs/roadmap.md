@@ -129,11 +129,21 @@ Tracker of what is done, in progress and planned. Use the checkboxes to mark pro
 - [x] Generate invite code (6 chars, 24h TTL) — top-level `inviteCodes/{code}`
 - [x] Accept invite (atomic batched write, drops empty old household)
 - [x] Danger zone — delete-all-data cascade (Firestore + Firebase Auth, idempotent, sole-member only)
-- [x] Remove member (admin only)
-- [x] Transfer admin
-- [x] Leave household (partner-only; data stays with the remaining owner)
-- [x] Minimal audit log (`households/{id}/audit`, append-only, capped at 100)
+- [x] Leave household (symmetric — both owner and partner; owner side
+      auto-transfers admin to the partner in the same batched write so
+      the household lives on with the remaining member)
 - [x] Tests for repository member-management ops
+- [~] ~~Remove member (admin only)~~ — superseded by symmetric leave; the
+      2-member ceiling collapses the decision (only "the other person"
+      can ever be removed, and they can leave themselves). Repository
+      method survives for future flows.
+- [~] ~~Transfer admin~~ — folded into the owner-leave path; no manual
+      UI. Repository method survives for future flows.
+- [~] ~~Minimal audit log~~ — UI removed (`HouseholdAuditPage` deleted)
+      because the only useful actions left on a 2-member household are
+      "invite" and "leave", both already obvious from the Profile state.
+      `appendAudit` writes are still happening server-side so a future
+      audit-trail consumer could re-emerge without a data migration.
 
 ### ☁️ Sync & offline — [`specs/sync.md`](specs/sync.md)
 - [ ] Local Hive cache (read-through)
@@ -236,6 +246,13 @@ Tracker of what is done, in progress and planned. Use the checkboxes to mark pro
       instead of `request.resource.data.householdId == null`. Dot-access on
       an absent map key derails rule evaluation in Firestore Rules v2; the
       `in keys()` form is safe.
+- [x] **Profile self-heal**: `_watchProfileWithFallback` now detects
+      `users/{uid}` docs that lost `email`/`displayName`/`photoUrl` (left
+      bare by a `createAndLinkToUser` after an aborted account-deletion
+      that wiped Firestore but kept Firebase Auth) and upserts the missing
+      fields from Firebase Auth on the first stream tick. The stale
+      snapshot is suppressed so the Profile members card never renders
+      blank. Regression tests in `auth_repository_impl_test.dart`.
 
 [`StartupCubit`]: ../my-cycle/lib/features/startup/
 

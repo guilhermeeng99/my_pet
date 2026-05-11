@@ -1,9 +1,14 @@
-# Illustrations
+# illustrations
 
-Original SVG illustrations for empty states, onboarding, and success
-moments. See [`../../specs/design.md`](../../specs/design.md) for style
-rules: flat, rounded, 2–3 colors max per piece, no gradients beyond
-subtle background washes.
+Bundled mascot artwork.
 
-Phase 0 ships no real assets — placeholder icons (`Icons.pets_rounded`)
-are used until the brand mascot is designed.
+- `cat_fullbody.png` — primary mascot. 3D-rendered friendly cat with a
+  transparent background. Rendered through `PetMascot`
+  (`lib/app/widgets/pet_mascot.dart`) wherever the app needs a
+  pet-flavored hero image or empty-state placeholder: Welcome, Login,
+  Startup, the Home greeting card, and the empty avatar slot on the Pet
+  form and Emergency cards.
+
+Add new illustrations here and consume them via a dedicated widget under
+`lib/app/widgets/` so call sites stay design-system-only (no inline
+`Image.asset` paths leaking into feature code).

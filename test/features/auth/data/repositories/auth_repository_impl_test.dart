@@ -111,4 +111,121 @@ void main() {
       expect(result, const Right<Failure, Unit>(unit));
     });
   });
+
+  group('watchAuthState — profile heal', () {
+    test(
+      'upserts missing email/displayName/photoUrl from Firebase Auth when '
+      'the Firestore doc was created with only {householdId}',
+      () async {
+        final fbUser = stubFirebaseUser(
+          photoUrl: 'https://avatar.example/jane.png',
+        );
+        when(() => auth.watchUser())
+            .thenAnswer((_) => Stream<fb.User?>.value(fbUser));
+        // Bug repro: prior account-deletion wiped the user doc; the
+        // subsequent createAndLinkToUser wrote a doc with only the link.
+        const bare = AuthUserModel(
+          uid: 'uid_123',
+          email: '',
+          householdId: 'household_42',
+        );
+        // After heal completes, Firestore will fire a fresh snapshot with
+        // the merged fields. The repository must consume the stale tick
+        // silently and only emit the healed one.
+        const healed = AuthUserModel(
+          uid: 'uid_123',
+          email: 'jane@example.com',
+          displayName: 'Jane',
+          photoUrl: 'https://avatar.example/jane.png',
+          householdId: 'household_42',
+        );
+        when(() => profiles.watch('uid_123')).thenAnswer(
+          (_) => Stream<AuthUserModel?>.fromIterable([bare, healed]),
+        );
+        when(() => profiles.upsert(any())).thenAnswer((_) async {});
+
+        final emitted = await repository.watchAuthState().toList();
+
+        // Only the healed snapshot reaches AuthBloc — the bare one is
+        // swallowed while the upsert lands.
+        expect(emitted, hasLength(1));
+        expect(emitted.single?.email, 'jane@example.com');
+        expect(emitted.single?.displayName, 'Jane');
+        expect(emitted.single?.photoUrl, 'https://avatar.example/jane.png');
+        expect(emitted.single?.householdId, 'household_42');
+
+        final captured =
+            verify(() => profiles.upsert(captureAny())).captured.single
+                as AuthUserModel;
+        expect(captured.email, 'jane@example.com');
+        expect(captured.displayName, 'Jane');
+        expect(captured.photoUrl, 'https://avatar.example/jane.png');
+        expect(captured.householdId, 'household_42');
+      },
+    );
+
+    test('does not heal when the Firestore profile already carries '
+        'email and displayName', () async {
+      final fbUser = stubFirebaseUser();
+      when(() => auth.watchUser())
+          .thenAnswer((_) => Stream<fb.User?>.value(fbUser));
+      const complete = AuthUserModel(
+        uid: 'uid_123',
+        email: 'jane@example.com',
+        displayName: 'Jane',
+        householdId: 'household_42',
+      );
+      when(() => profiles.watch('uid_123')).thenAnswer(
+        (_) => Stream<AuthUserModel?>.value(complete),
+      );
+
+      final emitted = await repository.watchAuthState().toList();
+
+      expect(emitted, hasLength(1));
+      expect(emitted.single?.email, 'jane@example.com');
+      verifyNever(() => profiles.upsert(any()));
+    });
+
+    test('emits a merged fallback entity when the heal upsert itself fails',
+        () async {
+      final fbUser = stubFirebaseUser();
+      when(() => auth.watchUser())
+          .thenAnswer((_) => Stream<fb.User?>.value(fbUser));
+      const bare = AuthUserModel(
+        uid: 'uid_123',
+        email: '',
+        householdId: 'household_42',
+      );
+      when(() => profiles.watch('uid_123')).thenAnswer(
+        (_) => Stream<AuthUserModel?>.value(bare),
+      );
+      when(() => profiles.upsert(any()))
+          .thenThrow(Exception('rules rejected the write'));
+
+      final emitted = await repository.watchAuthState().toList();
+
+      expect(emitted, hasLength(1));
+      // Fallback merge fills the empty fields from Firebase Auth so the
+      // UI never sees a blank identity even if the doc stays incomplete.
+      expect(emitted.single?.email, 'jane@example.com');
+      expect(emitted.single?.displayName, 'Jane');
+      expect(emitted.single?.householdId, 'household_42');
+    });
+
+    test('falls back to the Firebase entity when no profile doc exists yet',
+        () async {
+      final fbUser = stubFirebaseUser();
+      when(() => auth.watchUser())
+          .thenAnswer((_) => Stream<fb.User?>.value(fbUser));
+      when(() => profiles.watch('uid_123'))
+          .thenAnswer((_) => Stream<AuthUserModel?>.value(null));
+
+      final emitted = await repository.watchAuthState().toList();
+
+      expect(emitted, hasLength(1));
+      expect(emitted.single?.email, 'jane@example.com');
+      expect(emitted.single?.householdId, isNull);
+      verifyNever(() => profiles.upsert(any()));
+    });
+  });
 }

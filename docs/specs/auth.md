@@ -65,6 +65,16 @@ AuthError(failure)
 - Google account with no email (rare) → block with a clear message
 - User deleted in console while signed in → force sign-out on next `watchAuthState`
 - `uid` collision (very unlikely) → treat as generic error
+- **Incomplete `users/{uid}` profile doc** — the Firestore doc is missing
+  `email`, `displayName` or `photoUrl` that Firebase Auth carries.
+  Reproducer: a prior `wipeAndLeave` deleted the user doc but
+  `deleteCurrentUser` failed with `requires-recent-login`; later
+  `createAndLinkToUser` recreated the doc with only `{householdId}`.
+  `_watchProfileWithFallback` detects the gap on the first stream tick,
+  upserts the missing fields via Firebase Auth as the source of truth, and
+  suppresses the stale snapshot so the UI never flashes blank identity in
+  the Profile tab's members card. Heal runs at most once per stream
+  session; failure to write falls back to a merged in-memory entity.
 
 ## Screens
 

@@ -82,7 +82,10 @@ class _NavButton extends StatelessWidget {
       fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
     );
 
-    return InkWell(
+    // GestureDetector (instead of InkWell) so the floating pill stays
+     // clean — no ripple/splash bleeding past its rounded corners on tap.
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),

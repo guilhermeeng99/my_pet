@@ -72,9 +72,10 @@ class _RemindersView extends StatelessWidget {
                 child: Center(child: CircularProgressIndicator()),
               ),
             RemindersListEmpty() => ListView(
-                padding: const EdgeInsets.only(
+                padding: EdgeInsets.only(
                   top: AppSpacing.sm,
-                  bottom: AppSpacing.xxl,
+                  bottom: AppSpacing.xxl +
+                      MediaQuery.viewPaddingOf(context).bottom,
                 ),
                 children: [
                   _QuickAddReminderCard(
@@ -84,9 +85,10 @@ class _RemindersView extends StatelessWidget {
               ),
             RemindersListLoaded() => _LoadedList(state: state),
             RemindersListError() => ListView(
-                padding: const EdgeInsets.only(
+                padding: EdgeInsets.only(
                   top: AppSpacing.sm,
-                  bottom: AppSpacing.xxl,
+                  bottom: AppSpacing.xxl +
+                      MediaQuery.viewPaddingOf(context).bottom,
                 ),
                 children: [
                   FeatureListCard(
@@ -178,9 +180,10 @@ class _LoadedList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.only(
+      padding: EdgeInsets.only(
         top: AppSpacing.sm,
-        bottom: AppSpacing.xxl,
+        bottom:
+            AppSpacing.xxl + MediaQuery.viewPaddingOf(context).bottom,
       ),
       children: [
         _SummaryStrip(state: state),

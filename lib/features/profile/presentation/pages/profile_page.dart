@@ -2,10 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:my_pet/app/di/injection_container.dart';
 import 'package:my_pet/app/i18n/locale_preference_service.dart';
-import 'package:my_pet/app/router/app_router.dart';
 import 'package:my_pet/app/theme/app_palette.dart';
 import 'package:my_pet/app/theme/app_radii.dart';
 import 'package:my_pet/app/theme/app_spacing.dart';
@@ -95,7 +93,16 @@ class _ProfileView extends StatelessWidget {
           ),
         ],
         child: ListView(
-          padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+          // The floating bottom-nav pill overlaps this scrollable (see
+          // `AppShell.extendBody`). Adding `viewPadding.bottom` keeps
+          // the Danger Zone fully reachable above the pill while content
+          // above continues to scroll naturally behind it.
+          padding: EdgeInsets.fromLTRB(
+            0,
+            AppSpacing.md,
+            0,
+            AppSpacing.md + MediaQuery.viewPaddingOf(context).bottom,
+          ),
           children: [
             _HouseholdSection(user: user),
             const SizedBox(height: AppSpacing.lg),
@@ -252,12 +259,12 @@ class _HouseholdLoadedBody extends StatelessWidget {
           const SizedBox(height: AppSpacing.sm),
           const _GenerateInviteButton(),
         ],
-        if (paired && !iAmOwner) ...[
+        // Both sides see Leave when paired: owners auto-transfer admin to
+        // the partner in the datasource, so the action is symmetric.
+        if (paired) ...[
           const SizedBox(height: AppSpacing.sm),
           _LeaveHouseholdButton(user: user),
         ],
-        const SizedBox(height: AppSpacing.sm),
-        const _ManageFamilyLink(),
       ],
     );
   }
@@ -482,10 +489,13 @@ class _GenerateInviteButton extends StatelessWidget {
   }
 }
 
-/// Text button below the status card, partner-only. Triggers a confirm
-/// dialog, then calls `MemberManagementCubit.leave`. Success isn't
-/// navigated locally — the user doc's `householdId` clears, the
-/// `AuthBloc` profile stream fires, and the router redirects to setup.
+/// Text button below the status card, shown to both members of a paired
+/// household. Triggers a confirm dialog, then calls
+/// `MemberManagementCubit.leave`. Success isn't navigated locally — the
+/// user doc's `householdId` clears, the `AuthBloc` profile stream fires,
+/// and the router redirects to setup. For owners, the datasource
+/// auto-transfers ownership to the partner before removing the user, so
+/// the household data lives on with the remaining member.
 class _LeaveHouseholdButton extends StatelessWidget {
   const _LeaveHouseholdButton({required this.user});
 
@@ -549,24 +559,6 @@ class _LeaveHouseholdButton extends StatelessWidget {
           householdId: user.householdId!,
           actor: user,
         );
-  }
-}
-
-/// Discreet text link under the household card that opens the full
-/// member-management screen (transfer admin, audit log, partner-side
-/// remove). Kept low-emphasis so the primary surface stays uncluttered.
-class _ManageFamilyLink extends StatelessWidget {
-  const _ManageFamilyLink();
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: TextButton.icon(
-        icon: const Icon(PhosphorIconsRegular.gearSix, size: 16),
-        label: Text(t.household.advanced),
-        onPressed: () => context.push(AppRoutes.householdMembers),
-      ),
-    );
   }
 }
 

@@ -85,9 +85,10 @@ class _PetsHomeView extends StatelessWidget {
           final isError = state is PetsListError;
 
           return ListView(
-            padding: const EdgeInsets.only(
+            padding: EdgeInsets.only(
               top: AppSpacing.sm,
-              bottom: AppSpacing.xxl,
+              bottom: AppSpacing.xxl +
+                  MediaQuery.viewPaddingOf(context).bottom,
             ),
             children: [
                 GreetingCard(

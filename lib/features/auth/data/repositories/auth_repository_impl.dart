@@ -38,9 +38,38 @@ class AuthRepositoryImpl implements AuthRepository {
     // Wait for the first profile snapshot before emitting — yielding the raw
     // Firebase entity first would briefly route returning users (who have a
     // householdId) through the AuthNeedsHousehold setup screen.
+    //
+    // Heal pass (`healAttempted`): if the Firestore doc lacks fields that
+    // Firebase Auth carries (email, displayName, photoUrl), upsert the
+    // missing ones once per stream session. Reproducer: a prior
+    // account-deletion path failed with requires-recent-login — Firestore
+    // was wiped but Firebase Auth survived — then `createAndLinkToUser`
+    // recreated the user doc with only `{householdId}`. Without healing,
+    // the Profile identity card renders blank because `fetchMembers`
+    // reads the bare doc.
     try {
+      var healAttempted = false;
       await for (final profile in _profiles.watch(fbUser.uid)) {
-        yield profile ?? _entityFromFirebase(fbUser);
+        if (profile == null) {
+          yield _entityFromFirebase(fbUser);
+          continue;
+        }
+        if (!healAttempted && _profileNeedsHeal(profile, fbUser)) {
+          healAttempted = true;
+          final healed = await _healProfile(profile, fbUser);
+          if (healed) {
+            // The upsert produces a new snapshot on the same subscription;
+            // skip emitting the stale one so the UI never flashes empty
+            // identity fields.
+            continue;
+          }
+          // Heal failed (rules / network) — synthesize a merged entity so
+          // the AuthBloc still sees good data even though the Firestore
+          // doc remains incomplete.
+          yield _mergeProfile(profile, fbUser);
+          continue;
+        }
+        yield profile;
       }
     } on Object catch (e, st) {
       developer.log(
@@ -51,6 +80,55 @@ class AuthRepositoryImpl implements AuthRepository {
       );
       yield _entityFromFirebase(fbUser);
     }
+  }
+
+  bool _profileNeedsHeal(AuthUserModel profile, fb.User fbUser) {
+    if (profile.email.isEmpty && (fbUser.email?.isNotEmpty ?? false)) {
+      return true;
+    }
+    if (profile.displayName == null &&
+        (fbUser.displayName?.isNotEmpty ?? false)) {
+      return true;
+    }
+    if (profile.photoUrl == null && (fbUser.photoURL?.isNotEmpty ?? false)) {
+      return true;
+    }
+    return false;
+  }
+
+  Future<bool> _healProfile(AuthUserModel profile, fb.User fbUser) async {
+    try {
+      // Preserve the existing createdAt so the heal doesn't bump the
+      // server timestamp; only fill the gaps Firebase Auth can answer.
+      final healed = AuthUserModel(
+        uid: profile.uid,
+        email: profile.email.isEmpty ? (fbUser.email ?? '') : profile.email,
+        displayName: profile.displayName ?? fbUser.displayName,
+        photoUrl: profile.photoUrl ?? fbUser.photoURL,
+        householdId: profile.householdId,
+        createdAt: profile.createdAt,
+      );
+      await _profiles.upsert(healed);
+      return true;
+    } on Object catch (e, st) {
+      developer.log(
+        'Failed to heal incomplete user profile for ${fbUser.uid}',
+        name: 'auth',
+        error: e,
+        stackTrace: st,
+      );
+      return false;
+    }
+  }
+
+  AuthUser _mergeProfile(AuthUserModel profile, fb.User fbUser) {
+    return AuthUser(
+      uid: profile.uid,
+      email: profile.email.isEmpty ? (fbUser.email ?? '') : profile.email,
+      displayName: profile.displayName ?? fbUser.displayName,
+      photoUrl: profile.photoUrl ?? fbUser.photoURL,
+      householdId: profile.householdId,
+    );
   }
 
   @override

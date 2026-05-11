@@ -81,8 +81,9 @@ flutter:
   uses-material-design: true
   generate: true
   assets:
-    # Reserved slot for the commissioned mascot illustration. The
-    # programmatic PetMascot widget is the default until mascot.svg lands.
-    - assets/illustrations/
+    # Bundled artwork lives under lib/app/assets/ alongside the other
+    # design-system inputs (icons/, i18n/). The PetMascot widget
+    # consumes everything in this folder.
+    - lib/app/assets/illustrations/
 
 # slang configuration lives in slang.yaml at the repo root.
